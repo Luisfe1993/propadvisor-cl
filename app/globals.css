@@ -1,26 +1,252 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─────────────────────────────────────────────────────────
+   Tailwind v4 @theme — all design tokens.
+   These generate utility classes: text-accent, bg-bg-secondary, etc.
+───────────────────────────────────────────────────────── */
+@theme {
+  --color-bg-primary:   #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary:  #f1f5f9;
+
+  --color-text-primary:   #0f172a;
+  --color-text-secondary: #64748b;
+  --color-text-muted:     #94a3b8;
+
+  --color-accent:       #0d9488;
+  --color-accent-light: #ccfbf1;
+  --color-accent-dark:  #0f766e;
+
+  --color-border: #e2e8f0;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--color-bg-primary);
+  --color-foreground: var(--color-text-primary);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* CSS custom properties for direct var() usage */
+:root {
+  --bg-primary:     #ffffff;
+  --bg-secondary:   #f8fafc;
+  --bg-tertiary:    #f1f5f9;
+  --border:         #e2e8f0;
+  --text-primary:   #0f172a;
+  --text-secondary: #64748b;
+  --text-muted:     #94a3b8;
+  --accent:         #0d9488;
+  --accent-light:   #ccfbf1;
+  --accent-dark:    #0f766e;
+  --shadow-sm:      0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:      0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg:      0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* ─── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Base ──────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans, system-ui, -apple-system, sans-serif);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ─── Typography ─────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ─── Buttons ────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #ffffff;
+  padding: 11px 22px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.07);
+  box-shadow: 0 4px 12px rgba(13,148,136,0.28);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 11px 22px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-secondary);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* ─── Cards ──────────────────────────────────────────────── */
+.card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 24px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-md);
+}
+
+/* ─── Form elements ──────────────────────────────────────── */
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: var(--text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(13,148,136,0.1);
+}
+
+.form-error {
+  font-size: 13px;
+  color: #dc2626;
+  margin-top: 4px;
+}
+
+/* ─── Badge / Tag pill ───────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.badge-teal {
+  background: var(--accent-light);
+  color: var(--accent-dark);
+}
+
+/* ─── Divider ────────────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Nav links (used in layout Server Component) ───────── */
+.nav-link {
+  display: block;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.footer-link {
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+.footer-link:hover {
+  color: var(--accent);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
