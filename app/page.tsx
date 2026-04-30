@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "PropAdvisor CL — ¿Conviene Comprar o Arrendar en Chile?",
   description:
     "Analiza si conviene más comprar o arrendar en Chile con datos reales. Calcula tu dividendo hipotecario, compara tasas de BancoEstado, Santander, BCI y BdChile, y proyecta 3 escenarios a 20 años. Gratis, sin registro.",
-  alternates: { canonical: "https://www.propadvisor.cl" },
+  alternates: { canonical: "https://www.propadvisor.site" },
 };
 
 // ── JSON-LD schemas ───────────────────────────────────────
@@ -70,9 +70,9 @@ const howToJsonLd = {
   totalTime: "PT5M",
   estimatedCost: { "@type": "MonetaryAmount", currency: "CLP", value: "0" },
   step: [
-    { "@type": "HowToStep", position: 1, name: "Define tu presupuesto", text: "Ingresa el monto en UF o CLP.", url: "https://www.propadvisor.cl/buscar" },
-    { "@type": "HowToStep", position: 2, name: "Filtra propiedades", text: "Selecciona ciudad, tipo y dormitorios.", url: "https://www.propadvisor.cl/buscar" },
-    { "@type": "HowToStep", position: 3, name: "Obtén tu análisis", text: "Dividendo, flujo neto y proyección a 20 años.", url: "https://www.propadvisor.cl/analisis/1" },
+    { "@type": "HowToStep", position: 1, name: "Define tu presupuesto", text: "Ingresa el monto en UF o CLP.", url: "https://www.propadvisor.site/buscar" },
+    { "@type": "HowToStep", position: 2, name: "Filtra propiedades", text: "Selecciona ciudad, tipo y dormitorios.", url: "https://www.propadvisor.site/buscar" },
+    { "@type": "HowToStep", position: 3, name: "Obtén tu análisis", text: "Dividendo, flujo neto y proyección a 20 años.", url: "https://www.propadvisor.site/analisis/1" },
   ],
 };
 

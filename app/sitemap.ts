@@ -17,7 +17,7 @@ import { mockProperties } from "@/lib/properties";
  *  0.6 — listings page (dynamic, filter-dependent)
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://www.propadvisor.cl";
+  const baseUrl = "https://www.propadvisor.site";
   const lastModified = new Date();
 
   // Static pages

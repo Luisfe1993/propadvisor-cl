@@ -99,7 +99,7 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
     name: property.address,
-    url: `https://www.propadvisor.cl/analisis/${property.id}`,
+    url: `https://www.propadvisor.site/analisis/${property.id}`,
     price: property.priceCLP,
     priceCurrency: "CLP",
     address: { "@type": "PostalAddress", streetAddress: property.address, addressLocality: property.neighborhood, addressRegion: getCityLabel(property.city), addressCountry: "CL" },
@@ -154,9 +154,9 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context": "https://schema.org", "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Inicio", item: "https://www.propadvisor.cl" },
-          { "@type": "ListItem", position: 2, name: "Buscar", item: "https://www.propadvisor.cl/buscar" },
-          { "@type": "ListItem", position: 3, name: property.address, item: `https://www.propadvisor.cl/analisis/${property.id}` },
+          { "@type": "ListItem", position: 1, name: "Inicio", item: "https://www.propadvisor.site" },
+          { "@type": "ListItem", position: 2, name: "Buscar", item: "https://www.propadvisor.site/buscar" },
+          { "@type": "ListItem", position: 3, name: property.address, item: `https://www.propadvisor.site/analisis/${property.id}` },
         ],
       }) }} />
 

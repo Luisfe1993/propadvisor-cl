@@ -19,7 +19,7 @@ import type { MetadataRoute } from "next";
  *  - CCBot            → CommonCrawl (feeds many LLMs)
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://www.propadvisor.cl";
+  const baseUrl = "https://www.propadvisor.site";
 
   return {
     rules: [

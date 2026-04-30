@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     "comprar vs arrendar Chile",
   ],
   alternates: {
-    canonical: "https://www.propadvisor.cl/guia",
+    canonical: "https://www.propadvisor.site/guia",
   },
 };
 
@@ -43,16 +43,16 @@ const articleJsonLd = {
   headline: "Guía Completa para Comprar Propiedad en Chile 2026",
   description:
     "Todo lo que necesitas saber antes de comprar una propiedad en Chile: crédito hipotecario, UF, pie, tasas de bancos y análisis comprar vs. arrendar.",
-  url: "https://www.propadvisor.cl/guia",
+  url: "https://www.propadvisor.site/guia",
   author: {
     "@type": "Organization",
     name: "PropAdvisor CL",
-    url: "https://www.propadvisor.cl",
+    url: "https://www.propadvisor.site",
   },
   publisher: {
     "@type": "Organization",
     name: "PropAdvisor CL",
-    url: "https://www.propadvisor.cl",
+    url: "https://www.propadvisor.site",
   },
   dateModified: new Date().toISOString(),
   inLanguage: "es-CL",

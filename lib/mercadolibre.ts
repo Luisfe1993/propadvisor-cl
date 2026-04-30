@@ -6,10 +6,10 @@
  *
  * Token setup (one-time):
  *   1. Open in browser:
- *      https://auth.mercadolibre.cl/authorization?response_type=code&client_id=ML_APP_ID&redirect_uri=https://propadvisor.cl
+ *      https://auth.mercadolibre.cl/authorization?response_type=code&client_id=ML_APP_ID&redirect_uri=https://propadvisor.site
  *   2. Log in with your ML account → copy ?code= from the redirect URL
  *   3. Exchange: curl.exe -X POST https://api.mercadolibre.com/oauth/token
- *        -d "grant_type=authorization_code&client_id=...&client_secret=...&code=...&redirect_uri=https://propadvisor.cl"
+ *        -d "grant_type=authorization_code&client_id=...&client_secret=...&code=...&redirect_uri=https://propadvisor.site"
  *   4. Paste access_token into ML_ACCESS_TOKEN in .env.local
  *
  * Token refresh:

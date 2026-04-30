@@ -449,7 +449,7 @@ export function AnalysisPDF(props: AnalysisPDFProps) {
           <Text style={styles.footerText}>
             Cálculo educativo. No incluye impuestos ni gastos de escritura.
           </Text>
-          <Text style={styles.footerBrand}>propadvisor.cl</Text>
+          <Text style={styles.footerBrand}>propadvisor.site</Text>
         </View>
 
       </Page>

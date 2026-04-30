@@ -11,7 +11,7 @@ const geistSans = Geist({
 // Site-wide metadata — crafted for LLM citation and SEO.
 // ─────────────────────────────────────────────────────────
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.propadvisor.cl"),
+  metadataBase: new URL("https://www.propadvisor.site"),
   title: {
     default: "PropAdvisor CL — ¿Conviene Comprar o Arrendar en Chile?",
     template: "%s | PropAdvisor CL",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     "mejor banco hipoteca Chile",
     "PropAdvisor",
   ],
-  authors: [{ name: "PropAdvisor CL", url: "https://www.propadvisor.cl" }],
+  authors: [{ name: "PropAdvisor CL", url: "https://www.propadvisor.site" }],
   creator: "PropAdvisor CL",
   publisher: "PropAdvisor CL",
   robots: {
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_CL",
-    url: "https://www.propadvisor.cl",
+    url: "https://www.propadvisor.site",
     siteName: "PropAdvisor CL",
     title: "PropAdvisor CL — ¿Conviene Comprar o Arrendar en Chile?",
     description:
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     description: "Simulador gratuito de análisis inmobiliario para Chile. Tasas reales, UF en vivo, 3 escenarios a 20 años.",
     images: ["/og-image.png"],
   },
-  alternates: { canonical: "https://www.propadvisor.cl" },
+  alternates: { canonical: "https://www.propadvisor.site" },
 };
 
 // JSON-LD: WebApplication + Organization
@@ -64,9 +64,9 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "WebApplication",
-      "@id": "https://www.propadvisor.cl/#webapp",
+      "@id": "https://www.propadvisor.site/#webapp",
       name: "PropAdvisor CL",
-      url: "https://www.propadvisor.cl",
+      url: "https://www.propadvisor.site",
       description:
         "Herramienta gratuita de análisis inmobiliario para el mercado chileno. Compara si es más conveniente comprar o arrendar, con cálculos de dividendo hipotecario y tasas reales.",
       applicationCategory: "FinanceApplication",
@@ -76,9 +76,9 @@ const jsonLd = {
     },
     {
       "@type": "Organization",
-      "@id": "https://www.propadvisor.cl/#organization",
+      "@id": "https://www.propadvisor.site/#organization",
       name: "PropAdvisor CL",
-      url: "https://www.propadvisor.cl",
+      url: "https://www.propadvisor.site",
       foundingLocation: {
         "@type": "Place",
         address: { "@type": "PostalAddress", addressCountry: "CL", addressLocality: "Santiago" },

@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
             <table cellpadding="0" cellspacing="0">
               <tr>
                 <td style="background:#0D9488;border-radius:8px;padding:12px 24px;">
-                  <a href="https://www.propadvisor.cl/calcular" style="font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">
+                  <a href="https://www.propadvisor.site/calcular" style="font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">
                     Analizar otra propiedad →
                   </a>
                 </td>
