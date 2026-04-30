@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     // Send email with both attachments
     const { data: sendData, error: sendError } = await resend.emails.send({
-      from: "PropAdvisor <onboarding@resend.dev>",
+      from: "PropAdvisor <noreply@propadvisor.site>",
       to: email,
       subject: `Tu análisis PropAdvisor — ${propertyLabel}`,
       html: `
