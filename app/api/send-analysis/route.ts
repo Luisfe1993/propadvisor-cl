@@ -7,8 +7,6 @@ import { createElement } from "react";
 import { AnalysisPDF, type AnalysisPDFProps } from "@/components/AnalysisPDF";
 import { generateExcel, type ExcelReportData } from "@/lib/generateExcel";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // Basic disposable email domain blocklist
 const DISPOSABLE_DOMAINS = new Set([
   "mailinator.com", "guerrillamail.com", "temp-mail.org", "throwaway.email",
@@ -48,6 +46,8 @@ export async function POST(req: NextRequest) {
       console.error("RESEND_API_KEY not set");
       return NextResponse.json({ error: "Servicio de email no configurado" }, { status: 500 });
     }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     // Generate PDF and Excel in parallel
     const [pdfBuffer, excelBuffer] = await Promise.all([
