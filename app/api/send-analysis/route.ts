@@ -49,6 +49,14 @@ export async function POST(req: NextRequest) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
+    // Save contact to Resend audience (non-blocking)
+    if (process.env.RESEND_AUDIENCE_ID) {
+      resend.contacts.create({
+        email,
+        audienceId: process.env.RESEND_AUDIENCE_ID,
+      }).catch(() => {}); // fire-and-forget, don't block email sending
+    }
+
     // Generate PDF and Excel in parallel
     const [pdfBuffer, excelBuffer] = await Promise.all([
       renderToBuffer(
