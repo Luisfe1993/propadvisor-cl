@@ -137,7 +137,9 @@ export function calc20YearComparison(
   // Net wealth if you rent: pie invested + monthly savings invested - total rent spent
   const rentNetWealth = pieInvested + rentInvestmentGrowth - totalRentCost;
 
-  // ── BUY-TO-RENT SCENARIO ──────────────────────────────
+  // ── BUY-TO-RENT SCENARIO (Investment view) ──────────
+  // This is a SECOND property — investor already has housing.
+  // Compare: investing pie in this property vs investing pie in a 6% fund.
   // Total rental income received over the term (rent grows 3%/year)
   let totalRentalIncome = 0;
   for (let m = 0; m < months; m++) {
@@ -145,12 +147,43 @@ export function calc20YearComparison(
     totalRentalIncome += rentMonthlyCost * Math.pow(1 + annualRentInflation, year);
   }
 
-  // Net wealth if you buy to rent: property value + rental income - total buy cost
-  // (You still need to pay your own rent elsewhere — this is a pure investment view)
+  // Net monthly cash flow from the property (rent - mortgage - costs)
+  // Negative flow = investor subsidizes from pocket. This is an additional cost.
+  const initialFlow = rentMonthlyCost - buyMonthlyCost;
+
+  // Total cash invested = pie + any monthly subsidies
+  let totalCashInvested = initialInvestment;
+  for (let m = 0; m < months; m++) {
+    const year = Math.floor(m / 12);
+    const rentAtMonth = rentMonthlyCost * Math.pow(1 + annualRentInflation, year);
+    const flow = rentAtMonth - buyMonthlyCost;
+    if (flow < 0) {
+      totalCashInvested += Math.abs(flow); // negative flow = additional investment
+    }
+  }
+
+  // Investment wealth: property value + excess cash from positive flow months
+  // minus total money put in (pie + subsidies)
   const investNetWealth = propertyValueAfterTerm + totalRentalIncome - totalBuyCost;
 
+  // Alternative: if that same total cash was invested in a fund
+  // (pie invested at 6% + monthly subsidies invested at 6%)
+  let fundAlternative = initialInvestment * Math.pow(1 + annualInvestmentReturn, termYears);
+  for (let m = 0; m < months; m++) {
+    const year = Math.floor(m / 12);
+    const rentAtMonth = rentMonthlyCost * Math.pow(1 + annualRentInflation, year);
+    const flow = rentAtMonth - buyMonthlyCost;
+    if (flow < 0) {
+      const monthsRemaining = months - m - 1;
+      const monthlyRate = Math.pow(1 + annualInvestmentReturn, 1 / 12) - 1;
+      fundAlternative += Math.abs(flow) * Math.pow(1 + monthlyRate, monthsRemaining);
+    }
+  }
+
+  // Investment net gain: how much MORE does the property generate vs a fund?
+  const investVsFund = investNetWealth - fundAlternative;
+
   // Cash-on-cash return (annual net flow / pie)
-  const initialFlow = rentMonthlyCost - buyMonthlyCost;
   const cashOnCash = initialInvestment > 0 ? (initialFlow * 12) / initialInvestment : 0;
 
   // Year when rental income covers buy monthly cost (cash flow break-even)
@@ -162,25 +195,20 @@ export function calc20YearComparison(
     }
   }
 
-  // Minimum pie % for positive cash flow (binary search)
-  let minPieForPositiveFlow = -1;
-  for (let testPie = 10; testPie <= 50; testPie += 5) {
-    const testLoan = propertyPriceCLP * (1 - testPie / 100);
-    const testRate = annualAppreciation; // approximate — uses same rate
-    const testMonthly = calcMonthlyPayment(testLoan, 3.5, termYears); // use mid-market rate
-    const testMaintenance = buyMonthlyCost - (propertyPriceCLP > 0 ? calcMonthlyPayment(propertyPriceCLP * (1 - initialInvestment / propertyPriceCLP), 3.5, termYears) : 0);
-    // Simplified: just check if rent covers payment + maintenance portion
-    const maintenancePortion = buyMonthlyCost - calcMonthlyPayment(propertyPriceCLP - initialInvestment, 3.5, termYears);
-    if (rentMonthlyCost >= testMonthly + (buyMonthlyCost - (propertyPriceCLP > 0 ? calcMonthlyPayment(propertyPriceCLP - initialInvestment, 3.5, termYears) : 0)) && minPieForPositiveFlow === -1) {
-      minPieForPositiveFlow = testPie;
-    }
-  }
-
   // ── DETERMINE WINNER across all 3 ───────────────────
+  // Invest as 2nd property always has highest raw wealth (property appreciation + rent income).
+  // But it's only viable if the investor can sustain the monthly cash flow.
+  // Rule: invest only "wins" if monthly subsidy < 30% of the monthly payment
+  // (otherwise the investor can't realistically sustain it)
+  const monthlySubsidy = Math.max(0, -initialFlow); // how much investor pays from pocket each month
+  const subsidyRatio = buyMonthlyCost > 0 ? monthlySubsidy / buyMonthlyCost : 0;
+  const investIsViable = subsidyRatio < 0.3; // less than 30% subsidy = viable
+
   const allWealth = [
     { scenario: "buy" as const, wealth: buyNetWealth },
     { scenario: "rent" as const, wealth: rentNetWealth },
-    { scenario: "invest" as const, wealth: investNetWealth },
+    // Only include invest if it's cash-flow viable
+    ...(investIsViable ? [{ scenario: "invest" as const, wealth: investNetWealth }] : []),
   ];
   allWealth.sort((a, b) => b.wealth - a.wealth);
   const winner = allWealth[0].scenario;
@@ -221,6 +249,8 @@ export function calc20YearComparison(
     rentNetWealth,
     investNetWealth,
     totalRentalIncome,
+    fundAlternative,
+    investVsFund, // positive = property beats fund as investment
     netWealthDifference,
     // Winner
     winner,
