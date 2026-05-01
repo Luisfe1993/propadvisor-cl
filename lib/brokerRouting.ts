@@ -104,6 +104,13 @@ export const brokerRoutes: BrokerRoute[] = [
 ];
 
 /**
+ * Strip accents and normalize for matching
+ */
+function normalize(s: string): string {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "_");
+}
+
+/**
  * Match a lead against the routing table.
  * Returns all matching broker emails. If none match, returns the fallback.
  */
@@ -124,16 +131,16 @@ export function routeLead(lead: {
     const m = route.match;
     let matched = true;
 
-    // City match
+    // City match (accent-insensitive)
     if (m.city) {
-      const cities = Array.isArray(m.city) ? m.city : [m.city];
-      if (!cities.includes(lead.city)) matched = false;
+      const cities = (Array.isArray(m.city) ? m.city : [m.city]).map(normalize);
+      if (!cities.includes(normalize(lead.city))) matched = false;
     }
 
-    // Comuna match
+    // Comuna match (accent-insensitive)
     if (m.comuna && matched) {
-      const comunas = Array.isArray(m.comuna) ? m.comuna : [m.comuna];
-      if (!lead.comuna || !comunas.includes(lead.comuna)) matched = false;
+      const comunas = (Array.isArray(m.comuna) ? m.comuna : [m.comuna]).map(normalize);
+      if (!lead.comuna || !comunas.includes(normalize(lead.comuna))) matched = false;
     }
 
     // Score range

@@ -159,10 +159,13 @@ export async function POST(req: NextRequest) {
       console.log(JSON.stringify(leadData));
 
       // Route lead to matching brokers
+      // Normalize: strip accents, lowercase, underscores
+      const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "_");
+
       const brokerTargets = routeLead(
         {
-          city: analysisData.city?.toLowerCase().replace(/\s+/g, "_") || "",
-          comuna: analysisData.address?.toLowerCase().replace(/\s+/g, "_") || "",
+          city: normalize(analysisData.city || ""),
+          comuna: normalize(analysisData.address || ""),
           score,
           purpose: analysisData.propertyType || "",
           priceUF: analysisData.priceUF || 0,
