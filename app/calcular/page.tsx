@@ -534,85 +534,172 @@ export default function CalcularPage() {
                   </div>
                 </div>
 
-                {/* 3 scenarios */}
+                {/* NET WEALTH COMPARISON — the honest view */}
                 <div style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: "12px", padding: "20px" }}>
-                  <p style={{ ...labelSx, marginBottom: "16px" }}>
-                    Comparación a {loanTerm} años
+                  <p style={{ ...labelSx, marginBottom: "4px" }}>
+                    Patrimonio neto en {loanTerm} años
+                  </p>
+                  <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "16px" }}>
+                    ¿En cuál escenario terminas con más patrimonio?
                   </p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
 
-                    {/* Scenario row component */}
-                    {[
-                      {
-                        label: "Comprar para vivir",
-                        sub: `Dividendo ${formatCLP(monthlyPayment)} + gastos ${formatCLP(monthlyCosts)}/mes`,
-                        value: formatCLP(comparison?.buyTotal ?? 0),
-                        highlight: (comparison?.savings ?? 0) > 0,
-                        color: "var(--accent)",
-                      },
-                      {
-                        label: "Seguir arrendando",
-                        sub: `${formatCLP(effectiveRent)}/mes × ${loanTerm * 12} meses`,
-                        value: formatCLP(comparison?.rentTotal ?? 0),
-                        highlight: false,
-                        color: "var(--text-primary)",
-                      },
-                    ].map((s) => (
-                      <div key={s.label} style={{
-                        background: "white",
-                        border: s.highlight ? "2px solid var(--accent)" : "1px solid var(--border)",
-                        borderRadius: "10px",
-                        padding: "14px 16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: "12px",
-                      }}>
+                    {/* Buy scenario */}
+                    <div style={{
+                      background: "white",
+                      border: (comparison?.netWealthDifference ?? 0) > 0 ? "2px solid var(--accent)" : "1px solid var(--border)",
+                      borderRadius: "10px", padding: "14px 16px",
+                    }}>
+                      {(comparison?.netWealthDifference ?? 0) > 0 && (
+                        <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--accent-dark)", background: "var(--accent-light)", padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Mejor opción</span>
+                      )}
+                      <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", marginTop: (comparison?.netWealthDifference ?? 0) > 0 ? "8px" : 0, marginBottom: "8px" }}>Comprar para vivir</p>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "12px" }}>
                         <div>
-                          <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "2px" }}>{s.label}</p>
-                          <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>{s.sub}</p>
+                          <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Gastas en total</p>
+                          <p style={{ fontWeight: 700, color: "#dc2626" }}>{formatCLP(comparison?.buyTotal ?? 0)}</p>
                         </div>
-                        <p style={{ fontSize: "16px", fontWeight: 800, color: s.color, letterSpacing: "-0.02em", flexShrink: 0 }}>{s.value}</p>
+                        <div>
+                          <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Propiedad vale</p>
+                          <p style={{ fontWeight: 700, color: "#16a34a" }}>{formatCLP(comparison?.propertyValueAfter20Years ?? 0)}</p>
+                        </div>
                       </div>
-                    ))}
+                      <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Patrimonio neto</p>
+                        <p style={{ fontSize: "16px", fontWeight: 800, color: (comparison?.buyNetWealth ?? 0) >= 0 ? "#16a34a" : "#dc2626" }}>
+                          {(comparison?.buyNetWealth ?? 0) >= 0 ? "+" : ""}{formatCLP(comparison?.buyNetWealth ?? 0)}
+                        </p>
+                      </div>
+                    </div>
 
-                    {/* Buy to rent */}
+                    {/* Rent scenario */}
+                    <div style={{
+                      background: "white",
+                      border: (comparison?.netWealthDifference ?? 0) <= 0 ? "2px solid var(--accent)" : "1px solid var(--border)",
+                      borderRadius: "10px", padding: "14px 16px",
+                    }}>
+                      {(comparison?.netWealthDifference ?? 0) <= 0 && (
+                        <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--accent-dark)", background: "var(--accent-light)", padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Mejor opción</span>
+                      )}
+                      <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", marginTop: (comparison?.netWealthDifference ?? 0) <= 0 ? "8px" : 0, marginBottom: "8px" }}>Seguir arrendando + invertir el pie</p>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "12px" }}>
+                        <div>
+                          <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Arriendos totales</p>
+                          <p style={{ fontWeight: 700, color: "#dc2626" }}>{formatCLP(comparison?.rentTotal ?? 0)}</p>
+                        </div>
+                        <div>
+                          <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Pie invertido crece a</p>
+                          <p style={{ fontWeight: 700, color: "#16a34a" }}>{formatCLP(comparison?.pieInvested ?? 0)}</p>
+                        </div>
+                      </div>
+                      <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Patrimonio neto</p>
+                        <p style={{ fontSize: "16px", fontWeight: 800, color: (comparison?.rentNetWealth ?? 0) >= 0 ? "#16a34a" : "#dc2626" }}>
+                          {(comparison?.rentNetWealth ?? 0) >= 0 ? "+" : ""}{formatCLP(comparison?.rentNetWealth ?? 0)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Buy to rent — investment view */}
                     <div style={{
                       background: "white", border: "1px solid var(--border)",
                       borderRadius: "10px", padding: "14px 16px",
-                      display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px",
                     }}>
-                      <div>
-                        <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "2px" }}>Comprar para arrendar</p>
-                        <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>Flujo neto mensual (arriendo − dividendo − gastos)</p>
+                      <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "8px" }}>Comprar para arrendar</p>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", fontSize: "12px" }}>
+                        <div>
+                          <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Flujo neto/mes</p>
+                          <p style={{ fontWeight: 700, color: netFlow >= 0 ? "#16a34a" : "#dc2626" }}>
+                            {netFlow >= 0 ? "+" : ""}{formatCLP(netFlow)}
+                          </p>
+                        </div>
+                        <div>
+                          <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Cap rate</p>
+                          <p style={{ fontWeight: 700, color: rentalYield >= 5 ? "#16a34a" : rentalYield >= 4 ? "var(--text-primary)" : "#dc2626" }}>
+                            {rentalYield.toFixed(1)}%
+                          </p>
+                        </div>
+                        <div>
+                          <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Cash-on-cash</p>
+                          <p style={{ fontWeight: 700, color: "var(--text-primary)" }}>
+                            {downAmount > 0 ? ((netFlow * 12 / downAmount) * 100).toFixed(1) : "0"}%
+                          </p>
+                        </div>
                       </div>
-                      <p style={{ fontSize: "16px", fontWeight: 800, color: netFlow >= 0 ? "#16a34a" : "#dc2626", letterSpacing: "-0.02em", flexShrink: 0 }}>
-                        {netFlow >= 0 ? "+" : ""}{formatCLP(netFlow)}
-                      </p>
+                      {netFlow < 0 && (
+                        <p style={{ fontSize: "11px", color: "#dc2626", marginTop: "8px" }}>
+                          Subsidias {formatCLP(Math.abs(netFlow))}/mes de tu bolsillo. En {loanTerm} años son {formatCLP(Math.abs(netFlow) * loanTerm * 12)} adicionales.
+                        </p>
+                      )}
+                      {netFlow >= 0 && (
+                        <p style={{ fontSize: "11px", color: "#16a34a", marginTop: "8px" }}>
+                          Cash flow positivo desde el mes 1. Generas {formatCLP(netFlow * 12)}/año neto.
+                        </p>
+                      )}
                     </div>
 
                   </div>
                 </div>
 
-                {/* Recommendation */}
-                {comparison && (
-                  <div style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: "12px", padding: "20px" }}>
-                    <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "6px" }}>
-                      Análisis
-                    </p>
-                    <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.7 }}>
-                      {comparison.savings > 0
-                        ? `Comprar conviene más a largo plazo. En ${loanTerm} años ahorrarías ${formatCLP(Math.abs(comparison.savings))} versus seguir arrendando, además de quedarte con la propiedad valuada en ${formatCLP(comparison.propertyValueAfter20Years)}.`
-                        : `Arrendar tiene menor costo directo a ${loanTerm} años. Ajusta el pie o el plazo para mejorar el escenario de compra.`}
-                      {comparison.breakEvenYear > 0 && comparison.breakEvenYear <= loanTerm
-                        ? ` Comprar se vuelve más rentable que arrendar a partir del año ${comparison.breakEvenYear}.`
-                        : ""}
-                    </p>
-                    <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "8px" }}>
-                      Proyección: plusvalía 7%/año · arriendo sube 3%/año · no incluye impuestos ni escritura.
-                    </p>
-                  </div>
-                )}
+                {/* Recommendation — nuanced 4-verdict */}
+                {comparison && (() => {
+                  const diff = comparison.netWealthDifference;
+                  const absFormatted = formatCLP(Math.abs(diff));
+                  const buyWins = diff > 0;
+                  const margin = Math.abs(diff) / (comparison.buyTotal || 1);
+                  const isClear = margin > 0.05; // >5% difference = clear winner
+                  const investmentViable = rentalYield >= 4 && netFlow > -200000;
+
+                  let verdict: string;
+                  let verdictColor: string;
+                  let verdictIcon: string;
+
+                  if (buyWins && isClear) {
+                    verdict = `Comprar es claramente la mejor opción. Tu patrimonio neto será ${absFormatted} mayor que si arriendas e inviertes el pie en un fondo al 6% anual.`;
+                    verdictColor = "#16a34a";
+                    verdictIcon = "🏠";
+                  } else if (buyWins && !isClear) {
+                    verdict = `Comprar tiene una leve ventaja (${absFormatted} más de patrimonio), pero la diferencia es pequeña. Si valoras flexibilidad o crees que el mercado puede bajar, arrendar e invertir es una alternativa válida.`;
+                    verdictColor = "var(--accent)";
+                    verdictIcon = "⚖️";
+                  } else if (!buyWins && !isClear) {
+                    verdict = `Arrendar e invertir el pie tiene una leve ventaja (${absFormatted} más de patrimonio). Pero comprar te da estabilidad y protección contra alzas de arriendo. Ambas opciones son razonables.`;
+                    verdictColor = "var(--accent)";
+                    verdictIcon = "⚖️";
+                  } else {
+                    verdict = `Arrendar e invertir tu pie es más rentable por ${absFormatted}. El precio de esta propiedad es alto relativo al arriendo. Considera buscar una propiedad con mejor relación precio/arriendo o esperar a mejores tasas.`;
+                    verdictColor = "#dc2626";
+                    verdictIcon = "🏢";
+                  }
+
+                  if (investmentViable && netFlow >= 0) {
+                    verdict += ` Como inversión para arrendar, esta propiedad genera cash flow positivo con un cap rate de ${rentalYield.toFixed(1)}%.`;
+                  } else if (investmentViable && netFlow < 0) {
+                    verdict += ` Como inversión, requiere un subsidio de ${formatCLP(Math.abs(netFlow))}/mes, pero el cap rate de ${rentalYield.toFixed(1)}% es aceptable si apuestas a la plusvalía.`;
+                  }
+
+                  return (
+                    <div style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: "12px", padding: "20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                        <span style={{ fontSize: "18px" }}>{verdictIcon}</span>
+                        <p style={{ fontSize: "14px", fontWeight: 700, color: verdictColor }}>
+                          {buyWins ? "Comprar conviene" : diff === 0 ? "Empate" : "Arrendar + invertir conviene"}
+                        </p>
+                      </div>
+                      <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.7 }}>
+                        {verdict}
+                      </p>
+                      {comparison.breakEvenYear > 0 && comparison.breakEvenYear <= loanTerm && (
+                        <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "8px" }}>
+                          📅 Comprar se vuelve más rentable a partir del año {comparison.breakEvenYear}.
+                        </p>
+                      )}
+                      <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "8px", paddingTop: "8px", borderTop: "1px solid var(--border)" }}>
+                        Supuestos: plusvalía 7%/año · arriendo sube 3%/año · fondo de inversión alternativo 6%/año · no incluye impuestos, comisiones de venta ni escritura.
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 {/* ── Lead Capture CTA ───────────────────── */}
                 <div style={{
