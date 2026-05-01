@@ -188,38 +188,49 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
           ) : (
             // ── Input state ──────────────────────────────────────────────────
             <form onSubmit={handleSubmit}>
-              <div style={iconWrap}>
-                <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" strokeLinecap="round" strokeLinejoin="round" />
-                  <polyline points="14 2 14 8 20 8" strokeLinecap="round" strokeLinejoin="round" />
-                  <line x1="12" y1="18" x2="12" y2="12" strokeLinecap="round" />
-                  <line x1="9" y1="15" x2="15" y2="15" strokeLinecap="round" />
-                </svg>
+
+              {/* Personalized summary — user's own numbers */}
+              <div style={{
+                background: "linear-gradient(135deg, #0f766e 0%, #1e3a5f 100%)",
+                borderRadius: "12px", padding: "16px", marginBottom: "20px",
+                color: "white",
+              }}>
+                <p style={{ fontSize: "11px", opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>Tu análisis personalizado</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                  <div>
+                    <p style={{ fontSize: "10px", opacity: 0.6, marginBottom: "1px" }}>Dividendo/mes</p>
+                    <p style={{ fontSize: "16px", fontWeight: 800 }}>{new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(payload.monthlyPayment)}</p>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: "10px", opacity: 0.6, marginBottom: "1px" }}>{payload.savings > 0 ? "Ahorras comprando" : "Arriendo más barato"}</p>
+                    <p style={{ fontSize: "16px", fontWeight: 800 }}>{new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(Math.abs(payload.savings))}</p>
+                  </div>
+                </div>
               </div>
 
-              <h2 id="modal-title" style={{ fontSize: "20px", fontWeight: 800, color: "var(--text-primary)", marginBottom: "6px", letterSpacing: "-0.02em" }}>
-                Recibe tu análisis completo
+              <h2 id="modal-title" style={{ fontSize: "20px", fontWeight: 800, color: "var(--text-primary)", marginBottom: "4px", letterSpacing: "-0.02em" }}>
+                Recibe este análisis en tu email
               </h2>
-              <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "8px" }}>
-                Te enviamos gratis el <strong>informe PDF</strong> + el <strong>modelo Excel interactivo</strong> con 4 hojas:
+              <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "16px" }}>
+                <strong style={{ color: "var(--accent)" }}>100% gratis</strong> — PDF profesional + modelo Excel interactivo:
               </p>
 
-              {/* Files list */}
-              <ul style={{ margin: "0 0 24px", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "8px" }}>
+              {/* Files list — with practical descriptions */}
+              <ul style={{ margin: "0 0 20px", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "6px" }}>
                 {[
-                  ["📄", "PDF profesional", "Para compartir con tu banco o corredor"],
-                  ["📊", "Excel: Resumen + Amortización", "Dividendo mes a mes, capital vs interés"],
-                  ["📈", "Excel: Comparación 20 años", "Costo total compra vs arriendo, año a año"],
-                  ["🔍", "Excel: Sensibilidad", "Qué pasa si la apreciación o el arriendo cambian"],
+                  ["📄", "Informe PDF", "Listo para presentar a tu banco o corredor"],
+                  ["📊", "Amortización mes a mes", "Cuánto va a capital y cuánto a interés cada mes"],
+                  ["📈", "Compra vs arriendo año a año", "Ve exactamente en qué año comprar se vuelve más rentable"],
+                  ["🔍", "Análisis de sensibilidad", "¿Qué pasa si la tasa sube 1%? El Excel lo calcula por ti"],
                 ].map(([icon, title, desc]) => (
                   <li key={title} style={{
                     display: "flex", gap: "10px", alignItems: "flex-start",
                     background: "var(--bg-secondary)", borderRadius: "8px", padding: "10px 12px",
                   }}>
-                    <span style={{ fontSize: "16px", flexShrink: 0, marginTop: "1px" }}>{icon}</span>
+                    <span style={{ fontSize: "15px", flexShrink: 0, marginTop: "1px" }}>{icon}</span>
                     <div>
                       <p style={{ margin: 0, fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>{title}</p>
-                      <p style={{ margin: 0, fontSize: "12px", color: "var(--text-muted)" }}>{desc}</p>
+                      <p style={{ margin: 0, fontSize: "11px", color: "var(--text-muted)" }}>{desc}</p>
                     </div>
                   </li>
                 ))}
@@ -311,7 +322,7 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                     Generando y enviando…
                   </>
                 ) : (
-                  "Enviar análisis gratis →"
+                  "Enviar mi informe gratis →"
                 )}
               </button>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

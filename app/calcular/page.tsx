@@ -120,11 +120,14 @@ export default function CalcularPage() {
   const effectiveRent = rentCLP > 0 ? rentCLP : suggestedRent;
 
   const comparison = priceCLP > 0 && effectiveRent > 0
-    ? calc20YearComparison(monthlyPayment + monthlyCosts, effectiveRent, downAmount, priceCLP)
+    ? calc20YearComparison(monthlyPayment + monthlyCosts, effectiveRent, downAmount, priceCLP, loanTerm)
     : null;
 
   const netFlow     = effectiveRent - monthlyPayment - monthlyCosts;
   const rentalYield = priceCLP > 0 && effectiveRent > 0 ? (effectiveRent * 12) / priceCLP * 100 : 0;
+
+  // Total interest paid over the loan
+  const totalInterest = monthlyPayment * loanTerm * 12 - loanAmount;
 
   const canAnalyze = priceCLP > 0 && effectiveRent > 0;
 
@@ -436,6 +439,18 @@ export default function CalcularPage() {
                   <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "6px" }}>
                     {selectedBank?.bank} · {interestRate.toFixed(2)}% · {loanTerm} años · Pie {downPayment}%
                   </p>
+
+                  {/* Key metrics row */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--border)" }}>
+                    <div>
+                      <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Total intereses</p>
+                      <p style={{ fontSize: "15px", fontWeight: 700, color: "#dc2626" }}>{formatCLP(totalInterest > 0 ? totalInterest : 0)}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Pie requerido</p>
+                      <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>{formatCLP(downAmount)}</p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* 3 scenarios */}
@@ -508,36 +523,63 @@ export default function CalcularPage() {
                       {comparison.savings > 0
                         ? `Comprar conviene más a largo plazo. En ${loanTerm} años ahorrarías ${formatCLP(Math.abs(comparison.savings))} versus seguir arrendando, además de quedarte con la propiedad valuada en ${formatCLP(comparison.propertyValueAfter20Years)}.`
                         : `Arrendar tiene menor costo directo a ${loanTerm} años. Ajusta el pie o el plazo para mejorar el escenario de compra.`}
+                      {comparison.breakEvenYear > 0 && comparison.breakEvenYear <= loanTerm
+                        ? ` Comprar se vuelve más rentable que arrendar a partir del año ${comparison.breakEvenYear}.`
+                        : ""}
                     </p>
                     <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "8px" }}>
-                      Proyección con 7% apreciación anual estimada. No incluye impuestos ni gastos de escritura.
+                      Proyección: plusvalía 7%/año · arriendo sube 3%/año · no incluye impuestos ni escritura.
                     </p>
                   </div>
                 )}
 
                 {/* ── Lead Capture CTA ───────────────────── */}
                 <div style={{
-                  background: "white", border: "1px solid var(--border)",
-                  borderRadius: "12px", padding: "20px 24px",
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  gap: "16px", flexWrap: "wrap",
+                  background: "linear-gradient(135deg, #0f766e 0%, #1e3a5f 100%)",
+                  borderRadius: "12px", padding: "24px",
+                  color: "white",
                 }}>
-                  <div>
-                    <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "3px", letterSpacing: "-0.02em" }}>
-                      ¿Listo para dar el siguiente paso?
+                  {/* Personalized summary */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "16px" }}>
+                    {[
+                      { label: "Tu dividendo", value: formatCLP(monthlyPayment) },
+                      { label: comparison && comparison.savings > 0 ? "Ahorras comprando" : "Costo extra compra", value: formatCLP(Math.abs(comparison?.savings ?? 0)) },
+                      { label: `Propiedad en ${loanTerm} años`, value: formatCLP(comparison?.propertyValueAfter20Years ?? 0) },
+                    ].map((m) => (
+                      <div key={m.label}>
+                        <p style={{ fontSize: "10px", opacity: 0.7, marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.04em" }}>{m.label}</p>
+                        <p style={{ fontSize: "14px", fontWeight: 800, letterSpacing: "-0.02em" }}>{m.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: "16px" }}>
+                    <p style={{ fontSize: "17px", fontWeight: 800, marginBottom: "4px", letterSpacing: "-0.02em" }}>
+                      Recibe estos números en un informe profesional
                     </p>
-                    <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-                      Recibe tu análisis completo y conecta con un ejecutivo hipotecario — sin costo.
+                    <p style={{ fontSize: "13px", opacity: 0.85, lineHeight: 1.5, marginBottom: "16px" }}>
+                      PDF listo para tu banco + Excel interactivo con amortización, comparación año a año y análisis de sensibilidad. <strong>100% gratis.</strong>
+                    </p>
+                    <button
+                      onClick={() => { setShowEmailModal(true); track("lead_cta_clicked", { page: "calcular" }); }}
+                      disabled={!comparison}
+                      style={{
+                        width: "100%", padding: "14px 24px",
+                        background: "white", color: "#0f766e",
+                        border: "none", borderRadius: "10px",
+                        fontSize: "15px", fontWeight: 800,
+                        cursor: "pointer", letterSpacing: "-0.01em",
+                        transition: "transform 0.1s, box-shadow 0.1s",
+                      }}
+                      onMouseOver={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)"; }}
+                      onMouseOut={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
+                    >
+                      Enviar informe gratis a mi email →
+                    </button>
+                    <p style={{ fontSize: "11px", opacity: 0.6, marginTop: "8px", textAlign: "center" }}>
+                      Sin registro · Sin tarjeta · Llega en 30 segundos
                     </p>
                   </div>
-                  <button
-                    onClick={() => { setShowEmailModal(true); track("lead_cta_clicked", { page: "calcular" }); }}
-                    disabled={!comparison}
-                    className="btn-primary"
-                    style={{ padding: "10px 20px", fontSize: "14px", flexShrink: 0 }}
-                  >
-                    Recibir análisis + contacto →
-                  </button>
                 </div>
 
                 {/* Email gate modal */}

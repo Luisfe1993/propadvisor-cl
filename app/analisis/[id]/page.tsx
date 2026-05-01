@@ -54,7 +54,7 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
   const interestRate = selectedBank?.rate || 4.19;
   const monthlyPayment = property ? calcMonthlyPayment(property.priceCLP * (1 - mortgageData.downPayment / 100), interestRate, mortgageData.loanTerm) : 0;
   const downPaymentAmount = property ? (property.priceCLP * mortgageData.downPayment) / 100 : 0;
-  const comparison = property ? calc20YearComparison(monthlyPayment + 500000, property.estimatedMonthlyRentCLP, downPaymentAmount, property.priceCLP) : null;
+  const comparison = property ? calc20YearComparison(monthlyPayment + 500000, property.estimatedMonthlyRentCLP, downPaymentAmount, property.priceCLP, mortgageData.loanTerm) : null;
   const netMonthlyFlow = property ? property.estimatedMonthlyRentCLP - monthlyPayment - 500000 : 0;
 
   const formatCLP = (v: number) => new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(v);
@@ -371,7 +371,10 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
                     : `Seguir arrendando tiene menor costo directo a ${mortgageData.loanTerm} años. Sin embargo, al comprar acumulas patrimonio y te proteges de futuros aumentos de arriendo. Ajusta el pie y el plazo para explorar otros escenarios.`}
                 </p>
                 <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "12px" }}>
-                  Cálculo educativo. No incluye plusvalía, impuestos, gastos de escritura ni seguros.
+                  Proyección: plusvalía 7%/año · arriendo sube 3%/año · no incluye impuestos ni escritura.
+                  {comparison.breakEvenYear > 0 && comparison.breakEvenYear <= mortgageData.loanTerm
+                    ? ` Comprar se vuelve más rentable a partir del año ${comparison.breakEvenYear}.`
+                    : ""}
                 </p>
               </div>
             </section>
@@ -380,32 +383,52 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
           {/* ── Lead Capture CTA ─────────────────────── */}
           <section aria-label="Recibir análisis y contacto" style={{ marginBottom: "16px" }}>
             <div style={{
-              border: "1px solid var(--border)",
+              background: "linear-gradient(135deg, #0f766e 0%, #1e3a5f 100%)",
               borderRadius: "12px",
               padding: "24px",
-              background: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "24px",
-              flexWrap: "wrap",
+              color: "white",
             }}>
-              <div>
-                <p style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px", letterSpacing: "-0.02em" }}>
-                  ¿Listo para dar el siguiente paso?
+              {/* User's personalized numbers */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "16px" }}>
+                {[
+                  { label: "Tu dividendo", value: formatCLP(monthlyPayment) },
+                  { label: comparison && comparison.savings > 0 ? "Ahorras comprando" : "Costo extra compra", value: formatCLP(Math.abs(comparison?.savings ?? 0)) },
+                  { label: `Propiedad en ${mortgageData.loanTerm} años`, value: formatCLP(comparison?.propertyValueAfter20Years ?? 0) },
+                ].map((m) => (
+                  <div key={m.label}>
+                    <p style={{ fontSize: "10px", opacity: 0.7, marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.04em" }}>{m.label}</p>
+                    <p style={{ fontSize: "14px", fontWeight: 800, letterSpacing: "-0.02em" }}>{m.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: "16px" }}>
+                <p style={{ fontSize: "17px", fontWeight: 800, marginBottom: "4px", letterSpacing: "-0.02em" }}>
+                  Recibe estos números en un informe profesional
                 </p>
-                <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                  Recibe el informe completo (PDF + Excel) y conecta con un ejecutivo hipotecario — sin costo.
+                <p style={{ fontSize: "13px", opacity: 0.85, lineHeight: 1.5, marginBottom: "16px" }}>
+                  PDF listo para tu banco + Excel interactivo con amortización, comparación año a año y análisis de sensibilidad. <strong>100% gratis.</strong>
+                </p>
+                <button
+                  onClick={() => { setShowEmailModal(true); track("lead_cta_clicked", { page: "analisis", property: property?.address || "" }); }}
+                  disabled={!comparison}
+                  style={{
+                    width: "100%", padding: "14px 24px",
+                    background: "white", color: "#0f766e",
+                    border: "none", borderRadius: "10px",
+                    fontSize: "15px", fontWeight: 800,
+                    cursor: "pointer", letterSpacing: "-0.01em",
+                    transition: "transform 0.1s, box-shadow 0.1s",
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)"; }}
+                  onMouseOut={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
+                >
+                  Enviar informe gratis a mi email →
+                </button>
+                <p style={{ fontSize: "11px", opacity: 0.6, marginTop: "8px", textAlign: "center" }}>
+                  Sin registro · Sin tarjeta · Llega en 30 segundos
                 </p>
               </div>
-              <button
-                onClick={() => { setShowEmailModal(true); track("lead_cta_clicked", { page: "analisis", property: property?.address || "" }); }}
-                disabled={!comparison}
-                className="btn-primary"
-                style={{ padding: "12px 24px", fontSize: "14px", flexShrink: 0 }}
-              >
-                Recibir análisis + contacto →
-              </button>
             </div>
           </section>
 

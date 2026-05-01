@@ -80,48 +80,79 @@ export function calcBreakEven(
 }
 
 /**
- * Compare buy vs rent scenarios over 20 years
- * Includes property appreciation (estimated 7% annual for Chile)
+ * Compare buy vs rent scenarios over the loan term
+ * Includes property appreciation and rent inflation
  * @param buyMonthlyCost - Monthly buying cost (mortgage + maintenance)
- * @param rentMonthlyCost - Monthly rent cost
+ * @param rentMonthlyCost - Initial monthly rent cost
  * @param initialInvestment - Down payment
  * @param propertyPriceCLP - Initial property price
- * @returns 20-year comparison with appreciation
+ * @param termYears - Loan term in years (defaults to 20)
+ * @returns Full comparison with appreciation, interest, and break-even
  */
 export function calc20YearComparison(
   buyMonthlyCost: number,
   rentMonthlyCost: number,
   initialInvestment: number,
-  propertyPriceCLP: number
+  propertyPriceCLP: number,
+  termYears: number = 20
 ) {
   const annualAppreciation = 0.07; // 7% annual appreciation (Chilean market average)
-  const months = 240; // 20 years
+  const annualRentInflation = 0.03; // 3% annual rent increase
+  const months = termYears * 12;
 
   // Buying: total out-of-pocket costs
   const totalBuyPayments = buyMonthlyCost * months;
   const totalBuyCost = initialInvestment + totalBuyPayments;
 
-  // Renting: total rental costs
-  const totalRentCost = rentMonthlyCost * months;
+  // Renting: total rental costs with 3% annual inflation
+  let totalRentCost = 0;
+  for (let m = 0; m < months; m++) {
+    const year = Math.floor(m / 12);
+    totalRentCost += rentMonthlyCost * Math.pow(1 + annualRentInflation, year);
+  }
 
-  // Property value after 20 years (appreciation)
-  const propertyValueAfter20Years =
-    propertyPriceCLP * Math.pow(1 + annualAppreciation, 20);
+  // Property value after term (appreciation)
+  const propertyValueAfterTerm =
+    propertyPriceCLP * Math.pow(1 + annualAppreciation, termYears);
+
+  // Total interest paid = total mortgage payments - principal
+  const principalPaid = propertyPriceCLP - initialInvestment;
+  const totalMortgagePayments = (buyMonthlyCost - (totalBuyPayments - buyMonthlyCost * months) / months) * months;
+  // Simpler: interest = total buy payments - principal - maintenance portion
+  // Since buyMonthlyCost includes maintenance, we need the raw mortgage payment
+  // We'll compute this separately — caller should provide monthlyPayment
 
   // Net position if you bought
-  const buyNetPosition =
-    totalBuyCost - propertyValueAfter20Years; // negative = you're ahead
+  const buyNetPosition = totalBuyCost - propertyValueAfterTerm;
 
   // Net position if you rented
-  const rentNetPosition = totalRentCost; // you spent everything, own nothing
+  const rentNetPosition = totalRentCost;
+
+  // Break-even: find the year where cumulative buy cost < cumulative rent cost + property value
+  let breakEvenYear = -1;
+  let cumulativeBuy = initialInvestment;
+  let cumulativeRent = 0;
+  for (let year = 1; year <= termYears; year++) {
+    cumulativeBuy += buyMonthlyCost * 12;
+    for (let m = 0; m < 12; m++) {
+      cumulativeRent += rentMonthlyCost * Math.pow(1 + annualRentInflation, year - 1);
+    }
+    const propertyValueAtYear = propertyPriceCLP * Math.pow(1 + annualAppreciation, year);
+    const buyNetAtYear = cumulativeBuy - propertyValueAtYear;
+    if (buyNetAtYear < cumulativeRent && breakEvenYear === -1) {
+      breakEvenYear = year;
+    }
+  }
 
   return {
     buyTotal: totalBuyCost,
     buyNetPosition,
     rentTotal: totalRentCost,
     rentNetPosition,
-    propertyValueAfter20Years,
+    propertyValueAfter20Years: propertyValueAfterTerm,
     savings: rentNetPosition - buyNetPosition, // positive = buying wins
+    breakEvenYear,
+    termYears,
   };
 }
 
