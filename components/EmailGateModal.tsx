@@ -55,17 +55,20 @@ const overlay: React.CSSProperties = {
   position: "fixed", inset: 0, zIndex: 1000,
   background: "rgba(0,0,0,0.45)",
   display: "flex", alignItems: "center", justifyContent: "center",
-  padding: "24px",
+  padding: "16px",
   backdropFilter: "blur(4px)",
   WebkitBackdropFilter: "blur(4px)",
+  overflowY: "auto",
 };
 
 const modal: React.CSSProperties = {
   background: "white",
   borderRadius: "16px",
-  padding: "36px 32px 32px",
+  padding: "32px 28px 28px",
   width: "100%",
   maxWidth: "460px",
+  maxHeight: "90vh",
+  overflowY: "auto",
   boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
   position: "relative",
   animation: "modalIn 0.18s ease-out",

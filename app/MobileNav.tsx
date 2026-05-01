@@ -27,12 +27,12 @@ export function MobileNav() {
         onClick={() => setOpen(!open)}
         aria-label={open ? "Cerrar menú" : "Abrir menú"}
         aria-expanded={open}
-        className="sm:hidden"
         style={{
           background: "none", border: "none", cursor: "pointer",
           padding: "6px", color: "var(--text-primary)",
-          display: "flex", alignItems: "center", justifyContent: "center",
+          display: "none", alignItems: "center", justifyContent: "center",
         }}
+        className="mobile-hamburger"
       >
         {open ? (
           <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -103,6 +103,10 @@ export function MobileNav() {
         }
         .mobile-nav-link:hover, .mobile-nav-link:active {
           background: var(--bg-secondary);
+        }
+        @media (max-width: 639px) {
+          .mobile-hamburger { display: flex !important; }
+        }
         }
       `}</style>
     </>
