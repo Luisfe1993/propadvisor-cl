@@ -154,8 +154,8 @@ const features = [
   },
   {
     Icon: ShieldIcon,
-    title: "Informe PDF para tu banco",
-    desc: "Descarga un informe profesional con tu análisis completo. Listo para presentar a tu banco, corredor o pareja. CLP $4.900.",
+    title: "Informe PDF + Excel gratis",
+    desc: "Recibe un informe profesional con tu análisis completo y un modelo Excel interactivo con 4 hojas. Listo para compartir con tu banco o corredor.",
   },
 ];
 
@@ -270,7 +270,7 @@ export default function Home() {
               color: "var(--text-muted)",
             }}
           >
-            {["Sin registro", "Sin datos personales", "100% gratis", "Datos de Chile"].map((item, i, arr) => (
+            {["Sin registro", "100% gratis", "Datos reales de Chile"].map((item, i, arr) => (
               <span key={item} style={{ display: "inline-flex", alignItems: "center", gap: "16px" }}>
                 {item}
                 {i < arr.length - 1 && (

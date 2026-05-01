@@ -272,7 +272,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 © {new Date().getFullYear()} PropAdvisor CL — Análisis inmobiliario para Chile.
               </p>
               <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-                Gratis · Sin registro · Sin datos personales
+                Gratis · Sin registro
               </p>
             </div>
           </div>

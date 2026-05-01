@@ -7,14 +7,6 @@ import type { Property, BankRate } from "@/lib/types";
 import EmailGateModal from "@/components/EmailGateModal";
 import type { AnalysisPayload } from "@/components/EmailGateModal";
 
-// Affiliate URLs — replace with tracked affiliate links once agreements are signed
-const bankAffiliateUrls: Record<string, { url: string; label: string }> = {
-  bancoestado:  { url: "https://www.bancoestado.cl/personas/creditos/hipotecario", label: "BancoEstado" },
-  santander:    { url: "https://www.santander.cl/hipotecario", label: "Santander" },
-  bci:          { url: "https://www.bci.cl/creditos/credito-hipotecario", label: "BCI" },
-  bancochile:   { url: "https://portales.bancochile.cl/personas/creditos/hipotecario", label: "Banco de Chile" },
-};
-
 export default function AnalisisPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [property, setProperty] = useState<Property | null>(null);
@@ -234,18 +226,8 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
                   <select id="bank-select" value={mortgageData.selectedBankId} onChange={(e) => setMortgageData({ ...mortgageData, selectedBankId: e.target.value })} style={inputSx} onFocus={onFocus} onBlur={onBlur} aria-describedby="bank-note">
                     {banks.map((bank) => (<option key={bank.id} value={bank.id}>{bank.bank} — {bank.rate.toFixed(2)}% anual</option>))}
                   </select>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "5px" }}>
+                  <div style={{ marginTop: "5px" }}>
                     <p id="bank-note" style={{ fontSize: "12px", color: "var(--text-muted)" }}>Tasas referenciales; el banco puede variar según tu perfil crediticio.</p>
-                    {bankAffiliateUrls[mortgageData.selectedBankId] && (
-                      <a
-                        href={bankAffiliateUrls[mortgageData.selectedBankId].url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ fontSize: "12px", color: "var(--accent)", fontWeight: 600, whiteSpace: "nowrap", marginLeft: "12px", flexShrink: 0 }}
-                      >
-                        Ver condiciones →
-                      </a>
-                    )}
                   </div>
                 </div>
 
@@ -394,8 +376,8 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
             </section>
           )}
 
-          {/* ── Stream 1: Affiliate CTA ─────────────────────── */}
-          <section aria-label="Solicitar crédito hipotecario" style={{ marginBottom: "16px" }}>
+          {/* ── Lead Capture CTA ─────────────────────── */}
+          <section aria-label="Recibir análisis y contacto" style={{ marginBottom: "16px" }}>
             <div style={{
               border: "1px solid var(--border)",
               borderRadius: "12px",
@@ -409,71 +391,25 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
             }}>
               <div>
                 <p style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px", letterSpacing: "-0.02em" }}>
-                  ¿Listo para solicitar tu crédito?
+                  ¿Listo para dar el siguiente paso?
                 </p>
                 <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                  Te conectamos directamente con {bankAffiliateUrls[mortgageData.selectedBankId]?.label ?? "el banco seleccionado"}. Sin intermediarios, sin costo.
+                  Recibe el informe completo (PDF + Excel) y conecta con un ejecutivo hipotecario — sin costo.
                 </p>
-              </div>
-              <a
-                href={bankAffiliateUrls[mortgageData.selectedBankId]?.url ?? "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-                style={{ padding: "12px 24px", fontSize: "14px", flexShrink: 0 }}
-              >
-                Solicitar crédito →
-              </a>
-            </div>
-          </section>
-
-          {/* ── Stream 2: Email Gate CTA ─────────────────────── */}
-          <section aria-label="Recibir análisis por email" style={{ marginBottom: "40px" }}>
-            <div style={{
-              border: "1px solid var(--border)",
-              borderRadius: "12px",
-              padding: "20px 24px",
-              background: "var(--bg-secondary)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "24px",
-              flexWrap: "wrap",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "8px",
-                  background: "var(--accent-light)", display: "flex",
-                  alignItems: "center", justifyContent: "center",
-                  color: "var(--accent)", flexShrink: 0,
-                }}>
-                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" strokeLinecap="round" strokeLinejoin="round" />
-                    <polyline points="14 2 14 8 20 8" strokeLinecap="round" strokeLinejoin="round" />
-                    <line x1="12" y1="18" x2="12" y2="12" strokeLinecap="round" />
-                    <line x1="9" y1="15" x2="15" y2="15" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <div>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "2px" }}>
-                    Recibir PDF + Excel por email — gratis
-                  </p>
-                  <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-                    Informe PDF + modelo Excel con amortización, comparación 20 años y sensibilidad.
-                  </p>
-                </div>
               </div>
               <button
                 onClick={() => setShowEmailModal(true)}
                 disabled={!comparison}
-                className="btn-secondary"
-                style={{ padding: "10px 20px", fontSize: "14px", flexShrink: 0 }}
+                className="btn-primary"
+                style={{ padding: "12px 24px", fontSize: "14px", flexShrink: 0 }}
               >
-                Recibir gratis →
+                Recibir análisis + contacto →
               </button>
             </div>
+          </section>
 
-            {/* Email gate modal */}
+          {/* Email gate modal */}
+          <section aria-label="Modal de análisis" style={{ marginBottom: "40px" }}>
             {showEmailModal && (() => {
               const p = buildPayload();
               return p ? <EmailGateModal payload={p} onClose={() => setShowEmailModal(false)} /> : null;

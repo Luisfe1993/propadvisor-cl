@@ -31,6 +31,11 @@ export interface AnalysisPayload {
   generatedAt: string;
 }
 
+export interface LeadPayload extends AnalysisPayload {
+  email: string;
+  wantsBrokerContact: boolean;
+}
+
 interface EmailGateModalProps {
   payload: AnalysisPayload;
   onClose: () => void;
@@ -82,6 +87,7 @@ const inputStyle: React.CSSProperties = {
 
 export default function EmailGateModal({ payload, onClose }: EmailGateModalProps) {
   const [email, setEmail] = useState("");
+  const [wantsBroker, setWantsBroker] = useState(true);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -108,7 +114,7 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
       const res = await fetch("/api/send-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, ...payload }),
+        body: JSON.stringify({ email: trimmed, wantsBrokerContact: wantsBroker, ...payload }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Error al enviar");
@@ -155,8 +161,13 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
               <p style={{ fontSize: "15px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "8px" }}>
                 Te enviamos el <strong>informe PDF</strong> y el <strong>modelo Excel</strong> a <strong>{email}</strong>.
               </p>
-              <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "28px", lineHeight: 1.5 }}>
-                El Excel incluye tabla de amortización, comparación año a año y análisis de sensibilidad — todo modificable.
+              {wantsBroker && (
+                <p style={{ fontSize: "14px", color: "var(--accent-dark)", lineHeight: 1.6, marginBottom: "8px", background: "var(--accent-light)", borderRadius: "8px", padding: "10px 14px" }}>
+                  Un ejecutivo hipotecario se pondrá en contacto contigo para ayudarte con el crédito.
+                </p>
+              )}
+              <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "20px", lineHeight: 1.5 }}>
+                También te avisaremos si las tasas hipotecarias bajan — para que no pierdas la mejor oportunidad.
               </p>
               <button
                 onClick={onClose}
@@ -246,6 +257,35 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                   {errorMsg}
                 </p>
               )}
+
+              {/* Broker opt-in */}
+              <label
+                htmlFor="broker-optin"
+                style={{
+                  display: "flex", alignItems: "flex-start", gap: "10px",
+                  marginBottom: "20px", cursor: "pointer",
+                  background: wantsBroker ? "var(--accent-light)" : "var(--bg-secondary)",
+                  border: wantsBroker ? "1.5px solid var(--accent)" : "1.5px solid var(--border)",
+                  borderRadius: "10px", padding: "12px 14px",
+                  transition: "all 0.15s",
+                }}
+              >
+                <input
+                  id="broker-optin"
+                  type="checkbox"
+                  checked={wantsBroker}
+                  onChange={(e) => setWantsBroker(e.target.checked)}
+                  style={{ marginTop: "2px", accentColor: "var(--accent)", width: "16px", height: "16px", flexShrink: 0 }}
+                />
+                <div>
+                  <p style={{ margin: 0, fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.4 }}>
+                    Quiero que un ejecutivo hipotecario me contacte
+                  </p>
+                  <p style={{ margin: "2px 0 0", fontSize: "12px", color: "var(--text-muted)", lineHeight: 1.4 }}>
+                    Sin compromiso · Sin costo · Te ayudan a evaluar el crédito
+                  </p>
+                </div>
+              </label>
 
               <button
                 type="submit"

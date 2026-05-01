@@ -10,18 +10,11 @@ import type { AnalysisPayload } from "@/components/EmailGateModal";
 // ─────────────────────────────────────────────────────────
 // /calcular — Manual property analysis
 // The user enters their own property data (price, rent, etc.)
-// and gets the full 20-year analysis + affiliate + PDF CTAs.
+// and gets the full 20-year analysis + lead capture CTAs.
 // No mock data required. Works for any property in Chile.
 // ─────────────────────────────────────────────────────────
 
 const UF_FALLBACK = 37000;
-
-const bankAffiliateUrls: Record<string, { url: string }> = {
-  bancoestado: { url: "https://www.bancoestado.cl/personas/creditos/hipotecario" },
-  santander:   { url: "https://www.santander.cl/hipotecario" },
-  bci:         { url: "https://www.bci.cl/creditos/credito-hipotecario" },
-  bdechile:    { url: "https://portales.bancochile.cl/personas/creditos/hipotecario" },
-};
 
 const defaultBanks: BankRate[] = [
   { id: "bancoestado", bank: "BancoEstado",    shortName: "BE",        rate: 4.19, minDownPayment: 10, logoColor: "#1B5E20" },
@@ -310,14 +303,6 @@ export default function CalcularPage() {
                       <option key={b.id} value={b.id}>{b.bank} — {b.rate.toFixed(2)}% anual</option>
                     ))}
                   </select>
-                  {bankAffiliateUrls[selectedBankId] && (
-                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px" }}>
-                      <a href={bankAffiliateUrls[selectedBankId].url} target="_blank" rel="noopener noreferrer"
-                        style={{ fontSize: "12px", color: "var(--accent)", fontWeight: 600 }}>
-                        Ver condiciones →
-                      </a>
-                    </div>
-                  )}
                 </div>
 
                 {/* Down payment */}
@@ -466,7 +451,7 @@ export default function CalcularPage() {
                   </div>
                 )}
 
-                {/* ── Stream 1: Affiliate CTA ───────────────────── */}
+                {/* ── Lead Capture CTA ───────────────────── */}
                 <div style={{
                   background: "white", border: "1px solid var(--border)",
                   borderRadius: "12px", padding: "20px 24px",
@@ -475,60 +460,19 @@ export default function CalcularPage() {
                 }}>
                   <div>
                     <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "3px", letterSpacing: "-0.02em" }}>
-                      ¿Listo para solicitar el crédito?
+                      ¿Listo para dar el siguiente paso?
                     </p>
                     <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-                      Te conectamos con {selectedBank?.bank ?? "el banco"} sin costo.
+                      Recibe tu análisis completo y conecta con un ejecutivo hipotecario — sin costo.
                     </p>
-                  </div>
-                  <a
-                    href={bankAffiliateUrls[selectedBankId]?.url ?? "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary"
-                    style={{ padding: "10px 20px", fontSize: "14px", flexShrink: 0 }}
-                  >
-                    Solicitar crédito →
-                  </a>
-                </div>
-
-                {/* ── Stream 2: Email Gate CTA ──────────────────── */}
-                <div style={{
-                  background: "var(--bg-secondary)", border: "1px solid var(--border)",
-                  borderRadius: "12px", padding: "16px 20px",
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  gap: "16px", flexWrap: "wrap",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{
-                      width: "36px", height: "36px", borderRadius: "8px",
-                      background: "var(--accent-light)", display: "flex",
-                      alignItems: "center", justifyContent: "center",
-                      color: "var(--accent)", flexShrink: 0,
-                    }}>
-                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" strokeLinecap="round" strokeLinejoin="round" />
-                        <polyline points="14 2 14 8 20 8" strokeLinecap="round" strokeLinejoin="round" />
-                        <line x1="12" y1="18" x2="12" y2="12" strokeLinecap="round" />
-                        <line x1="9" y1="15" x2="15" y2="15" strokeLinecap="round" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "1px" }}>
-                        Recibir PDF + Excel por email
-                      </p>
-                      <p style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
-                        Gratis · Informe PDF + modelo Excel con 4 hojas interactivas.
-                      </p>
-                    </div>
                   </div>
                   <button
                     onClick={() => setShowEmailModal(true)}
                     disabled={!comparison}
-                    className="btn-secondary"
-                    style={{ padding: "9px 16px", fontSize: "13px", flexShrink: 0 }}
+                    className="btn-primary"
+                    style={{ padding: "10px 20px", fontSize: "14px", flexShrink: 0 }}
                   >
-                    Recibir gratis →
+                    Recibir análisis + contacto →
                   </button>
                 </div>
 

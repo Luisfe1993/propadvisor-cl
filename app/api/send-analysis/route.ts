@@ -34,7 +34,7 @@ function formatCLP(v: number): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, ...analysisData } = body as { email: string } & AnalysisPDFProps & ExcelReportData;
+    const { email, wantsBrokerContact, ...analysisData } = body as { email: string; wantsBrokerContact?: boolean } & AnalysisPDFProps & ExcelReportData;
 
     // Validate email
     if (!email || !isValidEmail(email)) {
@@ -49,12 +49,38 @@ export async function POST(req: NextRequest) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // Save contact to Resend audience (non-blocking)
+    // Save contact to Resend audience with lead data
     if (process.env.RESEND_AUDIENCE_ID) {
       resend.contacts.create({
         email,
         audienceId: process.env.RESEND_AUDIENCE_ID,
-      }).catch(() => {}); // fire-and-forget, don't block email sending
+        firstName: wantsBrokerContact ? "BROKER_LEAD" : "",
+        lastName: [
+          analysisData.address || "",
+          analysisData.bankName || "",
+          analysisData.interestRate ? `${analysisData.interestRate}%` : "",
+          analysisData.monthlyPayment ? `div${Math.round(analysisData.monthlyPayment)}` : "",
+          analysisData.city || "",
+        ].filter(Boolean).join(" | "),
+      }).catch(() => {}); // fire-and-forget
+    }
+
+    // Log broker leads for export (structured, easy to query)
+    if (wantsBrokerContact) {
+      console.log(JSON.stringify({
+        type: "BROKER_LEAD",
+        timestamp: new Date().toISOString(),
+        email,
+        property: analysisData.address,
+        city: analysisData.city,
+        priceCLP: analysisData.priceCLP,
+        priceUF: analysisData.priceUF,
+        bankName: analysisData.bankName,
+        interestRate: analysisData.interestRate,
+        downPaymentPct: analysisData.downPaymentPct,
+        monthlyPayment: analysisData.monthlyPayment,
+        loanTermYears: analysisData.loanTermYears,
+      }));
     }
 
     // Generate PDF and Excel in parallel
