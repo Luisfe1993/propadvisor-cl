@@ -17,11 +17,29 @@ import type { AnalysisPayload } from "@/components/EmailGateModal";
 
 const UF_FALLBACK = 37000;
 
+// Comunas by city
+const comunasByCity: Record<string, string[]> = {
+  santiago: [
+    "Providencia", "Las Condes", "Ñuñoa", "Vitacura", "Lo Barnechea",
+    "La Reina", "Macul", "San Miguel", "La Florida", "Peñalolén",
+    "Santiago Centro", "Barrio Italia", "Bellavista", "Maipú", "Puente Alto",
+    "La Cisterna", "San Bernardo", "Huechuraba", "Quilicura", "Otra",
+  ],
+  valparaiso: [
+    "Valparaíso Centro", "Viña del Mar", "Concón", "Quilpué", "Villa Alemana", "Otra",
+  ],
+  concepcion: [
+    "Concepción Centro", "San Pedro de la Paz", "Chiguayante", "Hualpén", "Talcahuano", "Otra",
+  ],
+};
+
+type PropertyPurpose = "vivienda" | "inversion";
+
 const defaultBanks: BankRate[] = [
-  { id: "bancoestado", bank: "BancoEstado",    shortName: "BE",        rate: 4.19, minDownPayment: 10, logoColor: "#1B5E20" },
-  { id: "santander",   bank: "Banco Santander", shortName: "Santander", rate: 3.43, minDownPayment: 15, logoColor: "#C41E3A" },
-  { id: "bci",         bank: "Banco BCI",       shortName: "BCI",       rate: 3.96, minDownPayment: 20, logoColor: "#003DA5" },
-  { id: "bdechile",    bank: "Banco de Chile",  shortName: "BdChile",   rate: 3.75, minDownPayment: 15, logoColor: "#0066B2" },
+  { id: "bancoestado", bank: "BancoEstado",    shortName: "BE",        rate: 4.19, rateLowPie: 4.69, rateHighPie: 3.89, minDownPayment: 10, logoColor: "#1B5E20" },
+  { id: "santander",   bank: "Banco Santander", shortName: "Santander", rate: 3.43, rateLowPie: 3.93, rateHighPie: 3.19, minDownPayment: 15, logoColor: "#C41E3A" },
+  { id: "bci",         bank: "Banco BCI",       shortName: "BCI",       rate: 3.96, rateLowPie: 4.46, rateHighPie: 3.65, minDownPayment: 20, logoColor: "#003DA5" },
+  { id: "bdechile",    bank: "Banco de Chile",  shortName: "BdChile",   rate: 3.75, rateLowPie: 4.25, rateHighPie: 3.45, minDownPayment: 15, logoColor: "#0066B2" },
 ];
 
 type InputCurrency = "CLP" | "UF";
@@ -65,6 +83,8 @@ export default function CalcularPage() {
   const [priceCurrency, setPriceCurrency] = useState<InputCurrency>("UF");
   const [rentRaw, setRentRaw]           = useState("");
   const [city, setCity]                 = useState("santiago");
+  const [comuna, setComuna]             = useState("");
+  const [purpose, setPurpose]           = useState<PropertyPurpose>("vivienda");
 
   // Mortgage inputs
   const [downPayment, setDownPayment]   = useState(20);
@@ -109,7 +129,14 @@ export default function CalcularPage() {
   })();
 
   const selectedBank  = banks.find((b) => b.id === selectedBankId) ?? banks[0];
-  const interestRate  = selectedBank?.rate ?? 4.19;
+  // Rate varies by down payment tier
+  const interestRate  = (() => {
+    if (!selectedBank) return 4.19;
+    if (downPayment >= 30) return selectedBank.rateHighPie ?? selectedBank.rate;
+    if (downPayment < 20) return selectedBank.rateLowPie ?? selectedBank.rate;
+    return selectedBank.rate;
+  })();
+  const rateTier = downPayment >= 30 ? "30%+" : downPayment < 20 ? "10-19%" : "20-29%";
   const loanAmount    = priceCLP * (1 - downPayment / 100);
   const downAmount    = priceCLP * (downPayment / 100);
   const monthlyPayment = priceCLP > 0 ? calcMonthlyPayment(loanAmount, interestRate, loanTerm) : 0;
@@ -152,8 +179,8 @@ export default function CalcularPage() {
   const buildPayload = useCallback((): AnalysisPayload | null => {
     if (!comparison || !canAnalyze) return null;
     return {
-      address: cityLabel[city] || city,
-      propertyType: "Propiedad",
+      address: comuna || cityLabel[city] || city,
+      propertyType: purpose === "inversion" ? "Inversión" : "Primera vivienda",
       city: cityLabel[city] || city,
       rooms: 0,
       baths: 0,
@@ -300,7 +327,7 @@ export default function CalcularPage() {
                   <select
                     id="city-select"
                     value={city}
-                    onChange={(e) => setCity(e.target.value)}
+                    onChange={(e) => { setCity(e.target.value); setComuna(""); }}
                     style={{ ...inputSx, cursor: "pointer" }}
                     onFocus={onFocus}
                     onBlur={onBlur}
@@ -309,6 +336,56 @@ export default function CalcularPage() {
                     <option value="valparaiso">Valparaíso</option>
                     <option value="concepcion">Concepción</option>
                   </select>
+                </div>
+
+                {/* Comuna */}
+                <div>
+                  <label htmlFor="comuna-select" style={labelSx}>Comuna / Sector</label>
+                  <select
+                    id="comuna-select"
+                    value={comuna}
+                    onChange={(e) => setComuna(e.target.value)}
+                    style={{ ...inputSx, cursor: "pointer" }}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                  >
+                    <option value="">Seleccionar comuna</option>
+                    {(comunasByCity[city] || []).map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Property purpose */}
+                <div>
+                  <label style={labelSx}>¿Para qué es la propiedad?</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                    {([
+                      { value: "vivienda" as const, label: "🏠 Primera vivienda", sub: "Pie desde 10%" },
+                      { value: "inversion" as const, label: "📈 Inversión", sub: "Pie desde 30%" },
+                    ] as const).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setPurpose(opt.value);
+                          if (opt.value === "inversion" && downPayment < 30) setDownPayment(30);
+                        }}
+                        style={{
+                          padding: "12px",
+                          border: purpose === opt.value ? "2px solid var(--accent)" : "1px solid var(--border)",
+                          borderRadius: "10px",
+                          background: purpose === opt.value ? "var(--accent-light)" : "white",
+                          cursor: "pointer",
+                          textAlign: "left",
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        <p style={{ margin: 0, fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>{opt.label}</p>
+                        <p style={{ margin: "2px 0 0", fontSize: "11px", color: "var(--text-muted)" }}>{opt.sub}</p>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
               </div>
@@ -332,10 +409,14 @@ export default function CalcularPage() {
                     onFocus={onFocus}
                     onBlur={onBlur}
                   >
-                    {banks.map((b) => (
-                      <option key={b.id} value={b.id}>{b.bank} — {b.rate.toFixed(2)}% anual</option>
-                    ))}
+                    {banks.map((b) => {
+                      const r = downPayment >= 30 ? (b.rateHighPie ?? b.rate) : downPayment < 20 ? (b.rateLowPie ?? b.rate) : b.rate;
+                      return <option key={b.id} value={b.id}>{b.bank} — {r.toFixed(2)}% anual</option>;
+                    })}
                   </select>
+                  <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "4px" }}>
+                    Tasa para pie {rateTier} · Tasas referenciales, el banco puede variar según perfil
+                  </p>
                 </div>
 
                 {/* Down payment */}
@@ -346,13 +427,13 @@ export default function CalcularPage() {
                   </label>
                   <input
                     id="down-payment"
-                    type="range" min="10" max="50" step="5"
+                    type="range" min={purpose === "inversion" ? "30" : "10"} max="50" step="5"
                     value={downPayment}
                     onChange={(e) => setDownPayment(parseInt(e.target.value))}
                     style={{ width: "100%", accentColor: "var(--accent)" }}
                   />
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>
-                    <span>10%</span><span>50%</span>
+                    <span>{purpose === "inversion" ? "30%" : "10%"}</span><span>50%</span>
                   </div>
                 </div>
 

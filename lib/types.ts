@@ -40,7 +40,9 @@ export interface BankRate {
   id: string;
   bank: string;
   shortName: string;
-  rate: number; // annual percentage
+  rate: number; // base annual percentage (20% pie)
+  rateLowPie: number; // rate for 10-19% pie (higher risk)
+  rateHighPie: number; // rate for 30%+ pie (lower risk)
   minDownPayment: number; // percentage
   logoColor: string; // hex color for design
 }

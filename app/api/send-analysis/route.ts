@@ -34,7 +34,15 @@ function formatCLP(v: number): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, wantsBrokerContact, utmSource, ...analysisData } = body as { email: string; wantsBrokerContact?: boolean; utmSource?: string } & AnalysisPDFProps & ExcelReportData;
+    const { email, wantsBrokerContact, utmSource, name, phone, incomeRange, hasPieAvailable, ...analysisData } = body as {
+      email: string;
+      wantsBrokerContact?: boolean;
+      utmSource?: string;
+      name?: string;
+      phone?: string;
+      incomeRange?: string;
+      hasPieAvailable?: boolean;
+    } & AnalysisPDFProps & ExcelReportData;
 
     // Validate email
     if (!email || !isValidEmail(email)) {
@@ -54,13 +62,15 @@ export async function POST(req: NextRequest) {
       resend.contacts.create({
         email,
         audienceId: process.env.RESEND_AUDIENCE_ID,
-        firstName: wantsBrokerContact ? "BROKER_LEAD" : "",
+        firstName: name || (wantsBrokerContact ? "BROKER_LEAD" : ""),
         lastName: [
+          wantsBrokerContact ? "BROKER" : "",
           analysisData.address || "",
           analysisData.bankName || "",
           analysisData.interestRate ? `${analysisData.interestRate}%` : "",
           analysisData.monthlyPayment ? `div${Math.round(analysisData.monthlyPayment)}` : "",
           analysisData.city || "",
+          incomeRange || "",
         ].filter(Boolean).join(" | "),
       }).catch(() => {}); // fire-and-forget
     }
@@ -71,8 +81,13 @@ export async function POST(req: NextRequest) {
         type: "BROKER_LEAD",
         timestamp: new Date().toISOString(),
         email,
+        name: name || null,
+        phone: phone || null,
+        incomeRange: incomeRange || null,
+        hasPieAvailable: hasPieAvailable ?? null,
         utmSource: utmSource || "direct",
         property: analysisData.address,
+        propertyType: analysisData.propertyType,
         city: analysisData.city,
         priceCLP: analysisData.priceCLP,
         priceUF: analysisData.priceUF,

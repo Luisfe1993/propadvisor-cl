@@ -12,33 +12,41 @@ export async function GET() {
       id: "bancoestado",
       bank: "BancoEstado",
       shortName: "BE",
-      rate: 4.19, // "Hipoteazo" UF + 3.50%
+      rate: 4.19,
+      rateLowPie: 4.69,
+      rateHighPie: 3.89,
       minDownPayment: 10,
-      logoColor: "#1B5E20", // Green (official color)
+      logoColor: "#1B5E20",
     },
     {
       id: "santander",
       bank: "Banco Santander",
       shortName: "Santander",
-      rate: 3.43, // Subsidy UF + 3.43%
+      rate: 3.43,
+      rateLowPie: 3.93,
+      rateHighPie: 3.19,
       minDownPayment: 15,
-      logoColor: "#C41E3A", // Red (official color)
+      logoColor: "#C41E3A",
     },
     {
       id: "bci",
       bank: "Banco BCI",
       shortName: "BCI",
-      rate: 3.96, // Average estimate
+      rate: 3.96,
+      rateLowPie: 4.46,
+      rateHighPie: 3.65,
       minDownPayment: 20,
-      logoColor: "#003DA5", // Blue (official color)
+      logoColor: "#003DA5",
     },
     {
       id: "bdechile",
       bank: "Banco de Chile",
       shortName: "BdChile",
-      rate: 3.75, // Estimated based on market data
+      rate: 3.75,
+      rateLowPie: 4.25,
+      rateHighPie: 3.45,
       minDownPayment: 15,
-      logoColor: "#0066B2", // Blue (official color)
+      logoColor: "#0066B2",
     },
   ];
 

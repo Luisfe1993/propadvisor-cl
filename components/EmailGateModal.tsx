@@ -35,6 +35,10 @@ export interface AnalysisPayload {
 export interface LeadPayload extends AnalysisPayload {
   email: string;
   wantsBrokerContact: boolean;
+  name?: string;
+  phone?: string;
+  incomeRange?: string;
+  hasPieAvailable?: boolean;
 }
 
 interface EmailGateModalProps {
@@ -88,6 +92,10 @@ const inputStyle: React.CSSProperties = {
 
 export default function EmailGateModal({ payload, onClose }: EmailGateModalProps) {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [incomeRange, setIncomeRange] = useState("");
+  const [hasPie, setHasPie] = useState<"" | "si" | "no">("");
   const [wantsBroker, setWantsBroker] = useState(true);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -118,7 +126,16 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
       const res = await fetch("/api/send-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, wantsBrokerContact: wantsBroker, utmSource, ...payload }),
+        body: JSON.stringify({
+          email: trimmed,
+          wantsBrokerContact: wantsBroker,
+          utmSource,
+          name: name.trim() || undefined,
+          phone: phone.trim() || undefined,
+          incomeRange: incomeRange || undefined,
+          hasPieAvailable: hasPie === "si" ? true : hasPie === "no" ? false : undefined,
+          ...payload,
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Error al enviar");
@@ -279,7 +296,7 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                 htmlFor="broker-optin"
                 style={{
                   display: "flex", alignItems: "flex-start", gap: "10px",
-                  marginBottom: "20px", cursor: "pointer",
+                  marginBottom: wantsBroker ? "12px" : "20px", cursor: "pointer",
                   background: wantsBroker ? "var(--accent-light)" : "var(--bg-secondary)",
                   border: wantsBroker ? "1.5px solid var(--accent)" : "1.5px solid var(--border)",
                   borderRadius: "10px", padding: "12px 14px",
@@ -302,6 +319,80 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                   </p>
                 </div>
               </label>
+
+              {/* Broker qualification fields — only shown when opted in */}
+              {wantsBroker && (
+                <div style={{
+                  background: "var(--bg-secondary)", borderRadius: "10px",
+                  padding: "14px", marginBottom: "20px",
+                  display: "flex", flexDirection: "column", gap: "10px",
+                  border: "1px solid var(--border)",
+                }}>
+                  <p style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "2px" }}>
+                    Para que el ejecutivo te ayude mejor (opcional)
+                  </p>
+
+                  {/* Name + Phone row */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Tu nombre"
+                      style={{ ...inputStyle, fontSize: "14px", padding: "10px 12px" }}
+                    />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Teléfono (opcional)"
+                      style={{ ...inputStyle, fontSize: "14px", padding: "10px 12px" }}
+                    />
+                  </div>
+
+                  {/* Income range */}
+                  <select
+                    value={incomeRange}
+                    onChange={(e) => setIncomeRange(e.target.value)}
+                    style={{ ...inputStyle, fontSize: "14px", padding: "10px 12px", cursor: "pointer", color: incomeRange ? "var(--text-primary)" : "var(--text-muted)" }}
+                  >
+                    <option value="">Ingreso mensual líquido (opcional)</option>
+                    <option value="<1M">Menos de $1.000.000</option>
+                    <option value="1M-2M">$1.000.000 — $2.000.000</option>
+                    <option value="2M-3M">$2.000.000 — $3.000.000</option>
+                    <option value="3M-5M">$3.000.000 — $5.000.000</option>
+                    <option value="5M+">Más de $5.000.000</option>
+                  </select>
+
+                  {/* Pie availability */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                    {([
+                      { v: "si" as const, label: "✅ Tengo el pie disponible" },
+                      { v: "no" as const, label: "⏳ Aún estoy juntando" },
+                    ]).map((opt) => (
+                      <button
+                        key={opt.v}
+                        type="button"
+                        onClick={() => setHasPie(opt.v)}
+                        style={{
+                          padding: "8px 10px",
+                          border: hasPie === opt.v ? "1.5px solid var(--accent)" : "1px solid var(--border)",
+                          borderRadius: "8px",
+                          background: hasPie === opt.v ? "var(--accent-light)" : "white",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                          fontWeight: hasPie === opt.v ? 700 : 500,
+                          color: "var(--text-primary)",
+                          textAlign: "center",
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <button
                 type="submit"
