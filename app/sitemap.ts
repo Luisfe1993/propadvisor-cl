@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { mockProperties } from "@/lib/properties";
 
 /**
  * sitemap.ts — Dynamic XML sitemap for PropAdvisor CL.
@@ -35,21 +34,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/buscar`,
+      url: `${baseUrl}/calcular`,
       lastModified,
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.9,
     },
   ];
 
-  // Dynamic property analysis pages — each one is a real estate listing
-  // with a dedicated mortgage calculator and buy-vs-rent comparison.
-  const propertyPages: MetadataRoute.Sitemap = mockProperties.map((property) => ({
-    url: `${baseUrl}/analisis/${property.id}`,
-    lastModified,
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
-  }));
-
-  return [...staticPages, ...propertyPages];
+  return staticPages;
 }

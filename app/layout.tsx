@@ -166,8 +166,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             >
               {[
                 { href: "/", label: "Inicio" },
-                { href: "/buscar", label: "Buscar" },
-                { href: "/calcular", label: "Calculadora" },
+                { href: "/calcular", label: "Analizar" },
                 { href: "/guia", label: "Guía" },
               ].map((item) => (
                 <li key={item.href} className="hidden sm:block">
@@ -179,7 +178,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             </ul>
 
             {/* CTA */}
-            <a href="/buscar" className="btn-primary" style={{ fontSize: "14px", padding: "8px 16px", borderRadius: "7px" }}>
+            <a href="/calcular" className="btn-primary" style={{ fontSize: "14px", padding: "8px 16px", borderRadius: "7px" }}>
               Analizar →
             </a>
           </nav>
@@ -231,8 +230,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </p>
                 <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px" }}>
                   {[
-                    { href: "/buscar", label: "Buscar propiedades" },
-                    { href: "/calcular", label: "Calculadora manual" },
+                    { href: "/calcular", label: "Analizar propiedad" },
                     { href: "/guia", label: "Guía de compra en Chile" },
                     { href: "/#preguntas", label: "Preguntas frecuentes" },
                   ].map((item) => (

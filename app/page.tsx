@@ -70,9 +70,9 @@ const howToJsonLd = {
   totalTime: "PT5M",
   estimatedCost: { "@type": "MonetaryAmount", currency: "CLP", value: "0" },
   step: [
-    { "@type": "HowToStep", position: 1, name: "Define tu presupuesto", text: "Ingresa el monto en UF o CLP.", url: "https://www.propadvisor.site/buscar" },
-    { "@type": "HowToStep", position: 2, name: "Filtra propiedades", text: "Selecciona ciudad, tipo y dormitorios.", url: "https://www.propadvisor.site/buscar" },
-    { "@type": "HowToStep", position: 3, name: "Obtén tu análisis", text: "Dividendo, flujo neto y proyección a 20 años.", url: "https://www.propadvisor.site/analisis/1" },
+    { "@type": "HowToStep", position: 1, name: "Ingresa los datos de la propiedad", text: "Precio de venta en UF o CLP y arriendo mensual estimado.", url: "https://www.propadvisor.site/calcular" },
+    { "@type": "HowToStep", position: 2, name: "Elige banco y condiciones", text: "Compara tasas de BancoEstado, Santander, BCI y Banco de Chile. Ajusta pie y plazo.", url: "https://www.propadvisor.site/calcular" },
+    { "@type": "HowToStep", position: 3, name: "Obtén tu análisis", text: "Dividendo mensual, flujo neto, y proyección comparativa a 20 años. Recibe PDF + Excel gratis.", url: "https://www.propadvisor.site/calcular" },
   ],
 };
 
@@ -250,11 +250,11 @@ export default function Home() {
               marginBottom: "40px",
             }}
           >
-            <a href="/buscar" className="btn-primary" style={{ padding: "13px 28px", fontSize: "15px" }}>
-              Buscar propiedades →
+            <a href="/calcular" className="btn-primary" style={{ padding: "13px 28px", fontSize: "15px" }}>
+              Analizar una propiedad →
             </a>
-            <a href="/calcular" className="btn-secondary" style={{ padding: "13px 28px", fontSize: "15px" }}>
-              Tengo una propiedad en mente
+            <a href="/guia" className="btn-secondary" style={{ padding: "13px 28px", fontSize: "15px" }}>
+              Leer la guía de compra
             </a>
           </div>
 
@@ -384,18 +384,18 @@ export default function Home() {
             {[
               {
                 n: "01",
-                title: "Define tu presupuesto",
-                desc: "Ingresa el monto disponible en UF o CLP y selecciona si es primera o segunda vivienda.",
+                title: "Ingresa los datos",
+                desc: "Precio de venta (en UF o CLP) y arriendo mensual estimado de la propiedad que encontraste.",
               },
               {
                 n: "02",
-                title: "Explora propiedades",
-                desc: "Filtra por ciudad (Santiago, Valparaíso, Concepción), tipo, dormitorios y características.",
+                title: "Elige banco y condiciones",
+                desc: "Compara tasas de BancoEstado, Santander, BCI y Banco de Chile. Ajusta el pie y el plazo.",
               },
               {
                 n: "03",
-                title: "Obtén tu análisis",
-                desc: "Recibe dividendo estimado, flujo neto si arriendas y proyección comparativa a 20 años.",
+                title: "Recibe tu análisis",
+                desc: "Dividendo mensual, 3 escenarios a 20 años, y un informe PDF + Excel enviado a tu email.",
               },
             ].map((step) => (
               <li key={step.n}>
@@ -709,11 +709,11 @@ export default function Home() {
             Sabrás si conviene más comprar, arrendar o invertir — con números reales del mercado chileno.
           </p>
           <a
-            href="/buscar"
+            href="/calcular"
             className="btn-primary"
             style={{ padding: "14px 32px", fontSize: "15px", borderRadius: "9px" }}
           >
-            Analizar propiedades ahora →
+            Analizar una propiedad ahora →
           </a>
           <p style={{ marginTop: "16px", fontSize: "13px", color: "var(--text-muted)" }}>
             Sin registro · Gratis para siempre
