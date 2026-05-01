@@ -265,15 +265,25 @@ function buildDashboard(wb: ExcelJS.Workbook, data: ExcelReportData): ExcelJS.Wo
 
   rr++; // spacer
 
-  // ── 3-Scenario Comparison Cards ──────────────────────────────────────────────
-  sectionTitle(ws, rr, 5, `COMPARACIÓN A ${data.loanTermYears} AÑOS`, 2);
+  // ── 3-Scenario Net Wealth Comparison ──────────────────────────────────────
+  sectionTitle(ws, rr, 5, `PATRIMONIO NETO A ${data.loanTermYears} AÑOS`, 2);
   rr++;
 
+  const totalRentalInc = data.rentMonthlyCLP * data.loanTermYears * 12 * 1.16;
+  const pieAt6 = data.downPaymentCLP * Math.pow(1.06, data.loanTermYears);
+  const buyNW = data.propertyValueAfter20Years - data.buyTotal;
+  const rentNW = pieAt6 - data.rentTotal;
+  const investNW = data.propertyValueAfter20Years + totalRentalInc - data.buyTotal;
+
   const scenarios: [string, number, string][] = [
-    ["🏠 Comprar para vivir — Costo total", data.buyTotal, '$#,##0;($#,##0);"-"'],
-    ["🔑 Seguir arrendando — Costo total", data.rentTotal, '$#,##0;($#,##0);"-"'],
-    ["💰 Valor propiedad en 20 años", data.propertyValueAfter20Years, '$#,##0;($#,##0);"-"'],
-    ["✅ Ahorro de comprar vs arrendar", data.savings, '+$#,##0;-$#,##0;"-"'],
+    ["🏠 Comprar para vivir — Patrimonio", buyNW, '+$#,##0;-$#,##0;"-"'],
+    ["📈 Arrendar + invertir pie — Patrimonio", rentNW, '+$#,##0;-$#,##0;"-"'],
+    ["🏢 Comprar para arrendar — Patrimonio", investNW, '+$#,##0;-$#,##0;"-"'],
+    ["", 0, ""],
+    ["Propiedad vale en " + data.loanTermYears + " años", data.propertyValueAfter20Years, '$#,##0;($#,##0);"-"'],
+    ["Pie invertido al 6% crece a", pieAt6, '$#,##0;($#,##0);"-"'],
+    ["Flujo neto mensual (inversión)", data.netMonthlyFlow, '+$#,##0;-$#,##0;"-"'],
+    ["Cap rate (rentabilidad bruta)", data.rentalYield / 100, "0.0%"],
   ];
 
   for (const [label, val, fmt] of scenarios) {

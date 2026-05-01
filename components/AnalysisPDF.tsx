@@ -301,9 +301,27 @@ export function AnalysisPDF(props: AnalysisPDFProps) {
     savings, generatedAt,
   } = props;
 
-  const recommendation = savings > 0
-    ? `Comprar para vivir es la opción más conveniente a largo plazo. En ${loanTermYears} años ahorrarías aproximadamente ${fmt(Math.abs(savings))} versus seguir arrendando, además de acumular el valor de la propiedad como patrimonio (proyectado en ${fmt(propertyValueAfter20Years)} en 20 años con 7% de apreciación anual).`
-    : `Seguir arrendando tiene menor costo directo a ${loanTermYears} años. Sin embargo, al comprar acumulas patrimonio y te proteges de futuros aumentos de arriendo. Considera ajustar el pie o el plazo para mejorar el escenario de compra.`;
+  const totalRentalIncome = rentMonthlyCLP * loanTermYears * 12 * 1.16; // ~3%/yr growth approximation
+  const investNetWealth = propertyValueAfter20Years + totalRentalIncome - buyTotal;
+  const pieAt6Pct = downPaymentCLP * Math.pow(1.06, loanTermYears);
+  const buyNetW = propertyValueAfter20Years - buyTotal;
+  const rentNetW = pieAt6Pct - rentTotal;
+  const allWealth = [
+    { s: "buy", w: buyNetW },
+    { s: "rent", w: rentNetW },
+    { s: "invest", w: investNetWealth },
+  ];
+  allWealth.sort((a, b) => b.w - a.w);
+  const winner = allWealth[0].s;
+  const winnerLabel = winner === "invest" ? "Comprar para arrendar" : winner === "buy" ? "Comprar para vivir" : "Arrendar + invertir el pie";
+
+  const recommendation = `${winnerLabel} es la opción más rentable a ${loanTermYears} años. `
+    + (winner === "invest"
+      ? `Patrimonio neto como inversión: ${fmt(investNetWealth)}. ${netMonthlyFlow >= 0 ? `Cash flow positivo de ${fmt(netMonthlyFlow)}/mes.` : `Requiere subsidio de ${fmt(Math.abs(netMonthlyFlow))}/mes, compensado por plusvalía.`}`
+      : winner === "buy"
+      ? `Patrimonio neto: ${fmt(buyNetW)}. Propiedad proyectada en ${fmt(propertyValueAfter20Years)} con 7% apreciación anual.`
+      : `Patrimonio neto: ${fmt(rentNetW)}. Tu pie invertido al 6% anual crece a ${fmt(pieAt6Pct)}.`
+    );
 
   return (
     <Document
@@ -378,37 +396,47 @@ export function AnalysisPDF(props: AnalysisPDFProps) {
 
           {/* 3-scenario comparison */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Comparación a {loanTermYears} años — 3 escenarios</Text>
+            <Text style={styles.sectionTitle}>Patrimonio neto a {loanTermYears} años — 3 escenarios</Text>
 
-            {/* Comprar para vivir */}
-            <View style={[styles.scenarioRow, styles.scenarioRowHighlight]}>
-              <View style={{ flex: 3 }}>
-                <Text style={styles.scenarioLabel}>Comprar para vivir</Text>
-                <Text style={styles.scenarioSub}>Dividendo + gastos mensuales, acumulas patrimonio</Text>
-              </View>
-              <Text style={[styles.scenarioValue, { color: TEAL }]}>{fmt(buyTotal)}</Text>
+            {/* Headers */}
+            <View style={styles.scenarioTableHeader}>
+              <Text style={{ flex: 2, fontSize: 8, color: GRAY_MUTED, fontFamily: "Helvetica-Bold" }}>Escenario</Text>
+              <Text style={{ flex: 1, fontSize: 8, color: GRAY_MUTED, fontFamily: "Helvetica-Bold", textAlign: "right" }}>Gastas</Text>
+              <Text style={{ flex: 1, fontSize: 8, color: GRAY_MUTED, fontFamily: "Helvetica-Bold", textAlign: "right" }}>Ganas</Text>
+              <Text style={{ flex: 1, fontSize: 8, color: GRAY_MUTED, fontFamily: "Helvetica-Bold", textAlign: "right" }}>Patrimonio</Text>
             </View>
 
-            {/* Seguir arrendando */}
-            <View style={styles.scenarioRow}>
-              <View style={{ flex: 3 }}>
-                <Text style={styles.scenarioLabel}>Seguir arrendando</Text>
-                <Text style={styles.scenarioSub}>{fmt(rentMonthlyCLP)}/mes × {loanTermYears * 12} meses</Text>
+            {/* Comprar para vivir */}
+            <View style={[styles.scenarioRow, winner === "buy" ? styles.scenarioRowHighlight : {}]}>
+              <View style={{ flex: 2 }}>
+                <Text style={styles.scenarioLabel}>{winner === "buy" ? "⭐ " : ""}Comprar para vivir</Text>
               </View>
-              <Text style={[styles.scenarioValue, { color: GRAY_TEXT }]}>{fmt(rentTotal)}</Text>
+              <Text style={{ flex: 1, fontSize: 10, textAlign: "right", color: RED }}>{fmt(buyTotal)}</Text>
+              <Text style={{ flex: 1, fontSize: 10, textAlign: "right", color: GREEN }}>{fmt(propertyValueAfter20Years)}</Text>
+              <Text style={[styles.scenarioValue, { flex: 1, color: buyNetW >= 0 ? GREEN : RED }]}>{buyNetW >= 0 ? "+" : ""}{fmt(buyNetW)}</Text>
+            </View>
+
+            {/* Arrendar + invertir */}
+            <View style={[styles.scenarioRow, winner === "rent" ? styles.scenarioRowHighlight : {}]}>
+              <View style={{ flex: 2 }}>
+                <Text style={styles.scenarioLabel}>{winner === "rent" ? "⭐ " : ""}Arrendar + invertir pie</Text>
+              </View>
+              <Text style={{ flex: 1, fontSize: 10, textAlign: "right", color: RED }}>{fmt(rentTotal)}</Text>
+              <Text style={{ flex: 1, fontSize: 10, textAlign: "right", color: GREEN }}>{fmt(pieAt6Pct)}</Text>
+              <Text style={[styles.scenarioValue, { flex: 1, color: rentNetW >= 0 ? GREEN : RED }]}>{rentNetW >= 0 ? "+" : ""}{fmt(rentNetW)}</Text>
             </View>
 
             {/* Comprar para arrendar */}
-            <View style={styles.scenarioRow}>
-              <View style={{ flex: 3 }}>
-                <Text style={styles.scenarioLabel}>Comprar para arrendar</Text>
+            <View style={[styles.scenarioRow, winner === "invest" ? styles.scenarioRowHighlight : {}]}>
+              <View style={{ flex: 2 }}>
+                <Text style={styles.scenarioLabel}>{winner === "invest" ? "⭐ " : ""}Comprar para arrendar</Text>
                 <Text style={styles.scenarioSub}>
-                  Flujo neto mensual: {netMonthlyFlow >= 0 ? "+" : ""}{fmt(netMonthlyFlow)} · Rentabilidad bruta: {rentalYield.toFixed(1)}% anual
+                  Flujo: {netMonthlyFlow >= 0 ? "+" : ""}{fmt(netMonthlyFlow)}/mes · Cap rate: {rentalYield.toFixed(1)}%
                 </Text>
               </View>
-              <Text style={[styles.scenarioValue, { color: netMonthlyFlow >= 0 ? GREEN : RED }]}>
-                {netMonthlyFlow >= 0 ? "+" : ""}{fmt(netMonthlyFlow)}/mes
-              </Text>
+              <Text style={{ flex: 1, fontSize: 10, textAlign: "right", color: RED }}>{fmt(buyTotal)}</Text>
+              <Text style={{ flex: 1, fontSize: 10, textAlign: "right", color: GREEN }}>{fmt(propertyValueAfter20Years + totalRentalIncome)}</Text>
+              <Text style={[styles.scenarioValue, { flex: 1, color: investNetWealth >= 0 ? GREEN : RED }]}>{investNetWealth >= 0 ? "+" : ""}{fmt(investNetWealth)}</Text>
             </View>
           </View>
 
@@ -418,7 +446,7 @@ export function AnalysisPDF(props: AnalysisPDFProps) {
             <View style={styles.recommendationBox}>
               <Text style={styles.recommendationText}>{recommendation}</Text>
               <Text style={styles.disclaimer}>
-                Proyección con 7% apreciación anual estimada para el mercado chileno. Cálculo educativo — no incluye plusvalía, impuestos, gastos de escritura ni seguros.
+                Supuestos: plusvalía 7%/año · arriendo sube 3%/año · fondo alternativo 6%/año · no incluye impuestos, comisiones de venta ni escritura.
               </Text>
             </View>
           </View>

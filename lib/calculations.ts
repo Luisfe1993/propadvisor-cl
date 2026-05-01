@@ -137,30 +137,68 @@ export function calc20YearComparison(
   // Net wealth if you rent: pie invested + monthly savings invested - total rent spent
   const rentNetWealth = pieInvested + rentInvestmentGrowth - totalRentCost;
 
+  // ── BUY-TO-RENT SCENARIO ──────────────────────────────
+  // Total rental income received over the term (rent grows 3%/year)
+  let totalRentalIncome = 0;
+  for (let m = 0; m < months; m++) {
+    const year = Math.floor(m / 12);
+    totalRentalIncome += rentMonthlyCost * Math.pow(1 + annualRentInflation, year);
+  }
+
+  // Net wealth if you buy to rent: property value + rental income - total buy cost
+  // (You still need to pay your own rent elsewhere — this is a pure investment view)
+  const investNetWealth = propertyValueAfterTerm + totalRentalIncome - totalBuyCost;
+
+  // Cash-on-cash return (annual net flow / pie)
+  const initialFlow = rentMonthlyCost - buyMonthlyCost;
+  const cashOnCash = initialInvestment > 0 ? (initialFlow * 12) / initialInvestment : 0;
+
+  // Year when rental income covers buy monthly cost (cash flow break-even)
+  let cashFlowBreakEvenYear = -1;
+  for (let year = 1; year <= termYears; year++) {
+    const rentAtYear = rentMonthlyCost * Math.pow(1 + annualRentInflation, year);
+    if (rentAtYear >= buyMonthlyCost && cashFlowBreakEvenYear === -1) {
+      cashFlowBreakEvenYear = year;
+    }
+  }
+
+  // Minimum pie % for positive cash flow (binary search)
+  let minPieForPositiveFlow = -1;
+  for (let testPie = 10; testPie <= 50; testPie += 5) {
+    const testLoan = propertyPriceCLP * (1 - testPie / 100);
+    const testRate = annualAppreciation; // approximate — uses same rate
+    const testMonthly = calcMonthlyPayment(testLoan, 3.5, termYears); // use mid-market rate
+    const testMaintenance = buyMonthlyCost - (propertyPriceCLP > 0 ? calcMonthlyPayment(propertyPriceCLP * (1 - initialInvestment / propertyPriceCLP), 3.5, termYears) : 0);
+    // Simplified: just check if rent covers payment + maintenance portion
+    const maintenancePortion = buyMonthlyCost - calcMonthlyPayment(propertyPriceCLP - initialInvestment, 3.5, termYears);
+    if (rentMonthlyCost >= testMonthly + (buyMonthlyCost - (propertyPriceCLP > 0 ? calcMonthlyPayment(propertyPriceCLP - initialInvestment, 3.5, termYears) : 0)) && minPieForPositiveFlow === -1) {
+      minPieForPositiveFlow = testPie;
+    }
+  }
+
+  // ── DETERMINE WINNER across all 3 ───────────────────
+  const allWealth = [
+    { scenario: "buy" as const, wealth: buyNetWealth },
+    { scenario: "rent" as const, wealth: rentNetWealth },
+    { scenario: "invest" as const, wealth: investNetWealth },
+  ];
+  allWealth.sort((a, b) => b.wealth - a.wealth);
+  const winner = allWealth[0].scenario;
+
   // ── VERDICT ──────────────────────────────────────────
-  // Positive = buying makes you wealthier
   const netWealthDifference = buyNetWealth - rentNetWealth;
 
   // Break-even: year where buying net wealth first exceeds renting net wealth
   let breakEvenYear = -1;
   let cumBuy = initialInvestment;
   let cumRent = 0;
-  let cumRentInvest = 0;
   for (let year = 1; year <= termYears; year++) {
     cumBuy += buyMonthlyCost * 12;
     for (let m = 0; m < 12; m++) {
-      const currentRent = rentMonthlyCost * Math.pow(1 + annualRentInflation, year - 1);
-      cumRent += currentRent;
-      const saving = buyMonthlyCost - currentRent;
-      if (saving > 0) {
-        cumRentInvest += saving;
-      }
+      cumRent += rentMonthlyCost * Math.pow(1 + annualRentInflation, year - 1);
     }
     const propValueAtYear = propertyPriceCLP * Math.pow(1 + annualAppreciation, year);
     const pieAtYear = initialInvestment * Math.pow(1 + annualInvestmentReturn, year);
-    const buyWealthAtYear = propValueAtYear - cumBuy;
-    const rentWealthAtYear = pieAtYear + cumRentInvest * Math.pow(1 + annualInvestmentReturn, (termYears - year)) / Math.pow(1 + annualInvestmentReturn, (termYears - year)) - cumRent;
-    // Simplified break-even: cumulative buy advantage
     const buyNetAtYear = cumBuy - propValueAtYear;
     const rentNetAtYear = cumRent - pieAtYear;
     if (buyNetAtYear < rentNetAtYear && breakEvenYear === -1) {
@@ -176,13 +214,20 @@ export function calc20YearComparison(
     propertyValueAfter20Years: propertyValueAfterTerm,
     appreciationGain,
     // Opportunity cost
-    pieInvested, // what the pie becomes if invested
-    pieOpportunityCost, // gain from investing pie
-    // Net wealth (the real comparison)
+    pieInvested,
+    pieOpportunityCost,
+    // Net wealth (3-way)
     buyNetWealth,
     rentNetWealth,
-    netWealthDifference, // positive = buying wins
-    // Legacy field (kept for compatibility)
+    investNetWealth,
+    totalRentalIncome,
+    netWealthDifference,
+    // Winner
+    winner,
+    // Investment metrics
+    cashOnCash,
+    cashFlowBreakEvenYear,
+    // Legacy
     savings: netWealthDifference,
     breakEvenYear,
     termYears,
