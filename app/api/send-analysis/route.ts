@@ -34,7 +34,7 @@ function formatCLP(v: number): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, wantsBrokerContact, ...analysisData } = body as { email: string; wantsBrokerContact?: boolean } & AnalysisPDFProps & ExcelReportData;
+    const { email, wantsBrokerContact, utmSource, ...analysisData } = body as { email: string; wantsBrokerContact?: boolean; utmSource?: string } & AnalysisPDFProps & ExcelReportData;
 
     // Validate email
     if (!email || !isValidEmail(email)) {
@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
         type: "BROKER_LEAD",
         timestamp: new Date().toISOString(),
         email,
+        utmSource: utmSource || "direct",
         property: analysisData.address,
         city: analysisData.city,
         priceCLP: analysisData.priceCLP,

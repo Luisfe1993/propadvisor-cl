@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { MobileNav } from "./MobileNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -177,10 +178,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               ))}
             </ul>
 
-            {/* CTA */}
-            <a href="/calcular" className="btn-primary" style={{ fontSize: "14px", padding: "8px 16px", borderRadius: "7px" }}>
-              Analizar →
-            </a>
+            {/* CTA + Mobile menu */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <a href="/calcular" className="btn-primary" style={{ fontSize: "14px", padding: "8px 16px", borderRadius: "7px" }}>
+                Analizar →
+              </a>
+              <MobileNav />
+            </div>
           </nav>
         </header>
 

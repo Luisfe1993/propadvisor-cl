@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { track } from "@vercel/analytics";
 import { calcMonthlyPayment, calc20YearComparison } from "@/lib/calculations";
 import type { Property, BankRate } from "@/lib/types";
 import EmailGateModal from "@/components/EmailGateModal";
@@ -398,7 +399,7 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
                 </p>
               </div>
               <button
-                onClick={() => setShowEmailModal(true)}
+                onClick={() => { setShowEmailModal(true); track("lead_cta_clicked", { page: "analisis", property: property?.address || "" }); }}
                 disabled={!comparison}
                 className="btn-primary"
                 style={{ padding: "12px 24px", fontSize: "14px", flexShrink: 0 }}

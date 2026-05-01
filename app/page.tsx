@@ -60,6 +60,30 @@ const faqJsonLd = {
         text: "Para rentabilidad: Ñuñoa, Santiago Centro y Providencia. Para plusvalía: Las Condes y Vitacura.",
       },
     },
+    {
+      "@type": "Question",
+      name: "¿Cuánto debería ser mi dividendo mensual máximo?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "La regla general es que tu dividendo no supere el 25-30% de tu ingreso líquido mensual.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿Cuánto gana un departamento en arriendo en Chile?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "La rentabilidad bruta típica en Santiago es 4-6% anual. Un departamento de UF 3.000 genera entre $370K-$555K/mes.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "¿Qué banco tiene la mejor tasa hipotecaria en Chile?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Las tasas varían según perfil. En 2026, las tasas fijas a 20 años van de 3.4% a 5.5%. PropAdvisor compara BancoEstado, Santander, BCI y Banco de Chile.",
+      },
+    },
   ],
 };
 
@@ -101,6 +125,18 @@ const faqs = [
   {
     q: "¿Cuáles son las mejores comunas para invertir en Santiago?",
     a: "Para rentabilidad por arriendo: Ñuñoa, Santiago Centro y Barrio Brasil. Para plusvalía a largo plazo: Las Condes y Vitacura. Para equilibrio entre ambas: Macul y La Reina.",
+  },
+  {
+    q: "¿Cuánto debería ser mi dividendo mensual máximo?",
+    a: "La regla general es que tu dividendo no supere el 25-30% de tu ingreso líquido mensual. Si ganas $2M líquidos, tu dividendo no debería pasar de $500K-$600K. PropAdvisor te muestra el dividendo exacto con cada banco.",
+  },
+  {
+    q: "¿Cuánto gana un departamento en arriendo en Chile?",
+    a: "La rentabilidad bruta típica en Santiago es 4-6% anual. Un departamento de UF 3.000 (~$111M CLP) genera entre $370K-$555K/mes de arriendo. Pero debes restar dividendo, gastos comunes, seguros y vacancia para obtener la rentabilidad neta real.",
+  },
+  {
+    q: "¿Qué banco tiene la mejor tasa hipotecaria en Chile?",
+    a: "Las tasas varían según perfil crediticio, monto del crédito y relación con el banco. En 2026, las tasas fijas a 20 años van de 3.4% a 5.5%. PropAdvisor compara BancoEstado, Santander, BCI y Banco de Chile para que veas el dividendo con cada uno.",
   },
 ];
 

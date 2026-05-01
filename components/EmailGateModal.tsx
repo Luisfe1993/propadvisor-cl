@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { track } from "@vercel/analytics";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -92,6 +93,9 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
   const [errorMsg, setErrorMsg] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Capture UTM params from URL
+  const utmSource = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("utm_source") || "" : "";
+
   useEffect(() => {
     // Focus input on open
     setTimeout(() => inputRef.current?.focus(), 50);
@@ -114,11 +118,12 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
       const res = await fetch("/api/send-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, wantsBrokerContact: wantsBroker, ...payload }),
+        body: JSON.stringify({ email: trimmed, wantsBrokerContact: wantsBroker, utmSource, ...payload }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Error al enviar");
       setStatus("success");
+      track("email_submitted", { broker_optin: wantsBroker, city: payload.city, utm_source: utmSource });
     } catch (err: unknown) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Ocurrió un error. Intenta de nuevo.");

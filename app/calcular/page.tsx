@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { track } from "@vercel/analytics";
 import { calcMonthlyPayment, calc20YearComparison } from "@/lib/calculations";
 import type { BankRate } from "@/lib/types";
 import EmailGateModal from "@/components/EmailGateModal";
@@ -69,6 +70,7 @@ export default function CalcularPage() {
   const [downPayment, setDownPayment]   = useState(20);
   const [loanTerm, setLoanTerm]         = useState(20);
   const [selectedBankId, setSelectedBankId] = useState("bancoestado");
+  const [monthlyCosts, setMonthlyCosts] = useState(200000);
 
   // Remote data
   const [banks, setBanks]       = useState<BankRate[]>(defaultBanks);
@@ -112,14 +114,33 @@ export default function CalcularPage() {
   const downAmount    = priceCLP * (downPayment / 100);
   const monthlyPayment = priceCLP > 0 ? calcMonthlyPayment(loanAmount, interestRate, loanTerm) : 0;
 
-  const comparison = priceCLP > 0 && rentCLP > 0
-    ? calc20YearComparison(monthlyPayment + 500000, rentCLP, downAmount, priceCLP)
+  // Auto-suggest rent when price changes and rent is empty
+  const suggestedRent = priceCLP > 0 ? Math.round(priceCLP * 0.004) : 0;
+
+  const effectiveRent = rentCLP > 0 ? rentCLP : suggestedRent;
+
+  const comparison = priceCLP > 0 && effectiveRent > 0
+    ? calc20YearComparison(monthlyPayment + monthlyCosts, effectiveRent, downAmount, priceCLP)
     : null;
 
-  const netFlow     = rentCLP - monthlyPayment - 500000;
-  const rentalYield = priceCLP > 0 && rentCLP > 0 ? (rentCLP * 12) / priceCLP * 100 : 0;
+  const netFlow     = effectiveRent - monthlyPayment - monthlyCosts;
+  const rentalYield = priceCLP > 0 && effectiveRent > 0 ? (effectiveRent * 12) / priceCLP * 100 : 0;
 
-  const canAnalyze = priceCLP > 0 && rentCLP > 0;
+  const canAnalyze = priceCLP > 0 && effectiveRent > 0;
+
+  // Track analysis completion
+  useEffect(() => {
+    if (canAnalyze && comparison) {
+      track("analysis_completed", {
+        city,
+        bank: selectedBank?.bank || "",
+        priceUF: Math.round(priceUF),
+        downPayment,
+        loanTerm,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canAnalyze]);
 
   const cityLabel: Record<string, string> = {
     santiago: "Santiago", valparaiso: "Valparaíso", concepcion: "Concepción",
@@ -144,7 +165,7 @@ export default function CalcularPage() {
       monthlyPayment,
       buyTotal: comparison.buyTotal,
       rentTotal: comparison.rentTotal,
-      rentMonthlyCLP: rentCLP,
+      rentMonthlyCLP: effectiveRent,
       netMonthlyFlow: netFlow,
       rentalYield,
       propertyValueAfter20Years: comparison.propertyValueAfter20Years,
@@ -165,13 +186,17 @@ export default function CalcularPage() {
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" }}>
             <div>
               <p style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--accent)", marginBottom: "6px" }}>
-                Calculadora manual
+                Calculadora hipotecaria Chile
               </p>
               <h1 style={{ fontSize: "clamp(26px, 4vw, 34px)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: "6px" }}>
-                Analiza cualquier propiedad
+                Calcula tu dividendo y compara escenarios
               </h1>
               <p style={{ fontSize: "16px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                Ingresa el precio y arriendo estimado de la propiedad que encontraste — obtendrás el análisis completo a 20 años.
+                Ingresa el precio de la propiedad que encontraste — obtendrás dividendo, comparación a 20 años y un informe completo.
+              </p>
+              <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "8px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                <span>📡 UF actualizada · Banco Central</span>
+                <span>🏦 Tasas reales · 4 bancos</span>
               </p>
             </div>
             {canAnalyze && (
@@ -240,7 +265,7 @@ export default function CalcularPage() {
                 {/* Estimated monthly rent */}
                 <div>
                   <label htmlFor="rent-input" style={labelSx}>
-                    Arriendo mensual estimado (CLP) <span aria-label="obligatorio">*</span>
+                    Arriendo mensual estimado (CLP)
                   </label>
                   <input
                     id="rent-input"
@@ -248,12 +273,17 @@ export default function CalcularPage() {
                     inputMode="numeric"
                     value={rentRaw}
                     onChange={(e) => setRentRaw(e.target.value)}
-                    placeholder="Ej: 450000"
+                    placeholder={suggestedRent > 0 ? `Sugerido: ${suggestedRent.toLocaleString("es-CL")}` : "Ej: 450000"}
                     style={inputSx}
                     onFocus={onFocus}
                     onBlur={onBlur}
                   />
-                  {rentCLP > 0 && priceCLP > 0 && (
+                  {rentCLP === 0 && suggestedRent > 0 && (
+                    <p style={{ fontSize: "12px", color: "var(--accent)", marginTop: "5px", fontWeight: 600 }}>
+                      Usando estimación: {formatCLP(suggestedRent)}/mes (0.4% del precio)
+                    </p>
+                  )}
+                  {effectiveRent > 0 && priceCLP > 0 && (
                     <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "5px" }}>
                       Rentabilidad bruta: <strong style={{ color: rentalYield >= 5 ? "#16a34a" : "var(--text-secondary)" }}>{rentalYield.toFixed(1)}%</strong> anual
                       {rentalYield >= 5 ? " — buen retorno" : rentalYield >= 4 ? " — retorno aceptable" : " — retorno bajo"}
@@ -340,8 +370,42 @@ export default function CalcularPage() {
                   </select>
                 </div>
 
+                {/* Monthly costs */}
+                <div>
+                  <label htmlFor="monthly-costs" style={labelSx}>
+                    Gastos mensuales (GGCC + seguros): {formatCLP(monthlyCosts)}
+                  </label>
+                  <input
+                    id="monthly-costs"
+                    type="range" min="50000" max="500000" step="25000"
+                    value={monthlyCosts}
+                    onChange={(e) => setMonthlyCosts(parseInt(e.target.value))}
+                    style={{ width: "100%", accentColor: "var(--accent)" }}
+                  />
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>
+                    <span>$50K</span><span>$500K</span>
+                  </div>
+                </div>
+
               </div>
             </fieldset>
+
+            {/* Portal Inmobiliario nudge */}
+            <div style={{
+              border: "1px solid var(--border)", borderRadius: "12px",
+              padding: "16px 20px", background: "var(--bg-secondary)",
+              display: "flex", alignItems: "flex-start", gap: "12px",
+            }}>
+              <span style={{ fontSize: "20px", flexShrink: 0, marginTop: "2px" }}>💡</span>
+              <div>
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "4px" }}>
+                  ¿Encontraste algo en Portal Inmobiliario?
+                </p>
+                <p style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                  Copia el precio de la publicación arriba. Para el arriendo, busca propiedades similares en arriendo en la misma zona o usa nuestra estimación automática.
+                </p>
+              </div>
+            </div>
 
           </div>
 
@@ -385,14 +449,14 @@ export default function CalcularPage() {
                     {[
                       {
                         label: "Comprar para vivir",
-                        sub: "Pagas dividendo + gastos",
+                        sub: `Dividendo ${formatCLP(monthlyPayment)} + gastos ${formatCLP(monthlyCosts)}/mes`,
                         value: formatCLP(comparison?.buyTotal ?? 0),
                         highlight: (comparison?.savings ?? 0) > 0,
                         color: "var(--accent)",
                       },
                       {
                         label: "Seguir arrendando",
-                        sub: `${formatCLP(rentCLP)}/mes × ${loanTerm * 12} meses`,
+                        sub: `${formatCLP(effectiveRent)}/mes × ${loanTerm * 12} meses`,
                         value: formatCLP(comparison?.rentTotal ?? 0),
                         highlight: false,
                         color: "var(--text-primary)",
@@ -467,7 +531,7 @@ export default function CalcularPage() {
                     </p>
                   </div>
                   <button
-                    onClick={() => setShowEmailModal(true)}
+                    onClick={() => { setShowEmailModal(true); track("lead_cta_clicked", { page: "calcular" }); }}
                     disabled={!comparison}
                     className="btn-primary"
                     style={{ padding: "10px 20px", fontSize: "14px", flexShrink: 0 }}

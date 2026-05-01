@@ -123,7 +123,7 @@ export function GuiaAccordion() {
             La <strong className="text-[var(--text-primary)]">Unidad de Fomento (UF)</strong> es una unidad de cuenta chilena creada en 1967 para mantener el poder adquisitivo de los contratos financieros frente a la inflación. Su valor se actualiza diariamente según el IPC (Índice de Precios al Consumidor) publicado por el INE.
           </p>
           <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
-            En abril 2026, 1 UF equivale aproximadamente a <strong className="text-[var(--text-primary)]">$37.000 CLP</strong>. Su valor histórico es: $15.000 en 2000, $25.000 en 2015, $35.000 en 2022, ~$37.000 en 2026. Esto refleja la inflación acumulada.
+            En 2026, 1 UF equivale aproximadamente a <strong className="text-[var(--text-primary)]">$37.000 CLP</strong>. Su valor histórico es: $15.000 en 2000, $25.000 en 2015, $35.000 en 2022, ~$37.000 en 2026. Esto refleja la inflación acumulada.
           </p>
           <p className="text-[var(--text-secondary)] leading-relaxed mb-6">
             Implicación práctica: si pides un crédito de 2.000 UF hoy (equivalentes a $74 millones CLP), el año siguiente esas 2.000 UF equivaldrán a ~$76-78 millones CLP. Tu deuda en pesos <em>nunca baja</em> en términos nominales mientras haya inflación, aunque vayas pagando cuotas.

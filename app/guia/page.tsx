@@ -110,7 +110,7 @@ export default function GuiaPage() {
           <div className="flex flex-col md:flex-row md:items-center gap-10 md:gap-16">
             <div className="flex-1">
               <div className="mb-6 inline-block px-3 py-1.5 bg-[var(--accent-light)] rounded-full">
-                <span className="text-[var(--accent)] text-sm font-semibold">Guía actualizada · Abril 2026</span>
+                <span className="text-[var(--accent)] text-sm font-semibold">Guía actualizada · {new Date().toLocaleDateString("es-CL", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())}</span>
               </div>
               <h1
                 id="guia-heading"
