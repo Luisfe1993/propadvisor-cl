@@ -5,6 +5,7 @@ import Link from "next/link";
 import { track } from "@vercel/analytics";
 import { calcMonthlyPayment, calc20YearComparison } from "@/lib/calculations";
 import type { BankRate } from "@/lib/types";
+import { getComunaInfo, getCityOptions, getComunaOptions, cityData } from "@/lib/comunaData";
 import EmailGateModal from "@/components/EmailGateModal";
 import type { AnalysisPayload } from "@/components/EmailGateModal";
 
@@ -16,22 +17,6 @@ import type { AnalysisPayload } from "@/components/EmailGateModal";
 // ─────────────────────────────────────────────────────────
 
 const UF_FALLBACK = 37000;
-
-// Comunas by city
-const comunasByCity: Record<string, string[]> = {
-  santiago: [
-    "Providencia", "Las Condes", "Ñuñoa", "Vitacura", "Lo Barnechea",
-    "La Reina", "Macul", "San Miguel", "La Florida", "Peñalolén",
-    "Santiago Centro", "Barrio Italia", "Bellavista", "Maipú", "Puente Alto",
-    "La Cisterna", "San Bernardo", "Huechuraba", "Quilicura", "Otra",
-  ],
-  valparaiso: [
-    "Valparaíso Centro", "Viña del Mar", "Concón", "Quilpué", "Villa Alemana", "Otra",
-  ],
-  concepcion: [
-    "Concepción Centro", "San Pedro de la Paz", "Chiguayante", "Hualpén", "Talcahuano", "Otra",
-  ],
-};
 
 type PropertyPurpose = "vivienda" | "inversion";
 
@@ -141,13 +126,18 @@ export default function CalcularPage() {
   const downAmount    = priceCLP * (downPayment / 100);
   const monthlyPayment = priceCLP > 0 ? calcMonthlyPayment(loanAmount, interestRate, loanTerm) : 0;
 
-  // Auto-suggest rent when price changes and rent is empty
-  const suggestedRent = priceCLP > 0 ? Math.round(priceCLP * 0.004) : 0;
+  // Comuna-specific data
+  const comunaInfo = getComunaInfo(city, comuna);
+  const comunaAppreciation = comunaInfo?.appreciation ?? 0.06;
+  const comunaCapRate = comunaInfo?.capRate ?? 0.048;
+
+  // Auto-suggest rent using comuna cap rate (monthly = price × capRate / 12)
+  const suggestedRent = priceCLP > 0 ? Math.round(priceCLP * comunaCapRate / 12) : 0;
 
   const effectiveRent = rentCLP > 0 ? rentCLP : suggestedRent;
 
   const comparison = priceCLP > 0 && effectiveRent > 0
-    ? calc20YearComparison(monthlyPayment + monthlyCosts, effectiveRent, downAmount, priceCLP, loanTerm)
+    ? calc20YearComparison(monthlyPayment + monthlyCosts, effectiveRent, downAmount, priceCLP, loanTerm, comunaAppreciation)
     : null;
 
   const netFlow     = effectiveRent - monthlyPayment - monthlyCosts;
@@ -172,16 +162,14 @@ export default function CalcularPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canAnalyze]);
 
-  const cityLabel: Record<string, string> = {
-    santiago: "Santiago", valparaiso: "Valparaíso", concepcion: "Concepción",
-  };
+  const getCityLabel = (id: string) => cityData[id]?.label || id;
 
   const buildPayload = useCallback((): AnalysisPayload | null => {
     if (!comparison || !canAnalyze) return null;
     return {
-      address: comuna || cityLabel[city] || city,
+      address: comunaInfo?.label || getCityLabel(city),
       propertyType: purpose === "inversion" ? "Inversión" : "Primera vivienda",
-      city: cityLabel[city] || city,
+      city: getCityLabel(city),
       rooms: 0,
       baths: 0,
       priceCLP,
@@ -202,7 +190,7 @@ export default function CalcularPage() {
       savings: comparison.savings,
       generatedAt: new Date().toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" }),
     };
-  }, [comparison, canAnalyze, city, cityLabel, priceCLP, priceUF, ufValue, selectedBank, interestRate, downPayment, downAmount, loanTerm, monthlyPayment, rentCLP, netFlow, rentalYield]);
+  }, [comparison, canAnalyze, city, comunaInfo, priceCLP, priceUF, ufValue, selectedBank, interestRate, downPayment, downAmount, loanTerm, monthlyPayment, rentCLP, netFlow, rentalYield]);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
@@ -310,7 +298,7 @@ export default function CalcularPage() {
                   />
                   {rentCLP === 0 && suggestedRent > 0 && (
                     <p style={{ fontSize: "12px", color: "var(--accent)", marginTop: "5px", fontWeight: 600 }}>
-                      Usando estimación: {formatCLP(suggestedRent)}/mes (0.4% del precio)
+                      Usando estimación: {formatCLP(suggestedRent)}/mes (cap rate {(comunaCapRate * 100).toFixed(1)}% {comunaInfo?.label || ""})
                     </p>
                   )}
                   {effectiveRent > 0 && priceCLP > 0 && (
@@ -332,9 +320,9 @@ export default function CalcularPage() {
                     onFocus={onFocus}
                     onBlur={onBlur}
                   >
-                    <option value="santiago">Santiago</option>
-                    <option value="valparaiso">Valparaíso</option>
-                    <option value="concepcion">Concepción</option>
+                    {getCityOptions().map((c) => (
+                      <option key={c.value} value={c.value}>{c.label} ({c.region})</option>
+                    ))}
                   </select>
                 </div>
 
@@ -350,11 +338,46 @@ export default function CalcularPage() {
                     onBlur={onBlur}
                   >
                     <option value="">Seleccionar comuna</option>
-                    {(comunasByCity[city] || []).map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                    {getComunaOptions(city).map((c) => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
                     ))}
                   </select>
                 </div>
+
+                {/* Comuna context card */}
+                {comunaInfo && comuna && (
+                  <div style={{
+                    background: "var(--accent-light)", border: "1px solid var(--accent)",
+                    borderRadius: "10px", padding: "12px 14px",
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                      <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--accent-dark)" }}>{comunaInfo.label}</p>
+                      <span style={{
+                        fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "4px",
+                        background: comunaInfo.risk === "low" ? "#dcfce7" : comunaInfo.risk === "high" ? "#fef2f2" : "#fef9c3",
+                        color: comunaInfo.risk === "low" ? "#16a34a" : comunaInfo.risk === "high" ? "#dc2626" : "#a16207",
+                      }}>
+                        Riesgo {comunaInfo.risk === "low" ? "bajo" : comunaInfo.risk === "high" ? "alto" : "medio"}
+                      </span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", fontSize: "11px", marginBottom: "6px" }}>
+                      <div>
+                        <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Plusvalía/año</p>
+                        <p style={{ fontWeight: 700, color: "var(--text-primary)" }}>{(comunaInfo.appreciation * 100).toFixed(0)}%</p>
+                      </div>
+                      <div>
+                        <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Cap rate</p>
+                        <p style={{ fontWeight: 700, color: "var(--text-primary)" }}>{(comunaInfo.capRate * 100).toFixed(1)}%</p>
+                      </div>
+                      <div>
+                        <p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Precio m²</p>
+                        <p style={{ fontWeight: 700, color: "var(--text-primary)" }}>UF {comunaInfo.avgPricePerM2UF}</p>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: "11px", color: "var(--text-secondary)" }}>{comunaInfo.note}</p>
+                    {comunaInfo.metro && <p style={{ fontSize: "10px", color: "var(--accent)", marginTop: "4px", fontWeight: 600 }}>🚇 Conectividad metro/transporte público</p>}
+                  </div>
+                )}
 
                 {/* Property purpose */}
                 <div>
@@ -662,7 +685,7 @@ export default function CalcularPage() {
                         </p>
                       )}
                       <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "10px", paddingTop: "8px", borderTop: "1px solid var(--border)" }}>
-                        Supuestos: plusvalía 7%/año · arriendo sube 3%/año · fondo alternativo 6%/año · no incluye impuestos ni comisiones.
+                        Supuestos: plusvalía {(comunaAppreciation * 100).toFixed(0)}%/año ({comunaInfo?.label || "promedio"}) · arriendo sube 3%/año · fondo alternativo 6%/año · fuente: CCHC/SII.
                       </p>
                     </div>
                   );

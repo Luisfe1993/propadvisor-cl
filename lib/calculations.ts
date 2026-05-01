@@ -81,16 +81,16 @@ export function calcBreakEven(
 
 /**
  * Compare buy vs rent scenarios over the loan term
- * Honest comparison: includes opportunity cost of pie, net wealth, and appreciation as separate line
+ * Honest comparison: includes opportunity cost of pie, net wealth, and 3-way winner
  */
 export function calc20YearComparison(
   buyMonthlyCost: number,
   rentMonthlyCost: number,
   initialInvestment: number,
   propertyPriceCLP: number,
-  termYears: number = 20
+  termYears: number = 20,
+  annualAppreciation: number = 0.07
 ) {
-  const annualAppreciation = 0.07; // 7% gross property appreciation (Chilean market)
   const annualRentInflation = 0.03; // 3% annual rent increase
   const annualInvestmentReturn = 0.06; // 6% annual return on invested pie (conservative fund)
   const months = termYears * 12;
