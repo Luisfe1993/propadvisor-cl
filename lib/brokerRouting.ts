@@ -48,8 +48,17 @@ export interface BrokerRoute {
  * ═══════════════════════════════════════════════════════════
  */
 export const brokerRoutes: BrokerRoute[] = [
-  // ── Example routes (disabled by default) ────────────────
-  // Uncomment and update email when you sign each broker.
+  // ── Active brokers ──────────────────────────────────────
+
+  {
+    name: "Valpo",
+    email: "luisfsande@hotmail.com",
+    match: {
+      city: "valparaiso",
+    },
+  },
+
+  // ── Example routes (uncomment when signed) ──────────────
 
   // {
   //   name: "Broker Premium Santiago",
