@@ -6,6 +6,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { createElement } from "react";
 import { AnalysisPDF, type AnalysisPDFProps } from "@/components/AnalysisPDF";
 import { generateExcel, type ExcelReportData } from "@/lib/generateExcel";
+import { routeLead } from "@/lib/brokerRouting";
 
 // Basic disposable email domain blocklist
 const DISPOSABLE_DOMAINS = new Set([
@@ -157,17 +158,25 @@ export async function POST(req: NextRequest) {
       // Log for server-side export
       console.log(JSON.stringify(leadData));
 
-      // Send broker digest email (if BROKER_EMAIL is configured)
-      const brokerEmail = process.env.BROKER_NOTIFY_EMAIL;
-      if (brokerEmail) {
-        const tierEmoji = tier === "hot" ? "🔥" : tier === "warm" ? "🟡" : "🔵";
-        const tierLabel = tier === "hot" ? "CALIENTE" : tier === "warm" ? "TIBIO" : "FRÍO";
+      // Route lead to matching brokers
+      const brokerTargets = routeLead(
+        {
+          city: analysisData.city?.toLowerCase().replace(/\s+/g, "_") || "",
+          comuna: analysisData.address?.toLowerCase().replace(/\s+/g, "_") || "",
+          score,
+          purpose: analysisData.propertyType || "",
+          priceUF: analysisData.priceUF || 0,
+          hasPreApproval: hasPreApproval,
+          phone: phone,
+        },
+        process.env.BROKER_NOTIFY_EMAIL // fallback if no routes match
+      );
 
-        resend.emails.send({
-          from: "PropAdvisor Leads <noreply@propadvisor.site>",
-          to: brokerEmail,
-          subject: `${tierEmoji} Lead ${tierLabel} (${score}/10) — ${analysisData.address || analysisData.city} — ${formatCLP(analysisData.priceCLP)}`,
-          html: `
+      // Send notification to each matched broker
+      const tierEmoji = tier === "hot" ? "🔥" : tier === "warm" ? "🟡" : "🔵";
+      const tierLabel = tier === "hot" ? "CALIENTE" : tier === "warm" ? "TIBIO" : "FRÍO";
+
+      const brokerHtml = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
   <div style="background:#1E3A5F;color:white;padding:16px 24px;border-radius:8px 8px 0 0;">
     <h2 style="margin:0;font-size:18px;">PropAdvisor — Nuevo Lead ${tierEmoji}</h2>
@@ -209,8 +218,19 @@ export async function POST(req: NextRequest) {
       Fuente: ${utmSource || "directo"} · ${new Date().toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
     </p>
   </div>
-</div>`,
-        }).catch((err) => console.error("Broker notification error:", err));
+</div>`;
+
+      for (const target of brokerTargets) {
+        resend.emails.send({
+          from: "PropAdvisor Leads <noreply@propadvisor.site>",
+          to: target.email,
+          subject: `${tierEmoji} Lead ${tierLabel} (${score}/10) — ${analysisData.address || analysisData.city} — ${formatCLP(analysisData.priceCLP)}`,
+          html: brokerHtml,
+        }).catch((err) => console.error(`Broker notification error (${target.name}):`, err));
+      }
+
+      if (brokerTargets.length > 0) {
+        console.log(`Lead routed to: ${brokerTargets.map(t => `${t.name} (${t.email})`).join(", ")}`);
       }
     }
 
