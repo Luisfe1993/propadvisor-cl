@@ -30,6 +30,7 @@ export interface AnalysisPayload {
   propertyValueAfter20Years: number;
   savings: number;
   generatedAt: string;
+  hasPreApproval?: boolean;
 }
 
 export interface LeadPayload extends AnalysisPayload {

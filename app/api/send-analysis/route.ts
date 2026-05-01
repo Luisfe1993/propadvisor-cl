@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       phone?: string;
       incomeRange?: string;
       hasPieAvailable?: boolean;
+      hasPreApproval?: boolean;
     } & AnalysisPDFProps & ExcelReportData;
 
     // Validate email
@@ -85,6 +86,7 @@ export async function POST(req: NextRequest) {
         phone: phone || null,
         incomeRange: incomeRange || null,
         hasPieAvailable: hasPieAvailable ?? null,
+        hasPreApproval: (analysisData as Record<string, unknown>).hasPreApproval ?? null,
         utmSource: utmSource || "direct",
         property: analysisData.address,
         propertyType: analysisData.propertyType,

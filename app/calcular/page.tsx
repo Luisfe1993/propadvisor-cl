@@ -21,11 +21,17 @@ const UF_FALLBACK = 37000;
 type PropertyPurpose = "vivienda" | "inversion";
 
 const defaultBanks: BankRate[] = [
-  { id: "bancoestado", bank: "BancoEstado",    shortName: "BE",        rate: 4.19, rateLowPie: 4.69, rateHighPie: 3.89, minDownPayment: 10, logoColor: "#1B5E20" },
   { id: "santander",   bank: "Banco Santander", shortName: "Santander", rate: 3.43, rateLowPie: 3.93, rateHighPie: 3.19, minDownPayment: 15, logoColor: "#C41E3A" },
-  { id: "bci",         bank: "Banco BCI",       shortName: "BCI",       rate: 3.96, rateLowPie: 4.46, rateHighPie: 3.65, minDownPayment: 20, logoColor: "#003DA5" },
   { id: "bdechile",    bank: "Banco de Chile",  shortName: "BdChile",   rate: 3.75, rateLowPie: 4.25, rateHighPie: 3.45, minDownPayment: 15, logoColor: "#0066B2" },
+  { id: "scotiabank",  bank: "Scotiabank",      shortName: "Scotia",    rate: 3.65, rateLowPie: 4.15, rateHighPie: 3.35, minDownPayment: 20, logoColor: "#EC111A" },
+  { id: "bci",         bank: "Banco BCI",       shortName: "BCI",       rate: 3.96, rateLowPie: 4.46, rateHighPie: 3.65, minDownPayment: 20, logoColor: "#003DA5" },
+  { id: "itau",        bank: "Banco Itaú",      shortName: "Itaú",      rate: 3.55, rateLowPie: 4.05, rateHighPie: 3.25, minDownPayment: 20, logoColor: "#FF6600" },
+  { id: "bancoestado", bank: "BancoEstado",      shortName: "BE",       rate: 4.19, rateLowPie: 4.69, rateHighPie: 3.89, minDownPayment: 10, logoColor: "#1B5E20" },
+  { id: "security",    bank: "Banco Security",  shortName: "Security",  rate: 3.80, rateLowPie: 4.30, rateHighPie: 3.50, minDownPayment: 20, logoColor: "#1A237E" },
+  { id: "bice",        bank: "Banco BICE",      shortName: "BICE",      rate: 3.70, rateLowPie: 4.20, rateHighPie: 3.40, minDownPayment: 20, logoColor: "#004D40" },
 ];
+
+type RateMode = "referential" | "manual";
 
 type InputCurrency = "CLP" | "UF";
 
@@ -74,8 +80,12 @@ export default function CalcularPage() {
   // Mortgage inputs
   const [downPayment, setDownPayment]   = useState(20);
   const [loanTerm, setLoanTerm]         = useState(20);
-  const [selectedBankId, setSelectedBankId] = useState("bancoestado");
+  const [selectedBankId, setSelectedBankId] = useState("santander");
   const [monthlyCosts, setMonthlyCosts] = useState(200000);
+  const [rateMode, setRateMode]         = useState<RateMode>("referential");
+  const [manualRate, setManualRate]      = useState("");
+  const [manualBankName, setManualBankName] = useState("");
+  const [hasPreApproval, setHasPreApproval] = useState(false);
 
   // Remote data
   const [banks, setBanks]       = useState<BankRate[]>(defaultBanks);
@@ -114,14 +124,19 @@ export default function CalcularPage() {
   })();
 
   const selectedBank  = banks.find((b) => b.id === selectedBankId) ?? banks[0];
-  // Rate varies by down payment tier
+  // Rate: manual override or tiered from selected bank
   const interestRate  = (() => {
-    if (!selectedBank) return 4.19;
+    if (rateMode === "manual") {
+      const parsed = parseFloat(manualRate.replace(",", "."));
+      return !parsed || isNaN(parsed) ? 4.0 : parsed;
+    }
+    if (!selectedBank) return 4.0;
     if (downPayment >= 30) return selectedBank.rateHighPie ?? selectedBank.rate;
     if (downPayment < 20) return selectedBank.rateLowPie ?? selectedBank.rate;
     return selectedBank.rate;
   })();
   const rateTier = downPayment >= 30 ? "30%+" : downPayment < 20 ? "10-19%" : "20-29%";
+  const bankLabel = rateMode === "manual" ? (manualBankName.trim() || "Tasa manual") : selectedBank?.bank ?? "";
   const loanAmount    = priceCLP * (1 - downPayment / 100);
   const downAmount    = priceCLP * (downPayment / 100);
   const monthlyPayment = priceCLP > 0 ? calcMonthlyPayment(loanAmount, interestRate, loanTerm) : 0;
@@ -175,7 +190,7 @@ export default function CalcularPage() {
       priceCLP,
       priceUF,
       ufValue,
-      bankName: selectedBank?.bank || "",
+      bankName: bankLabel,
       interestRate,
       downPaymentPct: downPayment,
       downPaymentCLP: downAmount,
@@ -189,8 +204,9 @@ export default function CalcularPage() {
       propertyValueAfter20Years: comparison.propertyValueAfter20Years,
       savings: comparison.savings,
       generatedAt: new Date().toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" }),
+      hasPreApproval: rateMode === "manual" ? hasPreApproval : undefined,
     };
-  }, [comparison, canAnalyze, city, comunaInfo, priceCLP, priceUF, ufValue, selectedBank, interestRate, downPayment, downAmount, loanTerm, monthlyPayment, rentCLP, netFlow, rentalYield]);
+  }, [comparison, canAnalyze, city, comunaInfo, priceCLP, priceUF, ufValue, bankLabel, interestRate, downPayment, downAmount, loanTerm, monthlyPayment, rentCLP, netFlow, rentalYield, rateMode, hasPreApproval]);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
@@ -421,25 +437,114 @@ export default function CalcularPage() {
               </legend>
               <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
 
-                {/* Bank */}
+                {/* Rate mode toggle */}
                 <div>
-                  <label htmlFor="bank-select" style={labelSx}>Banco</label>
-                  <select
-                    id="bank-select"
-                    value={selectedBankId}
-                    onChange={(e) => setSelectedBankId(e.target.value)}
-                    style={{ ...inputSx, cursor: "pointer" }}
-                    onFocus={onFocus}
-                    onBlur={onBlur}
-                  >
-                    {banks.map((b) => {
-                      const r = downPayment >= 30 ? (b.rateHighPie ?? b.rate) : downPayment < 20 ? (b.rateLowPie ?? b.rate) : b.rate;
-                      return <option key={b.id} value={b.id}>{b.bank} — {r.toFixed(2)}% anual</option>;
-                    })}
-                  </select>
-                  <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "4px" }}>
-                    Tasa para pie {rateTier} · Tasas referenciales, el banco puede variar según perfil
-                  </p>
+                  <label style={labelSx}>Tasa de interés</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "12px" }}>
+                    <button
+                      type="button"
+                      onClick={() => setRateMode("referential")}
+                      style={{
+                        padding: "10px 12px",
+                        border: rateMode === "referential" ? "2px solid var(--accent)" : "1px solid var(--border)",
+                        borderRadius: "8px",
+                        background: rateMode === "referential" ? "var(--accent-light)" : "white",
+                        cursor: "pointer", textAlign: "left", transition: "all 0.15s",
+                      }}
+                    >
+                      <p style={{ margin: 0, fontSize: "12px", fontWeight: 700, color: "var(--text-primary)" }}>🏦 Tasas referenciales</p>
+                      <p style={{ margin: "2px 0 0", fontSize: "10px", color: "var(--text-muted)" }}>8 bancos · Actualizado mayo 2026</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRateMode("manual")}
+                      style={{
+                        padding: "10px 12px",
+                        border: rateMode === "manual" ? "2px solid var(--accent)" : "1px solid var(--border)",
+                        borderRadius: "8px",
+                        background: rateMode === "manual" ? "var(--accent-light)" : "white",
+                        cursor: "pointer", textAlign: "left", transition: "all 0.15s",
+                      }}
+                    >
+                      <p style={{ margin: 0, fontSize: "12px", fontWeight: 700, color: "var(--text-primary)" }}>✏️ Ya tengo mi tasa</p>
+                      <p style={{ margin: "2px 0 0", fontSize: "10px", color: "var(--text-muted)" }}>Ingresa la tasa de tu cotización</p>
+                    </button>
+                  </div>
+
+                  {rateMode === "referential" ? (
+                    <>
+                      <select
+                        id="bank-select"
+                        value={selectedBankId}
+                        onChange={(e) => setSelectedBankId(e.target.value)}
+                        style={{ ...inputSx, cursor: "pointer" }}
+                        onFocus={onFocus}
+                        onBlur={onBlur}
+                      >
+                        {banks.map((b) => {
+                          const r = downPayment >= 30 ? (b.rateHighPie ?? b.rate) : downPayment < 20 ? (b.rateLowPie ?? b.rate) : b.rate;
+                          return <option key={b.id} value={b.id}>{b.bank} — {r.toFixed(2)}% anual</option>;
+                        })}
+                      </select>
+                      <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "4px" }}>
+                        Tasa para pie {rateTier} · Fuente: CMF Chile · pueden variar según perfil crediticio
+                      </p>
+                    </>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                        <div>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={manualRate}
+                            onChange={(e) => setManualRate(e.target.value)}
+                            placeholder="Ej: 3.50"
+                            style={inputSx}
+                            onFocus={onFocus}
+                            onBlur={onBlur}
+                          />
+                          <p style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "3px" }}>Tasa anual (%)</p>
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            value={manualBankName}
+                            onChange={(e) => setManualBankName(e.target.value)}
+                            placeholder="Nombre del banco (opcional)"
+                            style={inputSx}
+                            onFocus={onFocus}
+                            onBlur={onBlur}
+                          />
+                          <p style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "3px" }}>Aparecerá en tu informe</p>
+                        </div>
+                      </div>
+
+                      {/* Pre-approval indicator */}
+                      <label
+                        htmlFor="pre-approval"
+                        style={{
+                          display: "flex", alignItems: "center", gap: "8px",
+                          cursor: "pointer", fontSize: "12px", color: "var(--text-secondary)",
+                          padding: "8px 10px", borderRadius: "8px",
+                          background: hasPreApproval ? "var(--accent-light)" : "var(--bg-secondary)",
+                          border: hasPreApproval ? "1px solid var(--accent)" : "1px solid transparent",
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        <input
+                          id="pre-approval"
+                          type="checkbox"
+                          checked={hasPreApproval}
+                          onChange={(e) => setHasPreApproval(e.target.checked)}
+                          style={{ accentColor: "var(--accent)", width: "14px", height: "14px" }}
+                        />
+                        <span style={{ fontWeight: hasPreApproval ? 700 : 500 }}>
+                          {hasPreApproval ? "✅ Tengo pre-aprobación" : "¿Tienes pre-aprobación del banco?"}
+                        </span>
+                      </label>
+                    </div>
+                  )}
                 </div>
 
                 {/* Down payment */}
@@ -541,7 +646,7 @@ export default function CalcularPage() {
                     {formatCLP(monthlyPayment)}
                   </p>
                   <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "6px" }}>
-                    {selectedBank?.bank} · {interestRate.toFixed(2)}% · {loanTerm} años · Pie {downPayment}%
+                    {bankLabel} · {interestRate.toFixed(2)}% · {loanTerm} años · Pie {downPayment}%
                   </p>
 
                   {/* Key metrics row */}
