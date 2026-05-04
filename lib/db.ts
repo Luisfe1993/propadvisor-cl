@@ -60,6 +60,43 @@ export async function initDb() {
     CREATE INDEX IF NOT EXISTS idx_saved_properties_user
     ON saved_properties (user_id, created_at DESC)
   `;
+
+  // Subscriptions table
+  await sql`
+    CREATE TABLE IF NOT EXISTS subscriptions (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id TEXT UNIQUE NOT NULL,
+      stripe_customer_id TEXT,
+      stripe_subscription_id TEXT,
+      plan TEXT NOT NULL DEFAULT 'free',
+      status TEXT NOT NULL DEFAULT 'active',
+      trial_ends_at TIMESTAMPTZ,
+      current_period_end TIMESTAMPTZ,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+}
+
+/**
+ * Get user subscription status
+ */
+export async function getUserPlan(userId: string): Promise<{ plan: string; isActive: boolean; trialEndsAt: string | null }> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT plan, status, trial_ends_at, current_period_end
+    FROM subscriptions WHERE user_id = ${userId}
+  `;
+  if (rows.length === 0) return { plan: "free", isActive: false, trialEndsAt: null };
+  const sub = rows[0];
+  const now = new Date();
+  const isActive = sub.status === "active" || sub.status === "trialing" ||
+    (sub.trial_ends_at && new Date(sub.trial_ends_at as string) > now);
+  return {
+    plan: sub.plan as string,
+    isActive: isActive as boolean,
+    trialEndsAt: sub.trial_ends_at as string | null,
+  };
 }
 
 /**

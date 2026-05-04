@@ -1,11 +1,8 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Planes — PropAdvisor CL",
-  description: "Analiza propiedades gratis o accede al portfolio de inversión con PropAdvisor Pro. Compara propiedades, calcula IRR, DSCR y exporta memorándums de inversión.",
-  alternates: { canonical: "https://www.propadvisor.site/pricing" },
-};
+import Link from "next/link";
+import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 const features = [
   { name: "Análisis de propiedad (3 escenarios)", free: true, pro: true },
@@ -26,6 +23,26 @@ const features = [
 ];
 
 export default function PricingPage() {
+  const { isSignedIn } = useUser();
+  const [loading, setLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    if (!isSignedIn) {
+      window.location.href = "/sign-up";
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", { method: "POST" });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else throw new Error(data.error);
+    } catch {
+      alert("Error al iniciar el checkout. Intenta de nuevo.");
+    }
+    setLoading(false);
+  };
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
       <div style={{ maxWidth: "960px", margin: "0 auto", padding: "64px 24px" }}>
@@ -83,18 +100,19 @@ export default function PricingPage() {
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: "24px" }}>
               Portfolio, IRR, DSCR, comparación lado a lado y memorándum de inversión profesional.
             </p>
-            <Link
-              href="/dashboard"
+            <button
+              onClick={handleUpgrade}
+              disabled={loading}
               style={{
                 display: "block", textAlign: "center", padding: "12px", fontSize: "14px",
                 width: "100%", boxSizing: "border-box",
-                background: "var(--accent)", color: "white", borderRadius: "10px",
-                fontWeight: 700, textDecoration: "none",
+                background: loading ? "var(--text-muted)" : "var(--accent)", color: "white", borderRadius: "10px",
+                fontWeight: 700, border: "none", cursor: loading ? "wait" : "pointer",
                 transition: "background 0.15s",
               }}
             >
-              Probar 7 días gratis →
-            </Link>
+              {loading ? "Cargando..." : "Probar 7 días gratis →"}
+            </button>
             <p style={{ fontSize: "11px", color: "var(--text-muted)", textAlign: "center", marginTop: "8px" }}>
               Sin tarjeta para empezar
             </p>
