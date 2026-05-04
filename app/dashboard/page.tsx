@@ -165,9 +165,20 @@ export default function DashboardPage() {
               })}
             </div>
 
-            <Link href="/calcular" className="btn-primary" style={{ display: "inline-block", padding: "12px 28px", fontSize: "14px" }}>
-              + Agregar propiedad
-            </Link>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+              <Link href="/calcular" className="btn-primary" style={{ display: "inline-block", padding: "12px 28px", fontSize: "14px" }}>
+                + Agregar propiedad
+              </Link>
+              {properties.length >= 2 && (
+                <Link href="/dashboard/compare" style={{
+                  display: "inline-block", padding: "12px 28px", fontSize: "14px", fontWeight: 700,
+                  color: "var(--accent)", border: "1.5px solid var(--accent)", borderRadius: "10px",
+                  textDecoration: "none",
+                }}>
+                  🔍 Comparar propiedades
+                </Link>
+              )}
+            </div>
           </>
         )}
 

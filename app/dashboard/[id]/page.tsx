@@ -127,8 +127,25 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         {/* Header */}
         <header style={{ marginBottom: "32px" }}>
           <Link href="/dashboard" style={{ fontSize: "13px", color: "var(--text-muted)", display: "inline-block", marginBottom: "16px" }}>← Volver al portfolio</Link>
-          <h1 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: "4px" }}>{p.label}</h1>
-          <p style={{ fontSize: "14px", color: "var(--text-secondary)" }}>{p.city}{p.comuna ? ` · ${p.comuna}` : ""} · {p.property_type} · {p.bank_name} {Number(p.interest_rate).toFixed(2)}%</p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", flexWrap: "wrap" }}>
+            <div>
+              <h1 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: "4px" }}>{p.label}</h1>
+              <p style={{ fontSize: "14px", color: "var(--text-secondary)" }}>{p.city}{p.comuna ? ` · ${p.comuna}` : ""} · {p.property_type} · {p.bank_name} {Number(p.interest_rate).toFixed(2)}%</p>
+            </div>
+            <a
+              href={`/api/memo/${id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: "10px 20px", fontSize: "13px", fontWeight: 700,
+                background: "var(--accent)", color: "white",
+                borderRadius: "8px", textDecoration: "none", flexShrink: 0,
+                display: "flex", alignItems: "center", gap: "6px",
+              }}
+            >
+              📄 Exportar memorándum
+            </a>
+          </div>
         </header>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px", alignItems: "start" }}>
