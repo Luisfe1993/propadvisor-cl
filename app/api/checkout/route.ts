@@ -63,6 +63,7 @@ export async function POST() {
     return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error("Checkout error:", err);
-    return NextResponse.json({ error: "Error al crear checkout" }, { status: 500 });
+    const message = err instanceof Error ? err.message : "Error desconocido";
+    return NextResponse.json({ error: `Error al crear checkout: ${message}` }, { status: 500 });
   }
 }
