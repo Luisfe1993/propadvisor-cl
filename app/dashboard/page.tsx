@@ -99,7 +99,11 @@ export default function DashboardPage() {
                   <div key={p.id} style={{
                     background: "white", border: "1px solid var(--border)", borderRadius: "12px",
                     padding: "20px", display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "center",
-                  }}>
+                    cursor: "pointer", transition: "border-color 0.15s, box-shadow 0.15s",
+                  }}
+                  className="card"
+                  onClick={() => window.location.href = `/dashboard/${p.id}`}
+                  >
                     <div style={{ flex: 1, minWidth: "200px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
                         <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>{p.label}</p>
