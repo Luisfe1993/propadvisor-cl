@@ -16,7 +16,8 @@ export function NavAuth() {
   if (isSignedIn) {
     return (
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <a href="/dashboard" className="nav-link" style={{ fontSize: "14px", fontWeight: 600 }}>Portfolio</a>
+        <a href="/pricing" className="nav-link hidden sm:block" style={{ fontSize: "13px", fontWeight: 600 }}>Pro</a>
+        <a href="/dashboard" className="nav-link hidden sm:block" style={{ fontSize: "14px", fontWeight: 600 }}>Portfolio</a>
         <UserButton />
       </div>
     );

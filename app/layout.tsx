@@ -172,7 +172,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               {[
                 { href: "/", label: "Inicio" },
                 { href: "/calcular", label: "Analizar" },
-                { href: "/pricing", label: "Pro" },
                 { href: "/guia", label: "Guía" },
               ].map((item) => (
                 <li key={item.href} className="hidden sm:block">

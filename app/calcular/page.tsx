@@ -930,6 +930,23 @@ export default function CalcularPage() {
                             }
                             setSaveStatus("saved");
                             track("property_saved", { city, comuna: comunaInfo?.label || "" });
+
+                            // Fix 1: Send broker lead if opt-in checkbox is checked
+                            const brokerCheckbox = document.getElementById("save-broker-optin") as HTMLInputElement | null;
+                            if (brokerCheckbox?.checked) {
+                              const payload = buildPayload();
+                              if (payload) {
+                                fetch("/api/send-analysis", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    email: "portfolio-lead@propadvisor.site",
+                                    wantsBrokerContact: true,
+                                    ...payload,
+                                  }),
+                                }).catch(() => {});
+                              }
+                            }
                           } catch {
                             setSaveStatus("error");
                             setTimeout(() => setSaveStatus("idle"), 3000);
@@ -949,27 +966,9 @@ export default function CalcularPage() {
                     )}
                   </div>
                 ) : (
-                  <div style={{
-                    border: "1px solid var(--border)", borderRadius: "12px",
-                    padding: "20px", background: "var(--bg-secondary)",
-                    display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap",
-                  }}>
-                    <div style={{ flex: 1, minWidth: "200px" }}>
-                      <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
-                        💼 ¿Evaluando varias propiedades?
-                      </p>
-                      <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                        Inicia sesión para guardar análisis, comparar propiedades y acceder a métricas de inversión avanzadas.
-                      </p>
-                    </div>
-                    <a href="/sign-up" style={{
-                      padding: "10px 20px", fontSize: "13px", fontWeight: 700,
-                      color: "var(--accent)", border: "1.5px solid var(--accent)",
-                      borderRadius: "8px", textDecoration: "none", flexShrink: 0,
-                    }}>
-                      Crear cuenta gratis →
-                    </a>
-                  </div>
+                  <p style={{ fontSize: "12px", color: "var(--text-muted)", textAlign: "center" }}>
+                    ¿Quieres guardar este análisis? <a href="/sign-in" style={{ color: "var(--accent)", fontWeight: 600, textDecoration: "none" }}>Inicia sesión</a> para acceder a tu portfolio.
+                  </p>
                 )}
 
               </>

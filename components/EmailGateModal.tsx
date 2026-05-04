@@ -233,29 +233,8 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                 Recibe este análisis en tu email
               </h2>
               <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "16px" }}>
-                <strong style={{ color: "var(--accent)" }}>100% gratis</strong> — PDF profesional + modelo Excel interactivo:
+                <strong style={{ color: "var(--accent)" }}>100% gratis</strong> — Recibes un <strong>PDF profesional</strong> + <strong>modelo Excel</strong> con amortización, comparación año a año y análisis de sensibilidad.
               </p>
-
-              {/* Files list — with practical descriptions */}
-              <ul style={{ margin: "0 0 20px", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "6px" }}>
-                {[
-                  ["📄", "Informe PDF", "Listo para presentar a tu banco o corredor"],
-                  ["📊", "Amortización mes a mes", "Cuánto va a capital y cuánto a interés cada mes"],
-                  ["📈", "Compra vs arriendo año a año", "Ve exactamente en qué año comprar se vuelve más rentable"],
-                  ["🔍", "Análisis de sensibilidad", "¿Qué pasa si la tasa sube 1%? El Excel lo calcula por ti"],
-                ].map(([icon, title, desc]) => (
-                  <li key={title} style={{
-                    display: "flex", gap: "10px", alignItems: "flex-start",
-                    background: "var(--bg-secondary)", borderRadius: "8px", padding: "10px 12px",
-                  }}>
-                    <span style={{ fontSize: "15px", flexShrink: 0, marginTop: "1px" }}>{icon}</span>
-                    <div>
-                      <p style={{ margin: 0, fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>{title}</p>
-                      <p style={{ margin: 0, fontSize: "11px", color: "var(--text-muted)" }}>{desc}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
 
               {/* Email input */}
               <label htmlFor="email-input" style={{ display: "block", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-secondary)", marginBottom: "6px" }}>

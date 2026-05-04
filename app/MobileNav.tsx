@@ -1,17 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 
-const navItems = [
+const baseNavItems = [
   { href: "/", label: "Inicio" },
   { href: "/calcular", label: "Analizar" },
-  { href: "/pricing", label: "Pro" },
   { href: "/guia", label: "Guía" },
+];
+
+const authNavItems = [
+  { href: "/pricing", label: "Pro" },
   { href: "/dashboard", label: "Portfolio" },
 ];
 
 export function MobileNav() {
+  const { isSignedIn } = useUser();
   const [open, setOpen] = useState(false);
+  const navItems = isSignedIn ? [...baseNavItems, ...authNavItems] : baseNavItems;
 
   useEffect(() => {
     if (open) {

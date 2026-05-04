@@ -289,10 +289,12 @@ export default function Home() {
             <a href="/calcular" className="btn-primary" style={{ padding: "13px 28px", fontSize: "15px" }}>
               Analizar una propiedad →
             </a>
-            <a href="/guia" className="btn-secondary" style={{ padding: "13px 28px", fontSize: "15px" }}>
-              Leer la guía de compra
-            </a>
           </div>
+
+          {/* Value prop */}
+          <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "40px", textAlign: "center" }}>
+            Compara 8 bancos · 3 escenarios a 20 años · Informe PDF gratis · En 5 minutos
+          </p>
 
           {/* Trust strip */}
           <div
