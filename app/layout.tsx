@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { ClerkProvider } from "@clerk/nextjs";
+import { esES } from "@clerk/localizations";
 import "./globals.css";
 import { MobileNav } from "./MobileNav";
+import { NavAuth } from "./NavAuth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -91,6 +94,7 @@ const jsonLd = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
+    <ClerkProvider localization={esES}>
     <html lang="es-CL">
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -168,6 +172,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               {[
                 { href: "/", label: "Inicio" },
                 { href: "/calcular", label: "Analizar" },
+                { href: "/pricing", label: "Pro" },
                 { href: "/guia", label: "Guía" },
               ].map((item) => (
                 <li key={item.href} className="hidden sm:block">
@@ -178,11 +183,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               ))}
             </ul>
 
-            {/* CTA + Mobile menu */}
+            {/* CTA + Auth + Mobile menu */}
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <a href="/calcular" className="btn-primary" style={{ fontSize: "14px", padding: "8px 16px", borderRadius: "7px" }}>
-                Analizar →
-              </a>
+              <NavAuth />
               <MobileNav />
             </div>
           </nav>
@@ -283,5 +286,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Analytics />
       </body>
     </html>
+    </ClerkProvider>
   );
 }

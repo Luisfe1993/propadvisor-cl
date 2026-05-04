@@ -851,6 +851,33 @@ export default function CalcularPage() {
                   return p ? <EmailGateModal payload={p} onClose={() => setShowEmailModal(false)} /> : null;
                 })()}
 
+                {/* Pro upgrade banner */}
+                <div style={{
+                  border: "1px solid var(--border)", borderRadius: "12px",
+                  padding: "20px", background: "var(--bg-secondary)",
+                  display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap",
+                }}>
+                  <div style={{ flex: 1, minWidth: "200px" }}>
+                    <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
+                      💼 ¿Evaluando varias propiedades?
+                    </p>
+                    <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                      Guarda este análisis, compara con otras propiedades, calcula IRR y exporta un memorándum de inversión.
+                    </p>
+                  </div>
+                  <a
+                    href="/pricing"
+                    style={{
+                      padding: "10px 20px", fontSize: "13px", fontWeight: 700,
+                      color: "var(--accent)", border: "1.5px solid var(--accent)",
+                      borderRadius: "8px", textDecoration: "none", flexShrink: 0,
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    Ver Pro →
+                  </a>
+                </div>
+
               </>
             )}
           </div>
