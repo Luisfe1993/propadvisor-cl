@@ -199,7 +199,7 @@ export default function GuiaPage() {
             Aplica todo lo que aprendiste en esta guía con PropAdvisor. Calcula tu dividendo real, compara bancos y decide con datos.
           </p>
           <Link
-            href="/buscar"
+            href="/calcular"
             className="inline-block bg-white text-[var(--accent)] px-8 py-3 rounded-lg font-bold hover:shadow-lg transition-shadow"
           >
             Comenzar análisis gratis →

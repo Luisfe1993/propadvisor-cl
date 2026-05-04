@@ -135,7 +135,7 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
       <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
         <div style={{ textAlign: "center" }}>
           <p style={{ color: "#dc2626", marginBottom: "16px" }} role="alert">{error || "Propiedad no encontrada"}</p>
-          <Link href="/buscar" style={{ color: "var(--accent)", fontWeight: 600, fontSize: "14px" }}>← Volver a búsqueda</Link>
+          <Link href="/calcular" style={{ color: "var(--accent)", fontWeight: 600, fontSize: "14px" }}>← Volver a análisis</Link>
         </div>
       </div>
     );
@@ -148,7 +148,7 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
         "@context": "https://schema.org", "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Inicio", item: "https://www.propadvisor.site" },
-          { "@type": "ListItem", position: 2, name: "Buscar", item: "https://www.propadvisor.site/buscar" },
+          { "@type": "ListItem", position: 2, name: "Analizar", item: "https://www.propadvisor.site/calcular" },
           { "@type": "ListItem", position: 3, name: property.address, item: `https://www.propadvisor.site/analisis/${property.id}` },
         ],
       }) }} />
@@ -157,7 +157,7 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
       <nav aria-label="Ruta de navegación" style={{ borderBottom: "1px solid var(--border)", background: "var(--bg-secondary)" }}>
         <div style={{ maxWidth: "960px", margin: "0 auto", padding: "10px 24px" }}>
           <ol style={{ display: "flex", gap: "8px", listStyle: "none", fontSize: "13px", color: "var(--text-muted)", flexWrap: "wrap", alignItems: "center" }}>
-            {[{ href: "/", label: "Inicio" }, { href: "/buscar", label: "Buscar" }].map((item) => (
+            {[{ href: "/", label: "Inicio" }, { href: "/calcular", label: "Analizar" }].map((item) => (
               <li key={item.href} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <Link href={item.href} style={{ color: "var(--text-secondary)", transition: "color 0.15s" }}>{item.label}</Link>
                 <span aria-hidden="true" style={{ color: "var(--border)" }}>/</span>
@@ -442,7 +442,7 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
 
           {/* ── Footer ──────────────────────────────────────── */}
           <footer style={{ display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "center", justifyContent: "space-between", paddingTop: "24px", borderTop: "1px solid var(--border)" }}>
-            <Link href="/buscar" style={{ fontSize: "14px", color: "var(--text-secondary)", fontWeight: 500 }}>
+            <Link href="/calcular" style={{ fontSize: "14px", color: "var(--text-secondary)", fontWeight: 500 }}>
               ← Analizar otra propiedad
             </Link>
             <Link href="/guia" style={{ fontSize: "14px", color: "var(--accent)", fontWeight: 600 }}>

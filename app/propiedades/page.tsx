@@ -79,7 +79,7 @@ function PropiedadesContent() {
       <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error: {error}</p>
-          <Link href="/buscar" className="text-[var(--accent)] font-medium hover:underline">
+          <Link href="/calcular" className="text-[var(--accent)] font-medium hover:underline">
             Volver a buscar
           </Link>
         </div>
@@ -123,7 +123,7 @@ function PropiedadesContent() {
                   ? " El presupuesto ingresado puede ser menor al precio mínimo de las propiedades disponibles (desde ~UF 1.600 / $58M CLP)."
                   : ""}
               </p>
-              <Link href="/buscar" style={{ fontSize: "14px", color: "var(--accent)", fontWeight: 600 }}>
+              <Link href="/calcular" style={{ fontSize: "14px", color: "var(--accent)", fontWeight: 600 }}>
                 ← Ajustar criterios de búsqueda
               </Link>
             </div>
