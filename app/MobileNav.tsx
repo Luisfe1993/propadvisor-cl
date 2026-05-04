@@ -5,7 +5,9 @@ import { useState, useEffect } from "react";
 const navItems = [
   { href: "/", label: "Inicio" },
   { href: "/calcular", label: "Analizar" },
+  { href: "/pricing", label: "Pro" },
   { href: "/guia", label: "Guía" },
+  { href: "/dashboard", label: "Portfolio" },
 ];
 
 export function MobileNav() {
