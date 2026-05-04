@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
+import { useUser } from "@clerk/nextjs";
 import { calcMonthlyPayment, calc20YearComparison } from "@/lib/calculations";
 import type { BankRate } from "@/lib/types";
 import { getComunaInfo, getCityOptions, getComunaOptions, cityData } from "@/lib/comunaData";
@@ -69,6 +70,8 @@ function onBlur(e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) {
 }
 
 export default function CalcularPage() {
+  const { isSignedIn } = useUser();
+
   // Property inputs
   const [priceRaw, setPriceRaw]         = useState("");
   const [priceCurrency, setPriceCurrency] = useState<InputCurrency>("UF");
@@ -92,6 +95,7 @@ export default function CalcularPage() {
   const [ufValue, setUfValue]   = useState(UF_FALLBACK);
   const [analysisReady, setAnalysisReady] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   // Fetch UF + bank rates on mount
   useEffect(() => {
@@ -851,32 +855,110 @@ export default function CalcularPage() {
                   return p ? <EmailGateModal payload={p} onClose={() => setShowEmailModal(false)} /> : null;
                 })()}
 
-                {/* Pro upgrade banner */}
-                <div style={{
-                  border: "1px solid var(--border)", borderRadius: "12px",
-                  padding: "20px", background: "var(--bg-secondary)",
-                  display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap",
-                }}>
-                  <div style={{ flex: 1, minWidth: "200px" }}>
-                    <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
-                      💼 ¿Evaluando varias propiedades?
-                    </p>
-                    <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                      Guarda este análisis, compara con otras propiedades, calcula IRR y exporta un memorándum de inversión.
-                    </p>
+                {/* Save to portfolio + Pro upgrade */}
+                {isSignedIn ? (
+                  <div style={{
+                    border: saveStatus === "saved" ? "2px solid #16a34a" : "1px solid var(--border)",
+                    borderRadius: "12px", padding: "20px",
+                    background: saveStatus === "saved" ? "#f0fdf4" : "var(--bg-secondary)",
+                    display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap",
+                  }}>
+                    <div style={{ flex: 1, minWidth: "200px" }}>
+                      {saveStatus === "saved" ? (
+                        <>
+                          <p style={{ fontSize: "14px", fontWeight: 700, color: "#16a34a", marginBottom: "4px" }}>
+                            ✅ Guardado en tu portfolio
+                          </p>
+                          <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
+                            <a href="/dashboard" style={{ color: "var(--accent)", fontWeight: 600, textDecoration: "none" }}>Ver en mi portfolio →</a>
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
+                            💼 Guardar en mi portfolio
+                          </p>
+                          <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
+                            Guarda este análisis para comparar con otras propiedades después.
+                          </p>
+                        </>
+                      )}
+                    </div>
+                    {saveStatus !== "saved" && (
+                      <button
+                        onClick={async () => {
+                          if (!comparison) return;
+                          setSaveStatus("saving");
+                          try {
+                            const res = await fetch("/api/portfolio", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                label: `${comunaInfo?.label || getCityLabel(city)} — UF ${Math.round(priceUF).toLocaleString("es-CL")}`,
+                                city: getCityLabel(city),
+                                comuna: comunaInfo?.label || "",
+                                priceUF,
+                                priceCLP,
+                                monthlyRent: effectiveRent,
+                                propertyType: purpose === "inversion" ? "Inversión" : "Primera vivienda",
+                                bankName: bankLabel,
+                                interestRate,
+                                downPaymentPct: downPayment,
+                                loanTermYears: loanTerm,
+                                monthlyPayment,
+                                monthlyCosts,
+                                buyNetWealth: comparison.buyNetWealth,
+                                rentNetWealth: comparison.rentNetWealth,
+                                investNetWealth: comparison.investNetWealth,
+                                netMonthlyFlow: netFlow,
+                                capRate: rentalYield,
+                                winner: comparison.winner,
+                              }),
+                            });
+                            if (!res.ok) throw new Error();
+                            setSaveStatus("saved");
+                            track("property_saved", { city, comuna: comunaInfo?.label || "" });
+                          } catch {
+                            setSaveStatus("error");
+                            setTimeout(() => setSaveStatus("idle"), 3000);
+                          }
+                        }}
+                        disabled={saveStatus === "saving" || !comparison}
+                        style={{
+                          padding: "10px 20px", fontSize: "13px", fontWeight: 700,
+                          color: "white", background: "var(--accent)",
+                          border: "none", borderRadius: "8px",
+                          cursor: saveStatus === "saving" ? "wait" : "pointer",
+                          flexShrink: 0, transition: "all 0.15s",
+                        }}
+                      >
+                        {saveStatus === "saving" ? "Guardando..." : saveStatus === "error" ? "Error — reintentar" : "Guardar →"}
+                      </button>
+                    )}
                   </div>
-                  <a
-                    href="/pricing"
-                    style={{
+                ) : (
+                  <div style={{
+                    border: "1px solid var(--border)", borderRadius: "12px",
+                    padding: "20px", background: "var(--bg-secondary)",
+                    display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap",
+                  }}>
+                    <div style={{ flex: 1, minWidth: "200px" }}>
+                      <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
+                        💼 ¿Evaluando varias propiedades?
+                      </p>
+                      <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                        Inicia sesión para guardar análisis, comparar propiedades y acceder a métricas de inversión avanzadas.
+                      </p>
+                    </div>
+                    <a href="/sign-up" style={{
                       padding: "10px 20px", fontSize: "13px", fontWeight: 700,
                       color: "var(--accent)", border: "1.5px solid var(--accent)",
                       borderRadius: "8px", textDecoration: "none", flexShrink: 0,
-                      transition: "all 0.15s",
-                    }}
-                  >
-                    Ver Pro →
-                  </a>
-                </div>
+                    }}>
+                      Crear cuenta gratis →
+                    </a>
+                  </div>
+                )}
 
               </>
             )}
