@@ -18,6 +18,9 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
   const { id } = use(params);
   const [property, setProperty] = useState<SavedProperty | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPro, setIsPro] = useState<boolean | null>(null);
+  const [wantsBroker, setWantsBroker] = useState(false);
+  const [brokerSent, setBrokerSent] = useState(false);
 
   // Advanced inputs (editable)
   const [vacancy, setVacancy] = useState(5);
@@ -29,17 +32,17 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
   const [isDFL2, setIsDFL2] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/portfolio/${id}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.property) {
-          setProperty(d.property);
-          // Set initial costs from saved data
-          if (d.property.monthly_costs) setGgcc(Number(d.property.monthly_costs) * 0.5);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    // Fetch property and plan in parallel
+    Promise.all([
+      fetch(`/api/portfolio/${id}`).then(r => r.json()),
+      fetch("/api/plan").then(r => r.json()),
+    ]).then(([propData, planData]) => {
+      if (propData.property) {
+        setProperty(propData.property);
+        if (propData.property.monthly_costs) setGgcc(Number(propData.property.monthly_costs) * 0.5);
+      }
+      setIsPro(planData.isActive === true);
+    }).catch(() => {}).finally(() => setLoading(false));
   }, [id]);
 
   const results = useMemo(() => {
@@ -78,6 +81,36 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
   }
   if (!property || !results) {
     return <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: "12px" }}><p style={{ color: "#dc2626" }}>Propiedad no encontrada</p><Link href="/dashboard" style={{ color: "var(--accent)" }}>← Volver al portfolio</Link></div>;
+  }
+
+  // Fix 1+5: Gate detail page behind Pro
+  if (isPro === false) {
+    return (
+      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 24px" }}>
+        <div style={{ maxWidth: "480px", textAlign: "center" }}>
+          <div style={{ fontSize: "48px", marginBottom: "16px" }}>🔒</div>
+          <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--text-primary)", marginBottom: "8px" }}>
+            Funcionalidad Pro
+          </h2>
+          <p style={{ fontSize: "15px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "8px" }}>
+            IRR, DSCR, análisis de vacancia, impuestos y proyección año a año son funcionalidades exclusivas de PropAdvisor Pro.
+          </p>
+          <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "24px" }}>
+            CLP $15.000/mes · 7 días gratis · Cancela cuando quieras
+          </p>
+          <a href="/pricing" style={{
+            display: "inline-block", padding: "14px 32px", fontSize: "15px", fontWeight: 700,
+            background: "var(--accent)", color: "white", borderRadius: "10px", textDecoration: "none",
+          }}>
+            Probar Pro gratis →
+          </a>
+          <br />
+          <Link href="/dashboard" style={{ display: "inline-block", marginTop: "16px", fontSize: "13px", color: "var(--text-muted)" }}>
+            ← Volver al portfolio
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const p = property;
@@ -216,6 +249,72 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* Fix 2: Broker CTA — highest-intent lead capture */}
+          <div style={{
+            gridColumn: "1 / -1",
+            background: "linear-gradient(135deg, #0f766e 0%, #1e3a5f 100%)",
+            borderRadius: "12px", padding: "24px", color: "white",
+            marginTop: "8px",
+          }}>
+            {brokerSent ? (
+              <div style={{ textAlign: "center", padding: "8px 0" }}>
+                <p style={{ fontSize: "18px", fontWeight: 800, marginBottom: "4px" }}>✅ ¡Listo!</p>
+                <p style={{ fontSize: "14px", opacity: 0.85 }}>Un ejecutivo hipotecario se pondrá en contacto contigo.</p>
+              </div>
+            ) : (
+              <>
+                <p style={{ fontSize: "17px", fontWeight: 800, marginBottom: "4px" }}>
+                  ¿Listo para avanzar con esta inversión?
+                </p>
+                <p style={{ fontSize: "13px", opacity: 0.85, lineHeight: 1.5, marginBottom: "16px" }}>
+                  Conecta con un ejecutivo hipotecario que te ayude a evaluar el crédito para esta propiedad. Sin costo, sin compromiso.
+                </p>
+                <button
+                  onClick={async () => {
+                    setBrokerSent(true);
+                    // Send as a broker lead via the existing pipeline
+                    await fetch("/api/send-analysis", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        email: "dashboard-lead@propadvisor.site",
+                        wantsBrokerContact: true,
+                        address: property.comuna || property.city,
+                        propertyType: property.property_type,
+                        city: property.city,
+                        priceCLP: Number(property.price_clp),
+                        priceUF: Number(property.price_uf),
+                        bankName: property.bank_name,
+                        interestRate: Number(property.interest_rate),
+                        downPaymentPct: Number(property.down_payment_pct),
+                        monthlyPayment: Number(property.monthly_payment),
+                        loanTermYears: Number(property.loan_term_years),
+                        ufValue: 37000,
+                        rooms: 0, baths: 0,
+                        buyTotal: 0, rentTotal: 0, rentMonthlyCLP: Number(property.monthly_rent),
+                        netMonthlyFlow: Number(property.net_monthly_flow),
+                        rentalYield: Number(property.cap_rate),
+                        propertyValueAfter20Years: 0, savings: 0,
+                        generatedAt: new Date().toLocaleDateString("es-CL"),
+                      }),
+                    }).catch(() => {});
+                  }}
+                  style={{
+                    width: "100%", padding: "14px 24px",
+                    background: "white", color: "#0f766e",
+                    border: "none", borderRadius: "10px",
+                    fontSize: "15px", fontWeight: 800, cursor: "pointer",
+                  }}
+                >
+                  Conectar con ejecutivo hipotecario →
+                </button>
+                <p style={{ fontSize: "11px", opacity: 0.6, marginTop: "8px", textAlign: "center" }}>
+                  Tu análisis completo será compartido con el ejecutivo
+                </p>
+              </>
+            )}
           </div>
 
         </div>

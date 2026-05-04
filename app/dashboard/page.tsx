@@ -14,13 +14,16 @@ export default function DashboardPage() {
   const [properties, setProperties] = useState<SavedProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [plan, setPlan] = useState<{ plan: string; isActive: boolean }>({ plan: "free", isActive: false });
 
   useEffect(() => {
-    fetch("/api/portfolio")
-      .then((r) => r.json())
-      .then((d) => { setProperties(d.properties || []); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetch("/api/portfolio").then((r) => r.json()),
+      fetch("/api/plan").then((r) => r.json()),
+    ]).then(([portfolioData, planData]) => {
+      setProperties(portfolioData.properties || []);
+      setPlan(planData);
+    }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -44,11 +47,24 @@ export default function DashboardPage() {
           </p>
           <h1 style={{ fontSize: "clamp(26px, 4vw, 34px)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: "6px" }}>
             Hola, {user?.firstName || "Inversor"} 👋
+            {plan.isActive && <span style={{ fontSize: "12px", fontWeight: 700, background: "var(--accent)", color: "white", padding: "3px 10px", borderRadius: "9999px", marginLeft: "12px", verticalAlign: "middle" }}>PRO</span>}
           </h1>
           <p style={{ fontSize: "16px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
             {properties.length > 0
               ? `Tienes ${properties.length} propiedad${properties.length > 1 ? "es" : ""} guardada${properties.length > 1 ? "s" : ""}.`
               : "Analiza propiedades y guárdalas aquí para construir tu portfolio."}
+            {plan.isActive && (
+              <button
+                onClick={async () => {
+                  const res = await fetch("/api/billing", { method: "POST" });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                }}
+                style={{ background: "none", border: "none", color: "var(--accent)", fontWeight: 600, cursor: "pointer", fontSize: "14px", marginLeft: "8px" }}
+              >
+                Gestionar suscripción →
+              </button>
+            )}
           </p>
         </header>
 

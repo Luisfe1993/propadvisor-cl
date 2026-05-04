@@ -878,9 +878,13 @@ export default function CalcularPage() {
                           <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
                             💼 Guardar en mi portfolio
                           </p>
-                          <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
+                          <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "8px" }}>
                             Guarda este análisis para comparar con otras propiedades después.
                           </p>
+                          <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "var(--text-secondary)", cursor: "pointer" }}>
+                            <input type="checkbox" defaultChecked style={{ accentColor: "var(--accent)" }} id="save-broker-optin" />
+                            También quiero que un ejecutivo hipotecario me contacte
+                          </label>
                         </>
                       )}
                     </div>
@@ -915,7 +919,15 @@ export default function CalcularPage() {
                                 winner: comparison.winner,
                               }),
                             });
-                            if (!res.ok) throw new Error();
+                            if (!res.ok) {
+                              const data = await res.json().catch(() => ({}));
+                              if (data.upgrade) {
+                                alert("Has alcanzado el límite de 1 propiedad en el plan gratuito. Actualiza a Pro para guardar propiedades ilimitadas.");
+                                window.location.href = "/pricing";
+                                return;
+                              }
+                              throw new Error();
+                            }
                             setSaveStatus("saved");
                             track("property_saved", { city, comuna: comunaInfo?.label || "" });
                           } catch {

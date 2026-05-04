@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { getDb, initDb } from "@/lib/db";
+import { getDb, initDb, getUserPlan } from "@/lib/db";
 
 // Initialize DB on first request
 let dbInitialized = false;
@@ -50,6 +50,19 @@ export async function POST(req: NextRequest) {
     await ensureDb();
     const body = await req.json();
     const sql = getDb();
+
+    // Check plan limits: free = 1 property, pro = unlimited
+    const plan = await getUserPlan(userId);
+    if (!plan.isActive) {
+      const existing = await sql`SELECT COUNT(*) as count FROM saved_properties WHERE user_id = ${userId}`;
+      const count = Number(existing[0]?.count || 0);
+      if (count >= 1) {
+        return NextResponse.json({
+          error: "Límite alcanzado. Actualiza a Pro para guardar propiedades ilimitadas.",
+          upgrade: true,
+        }, { status: 403 });
+      }
+    }
 
     const rows = await sql`
       INSERT INTO saved_properties (
