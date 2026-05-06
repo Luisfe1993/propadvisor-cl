@@ -8,6 +8,7 @@ import { calcMonthlyPayment, calc20YearComparison } from "@/lib/calculations";
 import type { BankRate } from "@/lib/types";
 import { getComunaInfo, getCityOptions, getComunaOptions, cityData } from "@/lib/comunaData";
 import EmailGateModal from "@/components/EmailGateModal";
+import OpportunitiesView from "@/components/OpportunitiesView";
 import type { AnalysisPayload } from "@/components/EmailGateModal";
 
 // ─────────────────────────────────────────────────────────
@@ -930,6 +931,18 @@ export default function CalcularPage() {
                         </button>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* Property suggestions — visible to ALL users after analysis */}
+                {comparison && priceUF > 0 && (
+                  <div style={{ marginBottom: "16px" }}>
+                    <OpportunitiesView
+                      priceUF={priceUF}
+                      city={getCityLabel(city)}
+                      propertyType={purpose === "inversion" ? "Inversión" : "Primera vivienda"}
+                      comuna={comunaInfo?.label || ""}
+                    />
                   </div>
                 )}
 

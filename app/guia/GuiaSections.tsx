@@ -148,9 +148,9 @@ function Section({ id, number, title, children }: {
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24 mb-12 sm:mb-16">
+    <section id={id} className="scroll-mt-24 pt-10 sm:pt-14 pb-10 sm:pb-14 border-b border-[var(--border)] last:border-b-0">
       {/* Section header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-8">
         <span className="flex-shrink-0 w-10 h-10 bg-[var(--accent)] text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-sm">
           {number}
         </span>
@@ -168,7 +168,7 @@ function Section({ id, number, title, children }: {
 /* ─── Inline CTA ───────────────────────────────────────── */
 function InlineCTA({ text, href }: { text: string; href: string }) {
   return (
-    <div className="mt-8">
+    <div className="mt-10">
       <Link
         href={href}
         className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--accent-light)] text-[var(--accent)] rounded-lg text-sm font-semibold hover:bg-[var(--accent)] hover:text-white transition-colors"
@@ -187,7 +187,7 @@ function InlineCTA({ text, href }: { text: string; href: string }) {
    ═══════════════════════════════════════════════════════════ */
 export function GuiaSections() {
   return (
-    <div>
+    <div className="divide-y-0">
       {/* ── 1. CRÉDITO HIPOTECARIO ─────────────────────── */}
       <Section id="credito-hipotecario" number={1} title="¿Cómo funciona el crédito hipotecario en Chile?">
         <p className="text-[var(--text-secondary)] leading-relaxed mb-4 text-lg">
