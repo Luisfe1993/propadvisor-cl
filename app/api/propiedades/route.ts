@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     const rooms = sp.get("rooms") ? parseInt(sp.get("rooms")!) : undefined;
     const baths = sp.get("baths") ? parseInt(sp.get("baths")!) : undefined;
     const id = sp.get("id") || undefined;
+    const minBudget = sp.get("minBudget") ? parseFloat(sp.get("minBudget")!) : undefined;
 
     // ── Fetch live UF value ──────────────────────────────────────────────
     let ufValue = 36520;
@@ -96,7 +97,8 @@ export async function GET(request: NextRequest) {
             propertyType,
             rooms,
             baths,
-            ufValue
+            ufValue,
+            minBudget,
           );
         }
       } else {
@@ -108,7 +110,8 @@ export async function GET(request: NextRequest) {
           propertyType,
           rooms,
           baths,
-          ufValue
+          ufValue,
+          minBudget,
         );
       }
     }

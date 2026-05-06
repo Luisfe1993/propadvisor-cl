@@ -159,12 +159,15 @@ export function filterProperties(
   propertyType?: string,
   rooms?: number,
   baths?: number,
-  ufValue: number = 37200
+  ufValue: number = 37200,
+  minBudget?: number,
 ): Property[] {
   const budgetUF = currency === "UF" ? budget : budget / ufValue;
+  const minUF = minBudget ? (currency === "UF" ? minBudget : minBudget / ufValue) : 0;
 
   return mockProperties.filter((prop) => {
     if (prop.priceUF > budgetUF) return false;
+    if (minUF > 0 && prop.priceUF < minUF) return false;
     if (city && prop.city !== city) return false;
     if (propertyType && prop.type !== propertyType) return false;
     if (rooms && prop.rooms < rooms) return false;

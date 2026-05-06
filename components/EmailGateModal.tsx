@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { track } from "@vercel/analytics";
+import OpportunitiesView from "./OpportunitiesView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -66,7 +67,7 @@ const modal: React.CSSProperties = {
   borderRadius: "16px",
   padding: "32px 28px 28px",
   width: "100%",
-  maxWidth: "460px",
+  maxWidth: "520px",
   maxHeight: "90vh",
   overflowY: "auto",
   boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
@@ -179,28 +180,39 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
 
           {status === "success" ? (
             // ── Success state ────────────────────────────────────────────────
-            <div style={{ textAlign: "center", padding: "8px 0" }}>
-              <div style={{ fontSize: "48px", marginBottom: "16px" }}>✅</div>
-              <h2 style={{ fontSize: "20px", fontWeight: 800, color: "var(--text-primary)", marginBottom: "10px", letterSpacing: "-0.02em" }}>
-                ¡Listo! Revisa tu bandeja
-              </h2>
-              <p style={{ fontSize: "15px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "8px" }}>
-                Te enviamos el <strong>informe PDF</strong> y el <strong>modelo Excel</strong> a <strong>{email}</strong>.
-              </p>
-              {wantsBroker && (
-                <p style={{ fontSize: "14px", color: "var(--accent-dark)", lineHeight: 1.6, marginBottom: "8px", background: "var(--accent-light)", borderRadius: "8px", padding: "10px 14px" }}>
-                  Un ejecutivo hipotecario se pondrá en contacto contigo para ayudarte con el crédito.
+            <div style={{ padding: "8px 0" }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: "48px", marginBottom: "16px" }}>✅</div>
+                <h2 style={{ fontSize: "20px", fontWeight: 800, color: "var(--text-primary)", marginBottom: "10px", letterSpacing: "-0.02em" }}>
+                  ¡Listo! Revisa tu bandeja
+                </h2>
+                <p style={{ fontSize: "15px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "8px" }}>
+                  Te enviamos el <strong>informe PDF</strong> y el <strong>modelo Excel</strong> a <strong>{email}</strong>.
                 </p>
-              )}
-              <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "20px", lineHeight: 1.5 }}>
-                También te avisaremos si las tasas hipotecarias bajan — para que no pierdas la mejor oportunidad.
-              </p>
+                {wantsBroker && (
+                  <p style={{ fontSize: "14px", color: "var(--accent-dark)", lineHeight: 1.6, marginBottom: "8px", background: "var(--accent-light)", borderRadius: "8px", padding: "10px 14px" }}>
+                    Un ejecutivo hipotecario se pondrá en contacto contigo para ayudarte con el crédito.
+                  </p>
+                )}
+                <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "12px", lineHeight: 1.5 }}>
+                  También te avisaremos si las tasas hipotecarias bajan — para que no pierdas la mejor oportunidad.
+                </p>
+              </div>
+
+              {/* Opportunities — aspirational property suggestions */}
+              <OpportunitiesView
+                priceUF={payload.priceUF}
+                city={payload.city}
+                propertyType={payload.propertyType}
+              />
+
               <button
                 onClick={onClose}
                 style={{
                   background: "var(--accent)", color: "white", border: "none",
                   borderRadius: "10px", padding: "12px 28px", fontSize: "15px",
                   fontWeight: 700, cursor: "pointer", width: "100%",
+                  marginTop: "16px",
                 }}
               >
                 Cerrar
