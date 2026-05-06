@@ -24,6 +24,8 @@ interface OpportunitiesViewProps {
   city: string;
   /** User's analyzed property type */
   propertyType?: string;
+  /** User's analyzed comuna/neighborhood */
+  comuna?: string;
 }
 
 function formatCLP(v: number): string {
@@ -34,7 +36,7 @@ function formatCLP(v: number): string {
   }).format(v);
 }
 
-export default function OpportunitiesView({ priceUF, city, propertyType }: OpportunitiesViewProps) {
+export default function OpportunitiesView({ priceUF, city, propertyType, comuna }: OpportunitiesViewProps) {
   const [properties, setProperties] = useState<OpportunityProperty[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,8 +56,21 @@ export default function OpportunitiesView({ priceUF, city, propertyType }: Oppor
       .then((r) => r.json())
       .then((data) => {
         let results: OpportunityProperty[] = data.properties || [];
-        // Shuffle and take top 6
-        results = results.sort(() => Math.random() - 0.5).slice(0, 6);
+        // Prioritize same neighborhood if comuna provided
+        if (comuna) {
+          const comunaNorm = comuna.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+          const sameNeighborhood = results.filter((p) =>
+            p.neighborhood.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(comunaNorm)
+          );
+          const others = results.filter((p) =>
+            !p.neighborhood.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(comunaNorm)
+          );
+          // Show same-neighborhood first, then fill with others
+          results = [...sameNeighborhood, ...others.sort(() => Math.random() - 0.5)];
+        } else {
+          results = results.sort(() => Math.random() - 0.5);
+        }
+        results = results.slice(0, 6);
         setProperties(results);
         track("opportunities_shown", { city, count: results.length, priceUF });
       })

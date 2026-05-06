@@ -77,7 +77,7 @@ export default function CalcularPage() {
   const [priceCurrency, setPriceCurrency] = useState<InputCurrency>("UF");
   const [rentRaw, setRentRaw]           = useState("");
   const [city, setCity]                 = useState("santiago");
-  const [comuna, setComuna]             = useState("");
+  const [comuna, setComuna]             = useState("providencia");
   const [purpose, setPurpose]           = useState<PropertyPurpose>("vivienda");
 
   // Mortgage inputs
@@ -187,6 +187,7 @@ export default function CalcularPage() {
     if (!comparison || !canAnalyze) return null;
     return {
       address: comunaInfo?.label || getCityLabel(city),
+      comuna: comuna || "",
       propertyType: purpose === "inversion" ? "Inversión" : "Primera vivienda",
       city: getCityLabel(city),
       rooms: 0,
@@ -210,7 +211,7 @@ export default function CalcularPage() {
       generatedAt: new Date().toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" }),
       hasPreApproval: rateMode === "manual" ? hasPreApproval : undefined,
     };
-  }, [comparison, canAnalyze, city, comunaInfo, priceCLP, priceUF, ufValue, bankLabel, interestRate, downPayment, downAmount, loanTerm, monthlyPayment, rentCLP, netFlow, rentalYield, rateMode, hasPreApproval]);
+  }, [comparison, canAnalyze, city, comuna, comunaInfo, priceCLP, priceUF, ufValue, bankLabel, interestRate, downPayment, downAmount, loanTerm, monthlyPayment, rentCLP, netFlow, rentalYield, rateMode, hasPreApproval]);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
@@ -335,7 +336,12 @@ export default function CalcularPage() {
                   <select
                     id="city-select"
                     value={city}
-                    onChange={(e) => { setCity(e.target.value); setComuna(""); }}
+                    onChange={(e) => {
+                      const newCity = e.target.value;
+                      setCity(newCity);
+                      const comunas = getComunaOptions(newCity);
+                      setComuna(comunas.length > 0 ? comunas[0].value : "");
+                    }}
                     style={{ ...inputSx, cursor: "pointer" }}
                     onFocus={onFocus}
                     onBlur={onBlur}
@@ -357,7 +363,6 @@ export default function CalcularPage() {
                     onFocus={onFocus}
                     onBlur={onBlur}
                   >
-                    <option value="">Seleccionar comuna</option>
                     {getComunaOptions(city).map((c) => (
                       <option key={c.value} value={c.value}>{c.label}</option>
                     ))}
@@ -908,10 +913,10 @@ export default function CalcularPage() {
                           Cotizar antes te da poder de negociación con el banco.
                         </p>
                         <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "12px" }}>
-                          Estimación para tu propiedad: <strong>{formatCLP(Math.round(priceCLP * 0.003))}-{formatCLP(Math.round(priceCLP * 0.006))}/año</strong> en primas
+                          Estimación{comunaInfo ? ` para ${comunaInfo.label}` : ""}: <strong>{formatCLP(Math.round(priceCLP * (comunaInfo?.risk === "high" ? 0.005 : comunaInfo?.risk === "medium" ? 0.003 : 0.002)))}-{formatCLP(Math.round(priceCLP * (comunaInfo?.risk === "high" ? 0.008 : comunaInfo?.risk === "medium" ? 0.006 : 0.004)))}/año</strong> en primas
                         </p>
                         <button
-                          onClick={() => { track("insurance_cta_clicked", { page: "calcular", priceCLP, city }); window.open("https://www.consorcio.cl/seguros/seguro-de-desgravamen?utm_source=propadvisor&utm_medium=referral&utm_campaign=calculadora", "_blank"); }}
+                          onClick={() => { track("insurance_cta_clicked", { page: "calcular", priceCLP, city, comuna: comunaInfo?.label || "" }); window.open("https://www.consorcio.cl/seguros/seguro-de-desgravamen?utm_source=propadvisor&utm_medium=referral&utm_campaign=calculadora", "_blank"); }}
                           style={{
                             padding: "10px 20px", fontSize: "13px", fontWeight: 700,
                             color: "#1D4ED8", background: "white",

@@ -10,6 +10,7 @@ import OpportunitiesView from "./OpportunitiesView";
 
 export interface AnalysisPayload {
   address: string;
+  comuna: string;
   propertyType: string;
   city: string;
   rooms: number;
@@ -204,6 +205,7 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                 priceUF={payload.priceUF}
                 city={payload.city}
                 propertyType={payload.propertyType}
+                comuna={payload.comuna}
               />
 
               <button

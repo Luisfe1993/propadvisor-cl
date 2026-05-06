@@ -64,6 +64,7 @@ export default function AnalisisPage({ params }: { params: Promise<{ id: string 
     if (!property || !comparison) return null;
     return {
       address: property.address,
+      comuna: property.neighborhood || "",
       propertyType: property.type === "departamento" ? "Departamento" : "Casa",
       city: getCityLabel(property.city),
       rooms: property.rooms,

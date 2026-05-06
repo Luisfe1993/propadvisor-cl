@@ -53,6 +53,7 @@ function calcLeadScore(data: {
   incomeRange?: string;
   name?: string;
   wantsBrokerContact?: boolean;
+  comuna?: string;
 }): { score: number; tier: "hot" | "warm" | "cold" } {
   let score = 0;
   if (data.wantsBrokerContact) score += 1;
@@ -62,6 +63,13 @@ function calcLeadScore(data: {
   if (data.hasPieAvailable) score += 1;
   if (data.incomeRange === "3M-5M" || data.incomeRange === "5M+") score += 2;
   else if (data.incomeRange === "2M-3M") score += 1;
+
+  // Premium comuna bonus — these leads are worth more to brokers
+  const premiumComunas = ["providencia", "las_condes", "vitacura", "lo_barnechea", "nunoa", "la_reina"];
+  if (data.comuna) {
+    const normalized = data.comuna.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "_");
+    if (premiumComunas.includes(normalized)) score += 1;
+  }
 
   const tier = score >= 6 ? "hot" : score >= 3 ? "warm" : "cold";
   return { score, tier };
@@ -91,7 +99,7 @@ export async function POST(req: NextRequest) {
       incomeRange?: string;
       hasPieAvailable?: boolean;
       hasPreApproval?: boolean;
-    } & AnalysisPDFProps & ExcelReportData;
+    } & AnalysisPDFProps & ExcelReportData & { comuna?: string };
 
     // Validate email
     if (!email || !isValidEmail(email)) {
@@ -129,6 +137,7 @@ export async function POST(req: NextRequest) {
       // Calculate lead quality score
       const { score, tier } = calcLeadScore({
         phone, hasPreApproval, hasPieAvailable, incomeRange, name, wantsBrokerContact,
+        comuna: analysisData.comuna || analysisData.address || "",
       });
 
       const leadData = {
@@ -144,6 +153,7 @@ export async function POST(req: NextRequest) {
         hasPreApproval: hasPreApproval ?? null,
         utmSource: utmSource || "direct",
         property: analysisData.address,
+        comuna: analysisData.comuna || analysisData.address || "",
         propertyType: analysisData.propertyType,
         city: analysisData.city,
         priceCLP: analysisData.priceCLP,
@@ -165,7 +175,7 @@ export async function POST(req: NextRequest) {
       const brokerTargets = routeLead(
         {
           city: normalize(analysisData.city || ""),
-          comuna: normalize(analysisData.address || ""),
+          comuna: normalize(analysisData.comuna || analysisData.address || ""),
           score,
           purpose: analysisData.propertyType || "",
           priceUF: analysisData.priceUF || 0,

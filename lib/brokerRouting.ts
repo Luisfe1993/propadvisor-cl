@@ -67,6 +67,17 @@ export const brokerRoutes: BrokerRoute[] = [
     },
   },
 
+  // ── Santiago Premium Comunas (high-value leads) ──
+  {
+    name: "Santiago Premium",
+    email: process.env.BROKER_NOTIFY_EMAIL || "luisfsande@hotmail.com",
+    match: {
+      city: "santiago",
+      comuna: ["providencia", "las_condes", "vitacura", "lo_barnechea"],
+      minScore: 5,
+    },
+  },
+
   // ── Investment leads nationwide (high-intent) ──
   {
     name: "Inversiones Nacional",
