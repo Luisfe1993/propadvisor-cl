@@ -126,6 +126,14 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
       setErrorMsg("Ingresa un email válido.");
       return;
     }
+    if (wantsBroker && !phone.trim()) {
+      setErrorMsg("Ingresa tu teléfono para que el ejecutivo te contacte.");
+      return;
+    }
+    if (wantsBroker && !incomeRange) {
+      setErrorMsg("Selecciona tu rango de ingreso para pre-calificación.");
+      return;
+    }
     setErrorMsg("");
     setStatus("loading");
     try {
@@ -191,9 +199,14 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                   Te enviamos el <strong>informe PDF</strong> y el <strong>modelo Excel</strong> a <strong>{email}</strong>.
                 </p>
                 {wantsBroker && (
-                  <p style={{ fontSize: "14px", color: "var(--accent-dark)", lineHeight: 1.6, marginBottom: "8px", background: "var(--accent-light)", borderRadius: "8px", padding: "10px 14px" }}>
-                    Un ejecutivo hipotecario se pondrá en contacto contigo para ayudarte con el crédito.
-                  </p>
+                  <div style={{ background: "var(--accent-light)", borderRadius: "8px", padding: "12px 14px", marginBottom: "8px" }}>
+                    <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--accent-dark)", marginBottom: "4px" }}>
+                      ✅ Ejecutivo hipotecario te contactará en 24 horas
+                    </p>
+                    <p style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.5, margin: 0 }}>
+                      {phone ? `Por llamada o WhatsApp al ${phone}.` : "Por email."} Sin obligaciones — cotización gratuita de crédito.
+                    </p>
+                  </div>
                 )}
                 <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "12px", lineHeight: 1.5 }}>
                   También te avisaremos si las tasas hipotecarias bajan — para que no pierdas la mejor oportunidad.
@@ -317,7 +330,7 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                 </div>
               </label>
 
-              {/* Broker qualification fields — only shown when opted in */}
+              {/* Broker qualification fields — required when opted in */}
               {wantsBroker && (
                 <div style={{
                   background: "var(--bg-secondary)", borderRadius: "10px",
@@ -325,8 +338,8 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                   display: "flex", flexDirection: "column", gap: "10px",
                   border: "1px solid var(--border)",
                 }}>
-                  <p style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "2px" }}>
-                    Para que el ejecutivo te ayude mejor (opcional)
+                  <p style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-dark)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "2px" }}>
+                    Para que el ejecutivo te contacte
                   </p>
 
                   {/* Name + Phone row */}
@@ -341,19 +354,22 @@ export default function EmailGateModal({ payload, onClose }: EmailGateModalProps
                     <input
                       type="tel"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Teléfono (opcional)"
-                      style={{ ...inputStyle, fontSize: "14px", padding: "10px 12px" }}
+                      onChange={(e) => { setPhone(e.target.value); setErrorMsg(""); }}
+                      placeholder="Teléfono *"
+                      style={{ ...inputStyle, fontSize: "14px", padding: "10px 12px", borderColor: errorMsg.includes("teléfono") ? "#dc2626" : "var(--border)" }}
                     />
                   </div>
+                  <p style={{ fontSize: "10px", color: "var(--accent)", marginTop: "-4px" }}>
+                    Te llamará o enviará WhatsApp a este número
+                  </p>
 
                   {/* Income range */}
                   <select
                     value={incomeRange}
-                    onChange={(e) => setIncomeRange(e.target.value)}
-                    style={{ ...inputStyle, fontSize: "14px", padding: "10px 12px", cursor: "pointer", color: incomeRange ? "var(--text-primary)" : "var(--text-muted)" }}
+                    onChange={(e) => { setIncomeRange(e.target.value); setErrorMsg(""); }}
+                    style={{ ...inputStyle, fontSize: "14px", padding: "10px 12px", cursor: "pointer", color: incomeRange ? "var(--text-primary)" : "var(--text-muted)", borderColor: errorMsg.includes("ingreso") ? "#dc2626" : "var(--border)" }}
                   >
-                    <option value="">Ingreso mensual líquido (opcional)</option>
+                    <option value="">Ingreso mensual líquido *</option>
                     <option value="<1M">Menos de $1.000.000</option>
                     <option value="1M-2M">$1.000.000 — $2.000.000</option>
                     <option value="2M-3M">$2.000.000 — $3.000.000</option>

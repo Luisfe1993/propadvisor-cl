@@ -71,7 +71,7 @@ function onBlur(e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) {
 }
 
 export default function CalcularPage() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
 
   // Property inputs
   const [priceRaw, setPriceRaw]         = useState("");
@@ -210,9 +210,9 @@ export default function CalcularPage() {
       propertyValueAfter20Years: comparison.propertyValueAfter20Years,
       savings: comparison.savings,
       generatedAt: new Date().toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" }),
-      hasPreApproval: rateMode === "manual" ? hasPreApproval : undefined,
+      hasPreApproval: hasPreApproval || undefined,
     };
-  }, [comparison, canAnalyze, city, comuna, comunaInfo, priceCLP, priceUF, ufValue, bankLabel, interestRate, downPayment, downAmount, loanTerm, monthlyPayment, rentCLP, netFlow, rentalYield, rateMode, hasPreApproval]);
+  }, [comparison, canAnalyze, city, comuna, comunaInfo, priceCLP, priceUF, ufValue, bankLabel, interestRate, downPayment, downAmount, loanTerm, monthlyPayment, rentCLP, netFlow, rentalYield, rateMode, hasPreApproval, purpose, effectiveRent, loanAmount]);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
@@ -529,33 +529,33 @@ export default function CalcularPage() {
                           <p style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "3px" }}>Aparecerá en tu informe</p>
                         </div>
                       </div>
-
-                      {/* Pre-approval indicator */}
-                      <label
-                        htmlFor="pre-approval"
-                        style={{
-                          display: "flex", alignItems: "center", gap: "8px",
-                          cursor: "pointer", fontSize: "12px", color: "var(--text-secondary)",
-                          padding: "8px 10px", borderRadius: "8px",
-                          background: hasPreApproval ? "var(--accent-light)" : "var(--bg-secondary)",
-                          border: hasPreApproval ? "1px solid var(--accent)" : "1px solid transparent",
-                          transition: "all 0.15s",
-                        }}
-                      >
-                        <input
-                          id="pre-approval"
-                          type="checkbox"
-                          checked={hasPreApproval}
-                          onChange={(e) => setHasPreApproval(e.target.checked)}
-                          style={{ accentColor: "var(--accent)", width: "14px", height: "14px" }}
-                        />
-                        <span style={{ fontWeight: hasPreApproval ? 700 : 500 }}>
-                          {hasPreApproval ? "✅ Tengo pre-aprobación" : "¿Tienes pre-aprobación del banco?"}
-                        </span>
-                      </label>
                     </div>
                   )}
                 </div>
+
+                {/* Pre-approval indicator — always visible */}
+                <label
+                  htmlFor="pre-approval"
+                  style={{
+                    display: "flex", alignItems: "center", gap: "8px",
+                    cursor: "pointer", fontSize: "12px", color: "var(--text-secondary)",
+                    padding: "8px 10px", borderRadius: "8px",
+                    background: hasPreApproval ? "var(--accent-light)" : "var(--bg-secondary)",
+                    border: hasPreApproval ? "1px solid var(--accent)" : "1px solid transparent",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <input
+                    id="pre-approval"
+                    type="checkbox"
+                    checked={hasPreApproval}
+                    onChange={(e) => setHasPreApproval(e.target.checked)}
+                    style={{ accentColor: "var(--accent)", width: "14px", height: "14px" }}
+                  />
+                  <span style={{ fontWeight: hasPreApproval ? 700 : 500 }}>
+                    {hasPreApproval ? "✅ Tengo pre-aprobación" : "¿Tienes pre-aprobación del banco?"}
+                  </span>
+                </label>
 
                 {/* Down payment */}
                 <div>
@@ -1031,7 +1031,7 @@ export default function CalcularPage() {
                                   method: "POST",
                                   headers: { "Content-Type": "application/json" },
                                   body: JSON.stringify({
-                                    email: "portfolio-lead@propadvisor.site",
+                                    email: user?.primaryEmailAddress?.emailAddress || "portfolio-lead@propadvisor.site",
                                     wantsBrokerContact: true,
                                     ...payload,
                                   }),

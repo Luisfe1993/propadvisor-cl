@@ -202,6 +202,7 @@ export async function POST(req: NextRequest) {
       <tr><td style="padding:6px 0;color:#6b7280;width:140px;">Email</td><td style="padding:6px 0;font-weight:700;">${email}</td></tr>
       ${name ? `<tr><td style="padding:6px 0;color:#6b7280;">Nombre</td><td style="padding:6px 0;font-weight:700;">${name}</td></tr>` : ""}
       ${phone ? `<tr><td style="padding:6px 0;color:#6b7280;">Teléfono</td><td style="padding:6px 0;font-weight:700;">${phone}</td></tr>` : ""}
+      ${phone ? `<tr><td style="padding:6px 0;color:#6b7280;">WhatsApp</td><td style="padding:6px 0;"><a href="https://wa.me/${phone.replace(/\D/g, "").replace(/^56/, "")}?text=${encodeURIComponent(`Hola${name ? ` ${name}` : ""}, soy ejecutivo hipotecario de PropAdvisor. Vi que estás evaluando una propiedad en ${analysisData.address || analysisData.city} por ${formatCLP(analysisData.priceCLP)}. ¿Te gustaría que revisemos las opciones de crédito?`)}" style="color:#16a34a;font-weight:700;text-decoration:none;">📱 Abrir WhatsApp →</a></td></tr>` : ""}
       ${incomeRange ? `<tr><td style="padding:6px 0;color:#6b7280;">Ingreso mensual</td><td style="padding:6px 0;">${incomeRange}</td></tr>` : ""}
       ${hasPieAvailable !== undefined ? `<tr><td style="padding:6px 0;color:#6b7280;">Pie disponible</td><td style="padding:6px 0;">${hasPieAvailable ? "✅ Sí" : "⏳ Juntando"}</td></tr>` : ""}
       ${hasPreApproval ? `<tr><td style="padding:6px 0;color:#6b7280;">Pre-aprobación</td><td style="padding:6px 0;color:#16a34a;font-weight:700;">✅ Tiene pre-aprobación</td></tr>` : ""}
@@ -219,6 +220,20 @@ export async function POST(req: NextRequest) {
       <tr><td style="padding:6px 0;color:#6b7280;">Dividendo</td><td style="padding:6px 0;font-weight:700;color:#0d9488;">${formatCLP(analysisData.monthlyPayment)}/mes</td></tr>
       <tr><td style="padding:6px 0;color:#6b7280;">Plazo</td><td style="padding:6px 0;">${analysisData.loanTermYears} años</td></tr>
     </table>
+
+    ${incomeRange && analysisData.monthlyPayment ? (() => {
+      const incomeMap: Record<string, number> = { "<1M": 750000, "1M-2M": 1500000, "2M-3M": 2500000, "3M-5M": 4000000, "5M+": 6000000 };
+      const estIncome = incomeMap[incomeRange] || 0;
+      const ratio = estIncome > 0 ? (analysisData.monthlyPayment / estIncome) * 100 : 0;
+      const color = ratio > 35 ? "#dc2626" : ratio > 25 ? "#d97706" : "#16a34a";
+      const bg = ratio > 35 ? "#fef2f2" : ratio > 25 ? "#fffbeb" : "#f0fdf4";
+      const border = ratio > 35 ? "#fecaca" : ratio > 25 ? "#fde68a" : "#bbf7d0";
+      const label = ratio > 35 ? "⚠️ Alto endeudamiento" : ratio > 25 ? "⚠️ Endeudamiento moderado" : "✅ Buen ratio deuda/ingreso";
+      return `<div style="margin-top:12px;padding:10px 14px;background:${bg};border:1px solid ${border};border-radius:6px;">
+        <p style="margin:0;font-size:12px;font-weight:700;color:${color};">${label}</p>
+        <p style="margin:2px 0 0;font-size:12px;color:#374151;">Dividendo ${formatCLP(analysisData.monthlyPayment)} = ${ratio.toFixed(0)}% del ingreso estimado (${incomeRange})</p>
+      </div>`;
+    })() : ""}
 
     <div style="margin-top:20px;padding:12px 16px;background:#f0fdf4;border-radius:6px;border-left:4px solid #16a34a;">
       <p style="margin:0;font-size:12px;font-weight:700;color:#16a34a;text-transform:uppercase;">Acción recomendada</p>
