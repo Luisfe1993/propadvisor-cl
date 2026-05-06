@@ -91,8 +91,8 @@ export function ScrollspyNav({ active }: { active: string }) {
       </nav>
 
       {/* Mobile — horizontal pill bar */}
-      <nav aria-label="Secciones" className="lg:hidden sticky top-16 z-30 bg-white/90 backdrop-blur-md border-b border-[var(--border)] -mx-6 px-6 py-3 mb-8">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+      <nav aria-label="Secciones" className="lg:hidden sticky top-14 z-30 bg-white/95 backdrop-blur-md border-b border-[var(--border)] -mx-6 px-4 py-2 mb-6">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
           {tocItems.map((item, i) => (
             <a
               key={item.id}
@@ -148,14 +148,14 @@ function Section({ id, number, title, children }: {
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24 mb-20">
+    <section id={id} className="scroll-mt-24 mb-12 sm:mb-16">
       {/* Section header */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex items-center gap-4 mb-6">
         <span className="flex-shrink-0 w-10 h-10 bg-[var(--accent)] text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-sm">
           {number}
         </span>
         <div className="flex-1">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
             {title}
           </h2>
         </div>

@@ -85,7 +85,7 @@ export default function CalcularPage() {
   const [loanTerm, setLoanTerm]         = useState(20);
   const [selectedBankId, setSelectedBankId] = useState("santander");
   const [monthlyCosts, setMonthlyCosts] = useState(200000);
-  const [rateMode, setRateMode]         = useState<RateMode>("referential");
+  const [rateMode, setRateMode]         = useState<RateMode>("manual");
   const [manualRate, setManualRate]      = useState("");
   const [manualBankName, setManualBankName] = useState("");
   const [hasPreApproval, setHasPreApproval] = useState(false);
@@ -264,73 +264,7 @@ export default function CalcularPage() {
               </legend>
               <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
 
-                {/* Price */}
-                <div>
-                  <label htmlFor="price-input" style={labelSx}>
-                    Precio de venta <span aria-label="obligatorio">*</span>
-                  </label>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <input
-                      id="price-input"
-                      type="text"
-                      inputMode="numeric"
-                      value={priceRaw}
-                      onChange={(e) => setPriceRaw(e.target.value)}
-                      placeholder={priceCurrency === "UF" ? "Ej: 3200" : "Ej: 120000000"}
-                      style={{ ...inputSx, flex: 1 }}
-                      onFocus={onFocus}
-                      onBlur={onBlur}
-                    />
-                    <select
-                      value={priceCurrency}
-                      onChange={(e) => setPriceCurrency(e.target.value as InputCurrency)}
-                      aria-label="Moneda del precio"
-                      style={{ ...inputSx, width: "80px", cursor: "pointer" }}
-                      onFocus={onFocus}
-                      onBlur={onBlur}
-                    >
-                      <option value="UF">UF</option>
-                      <option value="CLP">CLP</option>
-                    </select>
-                  </div>
-                  {priceCLP > 0 && (
-                    <p style={{ fontSize: "12px", color: "var(--accent)", marginTop: "5px", fontWeight: 600 }}>
-                      ≈ {priceCurrency === "UF" ? formatCLP(priceCLP) : `UF ${priceUF.toLocaleString("es-CL", { maximumFractionDigits: 0 })}`}
-                      {" · "}UF actual: {ufValue.toLocaleString("es-CL")}
-                    </p>
-                  )}
-                </div>
-
-                {/* Estimated monthly rent */}
-                <div>
-                  <label htmlFor="rent-input" style={labelSx}>
-                    Arriendo mensual estimado (CLP)
-                  </label>
-                  <input
-                    id="rent-input"
-                    type="text"
-                    inputMode="numeric"
-                    value={rentRaw}
-                    onChange={(e) => setRentRaw(e.target.value)}
-                    placeholder={suggestedRent > 0 ? `Sugerido: ${suggestedRent.toLocaleString("es-CL")}` : "Ej: 450000"}
-                    style={inputSx}
-                    onFocus={onFocus}
-                    onBlur={onBlur}
-                  />
-                  {rentCLP === 0 && suggestedRent > 0 && (
-                    <p style={{ fontSize: "12px", color: "var(--accent)", marginTop: "5px", fontWeight: 600 }}>
-                      Usando estimación: {formatCLP(suggestedRent)}/mes (cap rate {(comunaCapRate * 100).toFixed(1)}% {comunaInfo?.label || ""})
-                    </p>
-                  )}
-                  {effectiveRent > 0 && priceCLP > 0 && (
-                    <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "5px" }}>
-                      Rentabilidad bruta: <strong style={{ color: rentalYield >= 5 ? "#16a34a" : "var(--text-secondary)" }}>{rentalYield.toFixed(1)}%</strong> anual
-                      {rentalYield >= 5 ? " — buen retorno" : rentalYield >= 4 ? " — retorno aceptable" : " — retorno bajo"}
-                    </p>
-                  )}
-                </div>
-
-                {/* City */}
+                {/* City — FIRST so comuna context drives everything */}
                 <div>
                   <label htmlFor="city-select" style={labelSx}>Ciudad</label>
                   <select
@@ -403,6 +337,72 @@ export default function CalcularPage() {
                     {comunaInfo.metro && <p style={{ fontSize: "10px", color: "var(--accent)", marginTop: "4px", fontWeight: 600 }}>🚇 Conectividad metro/transporte público</p>}
                   </div>
                 )}
+
+                {/* Price */}
+                <div>
+                  <label htmlFor="price-input" style={labelSx}>
+                    Precio de venta <span aria-label="obligatorio">*</span>
+                  </label>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <input
+                      id="price-input"
+                      type="text"
+                      inputMode="numeric"
+                      value={priceRaw}
+                      onChange={(e) => setPriceRaw(e.target.value)}
+                      placeholder={priceCurrency === "UF" ? "Ej: 3200" : "Ej: 120000000"}
+                      style={{ ...inputSx, flex: 1 }}
+                      onFocus={onFocus}
+                      onBlur={onBlur}
+                    />
+                    <select
+                      value={priceCurrency}
+                      onChange={(e) => setPriceCurrency(e.target.value as InputCurrency)}
+                      aria-label="Moneda del precio"
+                      style={{ ...inputSx, width: "80px", cursor: "pointer" }}
+                      onFocus={onFocus}
+                      onBlur={onBlur}
+                    >
+                      <option value="UF">UF</option>
+                      <option value="CLP">CLP</option>
+                    </select>
+                  </div>
+                  {priceCLP > 0 && (
+                    <p style={{ fontSize: "12px", color: "var(--accent)", marginTop: "5px", fontWeight: 600 }}>
+                      ≈ {priceCurrency === "UF" ? formatCLP(priceCLP) : `UF ${priceUF.toLocaleString("es-CL", { maximumFractionDigits: 0 })}`}
+                      {" · "}UF actual: {ufValue.toLocaleString("es-CL")}
+                    </p>
+                  )}
+                </div>
+
+                {/* Estimated monthly rent */}
+                <div>
+                  <label htmlFor="rent-input" style={labelSx}>
+                    Arriendo mensual estimado (CLP)
+                  </label>
+                  <input
+                    id="rent-input"
+                    type="text"
+                    inputMode="numeric"
+                    value={rentRaw}
+                    onChange={(e) => setRentRaw(e.target.value)}
+                    placeholder={suggestedRent > 0 ? `Sugerido: ${suggestedRent.toLocaleString("es-CL")}` : "Ej: 450000"}
+                    style={inputSx}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                  />
+                  {rentCLP === 0 && suggestedRent > 0 && (
+                    <p style={{ fontSize: "12px", color: "var(--accent)", marginTop: "5px", fontWeight: 600 }}>
+                      Usando estimación: {formatCLP(suggestedRent)}/mes (cap rate {(comunaCapRate * 100).toFixed(1)}% {comunaInfo?.label || ""})
+                    </p>
+                  )}
+                  {effectiveRent > 0 && priceCLP > 0 && (
+                    <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "5px" }}>
+                      Rentabilidad bruta: <strong style={{ color: rentalYield >= 5 ? "#16a34a" : "var(--text-secondary)" }}>{rentalYield.toFixed(1)}%</strong> anual
+                      {rentalYield >= 5 ? " — buen retorno" : rentalYield >= 4 ? " — retorno aceptable" : " — retorno bajo"}
+                    </p>
+                  )}
+                </div>
 
                 {/* Property purpose */}
                 <div>

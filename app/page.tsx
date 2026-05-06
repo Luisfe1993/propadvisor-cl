@@ -176,12 +176,12 @@ const features = [
   {
     Icon: ChartIcon,
     title: "Datos reales del mercado chileno",
-    desc: "Tasas actualizadas de BancoEstado, Santander, BCI y Banco de Chile. Valor de UF en tiempo real desde el Banco Central.",
+    desc: "Tasas actualizadas de 8 bancos: Santander, BdChile, Scotiabank, BCI, Itaú, BancoEstado, Security y BICE. UF en tiempo real desde el Banco Central.",
   },
   {
     Icon: CalendarIcon,
-    title: "Proyección a 20 años",
-    desc: "No basta con el dividendo mensual. PropAdvisor proyecta el costo total real de cada escenario, incluyendo plusvalía estimada.",
+    title: "Proyección a 15, 20 o 25 años",
+    desc: "No basta con el dividendo mensual. PropAdvisor proyecta el costo total real de cada escenario, incluyendo plusvalía estimada por comuna.",
   },
   {
     Icon: CompareIcon,
@@ -272,8 +272,8 @@ export default function Home() {
               margin: "0 auto 36px",
             }}
           >
-            Calcula tu dividendo, compara tasas de los 4 principales bancos
-            y proyecta 3 escenarios a 20 años — antes de firmar nada.
+            Calcula tu dividendo, compara tasas de 8 bancos
+            y proyecta 3 escenarios hasta 25 años — antes de firmar nada.
           </p>
 
           {/* CTAs */}
@@ -343,8 +343,8 @@ export default function Home() {
           }}
         >
           {[
-            { value: "4", label: "bancos chilenos comparados" },
-            { value: "3", label: "escenarios a 20 años" },
+            { value: "8", label: "bancos chilenos comparados" },
+            { value: "3", label: "escenarios hasta 25 años" },
             { value: "UF", label: "actualizada en tiempo real" },
           ].map((stat, i) => (
             <div
@@ -422,18 +422,18 @@ export default function Home() {
             {[
               {
                 n: "01",
-                title: "Ingresa los datos",
-                desc: "Precio de venta (en UF o CLP) y arriendo mensual estimado de la propiedad que encontraste.",
+                title: "Elige tu ubicación",
+                desc: "Selecciona ciudad y comuna. PropAdvisor usa datos reales de plusvalía y arriendo por zona.",
               },
               {
                 n: "02",
-                title: "Elige banco y condiciones",
-                desc: "Compara tasas de BancoEstado, Santander, BCI y Banco de Chile. Ajusta el pie y el plazo.",
+                title: "Ingresa precio y condiciones",
+                desc: "Precio de venta, tu tasa, pie y plazo. Compara tasas de 8 bancos chilenos.",
               },
               {
                 n: "03",
                 title: "Recibe tu análisis",
-                desc: "Dividendo mensual, 3 escenarios a 20 años, y un informe PDF + Excel enviado a tu email.",
+                desc: "Dividendo mensual, 3 escenarios hasta 25 años, y un informe PDF + Excel enviado a tu email.",
               },
             ].map((step) => (
               <li key={step.n}>
