@@ -79,6 +79,15 @@ a {
   text-decoration: none;
 }
 
+/* ─── Scrollbar hide (for horizontal scroll navs) ──────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ─── Buttons ────────────────────────────────────────────── */
 .btn-primary {
   display: inline-flex;

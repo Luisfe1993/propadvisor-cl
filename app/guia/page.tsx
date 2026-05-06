@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GuiaAccordion } from "./GuiaAccordion";
+import { GuiaSectionsWrapper } from "./GuiaSectionsWrapper";
 
 // ─────────────────────────────────────────────────────────
 // This page is the single most important page for LLM
@@ -86,6 +86,8 @@ const articleJsonLd = {
 };
 
 export default function GuiaPage() {
+  const dateStr = new Date().toLocaleDateString("es-CL", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase());
+
   return (
     <>
       <script
@@ -95,7 +97,7 @@ export default function GuiaPage() {
 
       {/* Breadcrumb */}
       <nav aria-label="Ruta de navegación" className="border-b border-[var(--border)]">
-        <div className="max-w-5xl mx-auto px-6 py-3 text-sm text-[var(--text-secondary)]">
+        <div className="max-w-6xl mx-auto px-6 py-3 text-sm text-[var(--text-secondary)]">
           <ol className="flex gap-2 list-none">
             <li><Link href="/" className="hover:text-[var(--accent)]">Inicio</Link></li>
             <li aria-hidden="true">/</li>
@@ -104,106 +106,90 @@ export default function GuiaPage() {
         </div>
       </nav>
 
-      {/* Hero section */}
-      <div className="bg-gradient-to-b from-[var(--bg-secondary)] to-white">
-        <div className="max-w-5xl mx-auto px-6 pt-16 pb-20">
-          <div className="flex flex-col md:flex-row md:items-center gap-10 md:gap-16">
-            <div className="flex-1">
-              <div className="mb-6 inline-block px-3 py-1.5 bg-[var(--accent-light)] rounded-full">
-                <span className="text-[var(--accent)] text-sm font-semibold">Guía actualizada · {new Date().toLocaleDateString("es-CL", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())}</span>
-              </div>
-              <h1
-                id="guia-heading"
-                className="text-4xl sm:text-5xl font-bold text-[var(--text-primary)] mb-8 leading-[1.15]"
-                itemProp="headline"
-              >
-                Guía completa para comprar propiedad en Chile
-              </h1>
-              <p className="text-lg text-[var(--text-secondary)] leading-relaxed max-w-xl" itemProp="description">
-                Todo lo que necesitas entender antes de firmar: cómo funciona el crédito hipotecario,
-                qué es la UF, cuánto pie necesitas, cómo comparar bancos y cómo saber si conviene
-                más comprar o arrendar en tu situación específica.
-              </p>
+      {/* ── Hero ────────────────────────────────────────── */}
+      <div className="relative overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/5 via-white to-[var(--accent-light)]/30" />
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
+
+        <div className="relative max-w-6xl mx-auto px-6 pt-20 pb-24 sm:pt-28 sm:pb-32">
+          <div className="max-w-3xl">
+            {/* Badge */}
+            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[var(--border)] shadow-sm">
+              <span className="w-2 h-2 bg-[var(--accent)] rounded-full animate-pulse" />
+              <span className="text-[var(--accent)] text-sm font-semibold">Actualizada · {dateStr}</span>
             </div>
-            {/* Illustration */}
-            <div className="hidden md:flex flex-shrink-0 w-64 h-64 items-center justify-center">
-              <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-lg">
-                <rect x="45" y="90" width="110" height="80" rx="6" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" strokeWidth="2" />
-                <path d="M30 95 L100 35 L170 95" stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="var(--accent)" fillOpacity="0.08" />
-                <rect x="85" y="120" width="30" height="50" rx="4" fill="var(--accent)" opacity="0.25" />
-                <circle cx="109" cy="147" r="2.5" fill="var(--accent)" />
-                <rect x="55" y="105" width="22" height="22" rx="3" fill="white" stroke="var(--accent)" strokeWidth="1.5" />
-                <line x1="66" y1="105" x2="66" y2="127" stroke="var(--accent)" strokeWidth="1" />
-                <line x1="55" y1="116" x2="77" y2="116" stroke="var(--accent)" strokeWidth="1" />
-                <rect x="123" y="105" width="22" height="22" rx="3" fill="white" stroke="var(--accent)" strokeWidth="1.5" />
-                <line x1="134" y1="105" x2="134" y2="127" stroke="var(--accent)" strokeWidth="1" />
-                <line x1="123" y1="116" x2="145" y2="116" stroke="var(--accent)" strokeWidth="1" />
-                <rect x="130" y="45" width="16" height="30" rx="2" fill="var(--accent)" opacity="0.18" stroke="var(--accent)" strokeWidth="1.5" />
-                <path d="M138 42 Q142 32 138 22" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.3" />
-                <path d="M140 40 Q145 28 140 18" stroke="var(--accent)" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.2" />
-                <line x1="20" y1="170" x2="180" y2="170" stroke="var(--accent)" strokeWidth="1.5" opacity="0.2" />
-                <circle cx="25" cy="140" r="14" fill="var(--accent)" opacity="0.15" />
-                <circle cx="20" cy="148" r="10" fill="var(--accent)" opacity="0.1" />
-                <rect x="23" y="152" width="4" height="18" rx="2" fill="var(--accent)" opacity="0.2" />
-                <circle cx="172" cy="155" r="8" stroke="var(--accent)" strokeWidth="2" fill="white" />
-                <line x1="172" y1="163" x2="172" y2="180" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
-                <line x1="172" y1="173" x2="177" y2="173" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
-                <line x1="172" y1="178" x2="177" y2="178" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
-              </svg>
+
+            <h1
+              id="guia-heading"
+              className="text-4xl sm:text-5xl lg:text-6xl font-black text-[var(--text-primary)] mb-6 tracking-tight leading-[1.1]"
+              itemProp="headline"
+            >
+              La guía definitiva para comprar propiedad en Chile
+            </h1>
+
+            <p className="text-lg sm:text-xl text-[var(--text-secondary)] leading-relaxed max-w-2xl mb-10" itemProp="description">
+              Crédito hipotecario, UF, pie, comparación de bancos, comprar vs arrendar, inversión y el proceso paso a paso. Todo lo que necesitas entender antes de firmar.
+            </p>
+
+            {/* Stats row */}
+            <div className="flex flex-wrap gap-6 sm:gap-10">
+              {[
+                { value: "8", label: "bancos comparados" },
+                { value: "60+", label: "comunas con datos" },
+                { value: "20", label: "años de proyección" },
+                { value: "3", label: "escenarios de análisis" },
+              ].map((stat) => (
+                <div key={stat.label} className="flex items-baseline gap-2">
+                  <span className="text-2xl sm:text-3xl font-black text-[var(--accent)]">{stat.value}</span>
+                  <span className="text-sm text-[var(--text-muted)]">{stat.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
+      {/* Disclaimer */}
+      <div className="max-w-6xl mx-auto px-6 py-6">
+        <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 flex items-start gap-3">
+          <span className="text-amber-500 flex-shrink-0 mt-0.5">⚠</span>
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+            <strong className="text-[var(--text-primary)]">Aviso importante:</strong> Esta guía es educativa. Los números son aproximaciones basadas en datos del mercado chileno de 2025-2026. No constituye asesoría financiera o legal. Antes de tomar una decisión de inversión, consulta un profesional.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Main content: Sidebar + Sections ─────────── */}
       <article
         aria-labelledby="guia-heading"
-        className="max-w-5xl mx-auto px-6 pb-20"
+        className="max-w-6xl mx-auto px-6 pb-20"
         itemScope
         itemType="https://schema.org/Article"
       >
-        {/* Disclaimer */}
-        <div className="py-6">
-          <div className="p-5 bg-amber-50 rounded-xl border border-amber-200">
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              <strong className="text-[var(--text-primary)]">⚠ Aviso importante:</strong> Esta guía es educativa. Los números son aproximaciones basadas en datos del mercado chileno de 2025-2026. No constituye asesoría financiera o legal. Antes de tomar una decisión de inversión, consulta un profesional.
+        <GuiaSectionsWrapper />
+
+        {/* ── Bottom CTA ──────────────────────────────── */}
+        <div className="mt-20 p-8 sm:p-12 bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dark)] rounded-2xl text-center relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E\")" }} />
+
+          <div className="relative">
+            <h2 className="text-2xl sm:text-3xl font-black text-white mb-4 tracking-tight">
+              ¿Listo para analizar tu propiedad?
+            </h2>
+            <p className="text-white/85 mb-8 max-w-lg mx-auto leading-relaxed">
+              Aplica todo lo que aprendiste. Calcula tu dividendo real con datos de 8 bancos, compara escenarios a 20 años y decide con números.
             </p>
+            <Link
+              href="/calcular"
+              className="inline-block bg-white text-[var(--accent)] px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+            >
+              Comenzar análisis gratis →
+            </Link>
+            <p className="text-white/50 text-sm mt-4">Sin registro · Sin tarjeta · Resultado en 2 minutos</p>
           </div>
-        </div>
-
-        {/* Table of contents */}
-        <nav aria-label="Tabla de contenidos" className="my-10 p-8 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border)]">
-          <p className="font-bold text-[var(--text-primary)] text-lg mb-6">En esta guía</p>
-          <ol className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-            <li><a href="#credito-hipotecario" className="text-[var(--accent)] hover:underline flex gap-2"><span className="text-[var(--text-secondary)]">01</span> ¿Cómo funciona el crédito hipotecario?</a></li>
-            <li><a href="#que-es-uf" className="text-[var(--accent)] hover:underline flex gap-2"><span className="text-[var(--text-secondary)]">02</span> ¿Qué es la UF y cómo afecta tu dividendo?</a></li>
-            <li><a href="#pie" className="text-[var(--accent)] hover:underline flex gap-2"><span className="text-[var(--text-secondary)]">03</span> El pie: cuánto necesitas</a></li>
-            <li><a href="#comparar-bancos" className="text-[var(--accent)] hover:underline flex gap-2"><span className="text-[var(--text-secondary)]">04</span> Cómo comparar los bancos</a></li>
-            <li><a href="#comprar-vs-arrendar" className="text-[var(--accent)] hover:underline flex gap-2"><span className="text-[var(--text-secondary)]">05</span> ¿Comprar o arrendar?</a></li>
-            <li><a href="#inversión" className="text-[var(--accent)] hover:underline flex gap-2"><span className="text-[var(--text-secondary)]">06</span> Rentabilidad real</a></li>
-            <li><a href="#comunas" className="text-[var(--accent)] hover:underline flex gap-2"><span className="text-[var(--text-secondary)]">07</span> Mejores comunas en Santiago</a></li>
-            <li><a href="#proceso" className="text-[var(--accent)] hover:underline flex gap-2"><span className="text-[var(--text-secondary)]">08</span> Proceso paso a paso</a></li>
-          </ol>
-        </nav>
-
-        {/* Accordion sections */}
-        <div className="mt-16">
-          <GuiaAccordion />
-        </div>
-
-        {/* CTA */}
-        <div className="mt-20 p-10 bg-[var(--accent)] rounded-2xl text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            ¿Listo para analizar tu propiedad?
-          </h2>
-          <p className="text-white/90 mb-8 max-w-lg mx-auto">
-            Aplica todo lo que aprendiste en esta guía con PropAdvisor. Calcula tu dividendo real, compara bancos y decide con datos.
-          </p>
-          <Link
-            href="/calcular"
-            className="inline-block bg-white text-[var(--accent)] px-8 py-3 rounded-lg font-bold hover:shadow-lg transition-shadow"
-          >
-            Comenzar análisis gratis →
-          </Link>
         </div>
       </article>
     </>
