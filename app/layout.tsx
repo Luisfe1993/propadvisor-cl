@@ -52,13 +52,13 @@ export const metadata: Metadata = {
     title: "PropAdvisor CL — ¿Conviene Comprar o Arrendar en Chile?",
     description:
       "Compara escenarios a 20 años: comprar para vivir, comprar para arrendar, o seguir arrendando. Tasas reales de bancos chilenos. Gratis, sin registro.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "PropAdvisor CL" }],
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "PropAdvisor CL" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "PropAdvisor CL — ¿Conviene Comprar o Arrendar en Chile?",
     description: "Simulador gratuito de análisis inmobiliario para Chile. Tasas reales, UF en vivo, 3 escenarios a 20 años.",
-    images: ["/og-image.png"],
+    images: ["/opengraph-image"],
   },
   alternates: { canonical: "https://www.propadvisor.site" },
 };
