@@ -58,26 +58,26 @@ export const brokerRoutes: BrokerRoute[] = [
     },
   },
 
-  // ── Example routes (uncomment when signed) ──────────────
+  // ── Santiago (active — routes to fallback until dedicated broker signed) ──
+  {
+    name: "Santiago General",
+    email: process.env.BROKER_NOTIFY_EMAIL || "luisfsande@hotmail.com",
+    match: {
+      city: "santiago",
+    },
+  },
 
-  // {
-  //   name: "Broker Premium Santiago",
-  //   email: "premium@broker.cl",
-  //   match: {
-  //     city: "santiago",
-  //     minScore: 6,
-  //     minPriceUF: 3000,
-  //   },
-  // },
+  // ── Investment leads nationwide (high-intent) ──
+  {
+    name: "Inversiones Nacional",
+    email: process.env.BROKER_NOTIFY_EMAIL || "luisfsande@hotmail.com",
+    match: {
+      purpose: "inversion",
+      minScore: 4,
+    },
+  },
 
-  // {
-  //   name: "Broker Inversiones",
-  //   email: "inversiones@broker.cl",
-  //   match: {
-  //     purpose: "inversion",
-  //   },
-  // },
-
+  // ── South (when broker signed, replace email) ──
   // {
   //   name: "Broker Sur",
   //   email: "sur@broker.cl",
@@ -86,14 +86,7 @@ export const brokerRoutes: BrokerRoute[] = [
   //   },
   // },
 
-  // {
-  //   name: "Broker Costa",
-  //   email: "costa@broker.cl",
-  //   match: {
-  //     city: ["valparaiso", "la_serena"],
-  //   },
-  // },
-
+  // ── North (when broker signed, replace email) ──
   // {
   //   name: "Broker Norte",
   //   email: "norte@broker.cl",

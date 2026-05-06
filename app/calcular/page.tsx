@@ -855,6 +855,79 @@ export default function CalcularPage() {
                   return p ? <EmailGateModal payload={p} onClose={() => setShowEmailModal(false)} /> : null;
                 })()}
 
+                {/* Standalone broker CTA — visible to ALL users after analysis */}
+                {comparison && (
+                  <div style={{
+                    border: "1.5px solid #BBF7D0", borderRadius: "12px", padding: "20px",
+                    background: "linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)",
+                    marginBottom: "16px",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                      <span style={{ fontSize: "24px", flexShrink: 0 }}>🏦</span>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
+                          ¿Listo para dar el siguiente paso?
+                        </p>
+                        <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: "12px" }}>
+                          Conecta gratis con un ejecutivo hipotecario que te ayude a evaluar el crédito para esta propiedad. Sin compromiso, sin costo.
+                        </p>
+                        <button
+                          onClick={() => { setShowEmailModal(true); track("broker_cta_clicked", { page: "calcular", city, source: "standalone_cta" }); }}
+                          disabled={!comparison}
+                          style={{
+                            padding: "12px 24px", fontSize: "14px", fontWeight: 700,
+                            color: "white", background: "#16a34a",
+                            border: "none", borderRadius: "8px",
+                            cursor: "pointer", transition: "all 0.15s",
+                          }}
+                          onMouseOver={(e) => { e.currentTarget.style.background = "#15803d"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                          onMouseOut={(e) => { e.currentTarget.style.background = "#16a34a"; e.currentTarget.style.transform = ""; }}
+                        >
+                          Hablar con un ejecutivo →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Insurance CTA — every mortgage needs seguro de desgravamen + incendio */}
+                {comparison && priceCLP > 0 && (
+                  <div style={{
+                    border: "1px solid #BFDBFE", borderRadius: "12px", padding: "20px",
+                    background: "linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 100%)",
+                    marginBottom: "16px",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                      <span style={{ fontSize: "24px", flexShrink: 0 }}>🛡️</span>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
+                          ¿Sabías que necesitas seguro para tu crédito hipotecario?
+                        </p>
+                        <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: "4px" }}>
+                          Todo crédito hipotecario en Chile requiere <strong>seguro de desgravamen</strong> (vida) y <strong>seguro de incendio</strong>. 
+                          Cotizar antes te da poder de negociación con el banco.
+                        </p>
+                        <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "12px" }}>
+                          Estimación para tu propiedad: <strong>{formatCLP(Math.round(priceCLP * 0.003))}-{formatCLP(Math.round(priceCLP * 0.006))}/año</strong> en primas
+                        </p>
+                        <button
+                          onClick={() => { track("insurance_cta_clicked", { page: "calcular", priceCLP, city }); window.open("https://www.consorcio.cl/seguros/seguro-de-desgravamen?utm_source=propadvisor&utm_medium=referral&utm_campaign=calculadora", "_blank"); }}
+                          style={{
+                            padding: "10px 20px", fontSize: "13px", fontWeight: 700,
+                            color: "#1D4ED8", background: "white",
+                            border: "1.5px solid #93C5FD", borderRadius: "8px",
+                            cursor: "pointer", transition: "all 0.15s",
+                          }}
+                          onMouseOver={(e) => { e.currentTarget.style.background = "#DBEAFE"; }}
+                          onMouseOut={(e) => { e.currentTarget.style.background = "white"; }}
+                        >
+                          Cotizar seguros hipotecarios →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Save to portfolio + Pro upgrade */}
                 {isSignedIn ? (
                   <div style={{

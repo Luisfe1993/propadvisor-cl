@@ -153,3 +153,35 @@ No Chilean platform offers a free, real-data, 20-year comparison across all thre
 - Not a marketplace (we don't connect buyers and sellers)
 - Not dependent on affiliate tracking infrastructure that doesn't exist in Chile
 - Not dependent on advertising revenue (lead sales are aligned with user intent)
+
+---
+
+## Critical Evaluation Updates (May 2026)
+
+### New Stream: Insurance Affiliate (ADDED — High Priority)
+
+Every mortgage buyer in Chile **must** purchase seguro de desgravamen (life) + incendio (fire). Legally required. Chilean insurers (Consorcio, BCI Seguros, Sura, MetLife) DO run affiliate/referral programs — unlike banks. Average commission: CLP $30K–$160K per referral. PropAdvisor already collects every input an insurer needs (property value, loan amount, income bracket, city). Add a "Cotiza tu seguro hipotecario" button on analysis results.
+
+**Projected revenue:** 500 analyses/mo × 10% CTR × 20% conversion × CLP $80K avg = CLP $800K/mo
+
+### SaaS Pricing Revision
+
+The CLP $15K/mo Pro tier is in a dead zone — too cheap for serious investors, too expensive for casual browsers. Chilean professionals prefer pay-per-use over monthly subscriptions for intermittent tools.
+
+**Changes planned:**
+- Add pay-per-analysis: CLP $3,000–$5,000 per advanced analysis
+- Raise Pro to CLP $25K–$30K/mo
+- Add "Profesional" tier at CLP $75K/mo for corredores/brokers
+- Annual pricing: CLP $200K/year (save 33%)
+
+### Revised Revenue Priority Order
+
+| Priority | Stream | Month 6 Target |
+|----------|--------|----------------|
+| 1 | Broker lead sales | CLP $2M–$4M |
+| 2 | Insurance affiliate | CLP $500K–$1.5M |
+| 3 | Pro SaaS (repriced) | CLP $750K–$2M |
+| 4 | Email nurture + sponsored | CLP $200K–$500K |
+| 5 | Bank sponsorship | CLP $500K–$2M |
+
+**Key insight:** Pro subscription is secondary to lead sales. The free tool is the acquisition funnel — gate less, capture more leads. See CRITICAL_EVALUATION.md for full analysis.

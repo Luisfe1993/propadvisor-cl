@@ -5,21 +5,24 @@ import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 
 const features = [
-  { name: "Análisis de propiedad (3 escenarios)", free: true, pro: true },
-  { name: "Informe PDF + Excel gratis", free: true, pro: true },
-  { name: "Tasas de 8 bancos chilenos", free: true, pro: true },
-  { name: "Datos por comuna (plusvalía, cap rate)", free: true, pro: true },
-  { name: "Contacto con ejecutivo hipotecario", free: true, pro: true },
-  { name: "Guardar propiedades en portfolio", free: false, pro: true },
-  { name: "Comparar hasta 10 propiedades", free: false, pro: true },
-  { name: "Modelar vacancia (0-20%)", free: false, pro: true },
-  { name: "Desglose de gastos (GGCC, seguros, admin)", free: false, pro: true },
-  { name: "Calculadora de impuestos (contribuciones, DFL2)", free: false, pro: true },
-  { name: "IRR (tasa interna de retorno)", free: false, pro: true },
-  { name: "DSCR (cobertura de deuda)", free: false, pro: true },
-  { name: "Cash-on-cash por año", free: false, pro: true },
-  { name: "Dashboard de portfolio", free: false, pro: true },
-  { name: "Memorándum de inversión PDF", free: false, pro: true },
+  { name: "Análisis de propiedad (3 escenarios)", free: true, pro: true, profesional: true },
+  { name: "Informe PDF + Excel gratis", free: true, pro: true, profesional: true },
+  { name: "Tasas de 8 bancos chilenos", free: true, pro: true, profesional: true },
+  { name: "Datos por comuna (plusvalía, cap rate)", free: true, pro: true, profesional: true },
+  { name: "Contacto con ejecutivo hipotecario", free: true, pro: true, profesional: true },
+  { name: "Guardar propiedades en portfolio", free: false, pro: true, profesional: true },
+  { name: "Comparar hasta 10 propiedades", free: false, pro: true, profesional: true },
+  { name: "Modelar vacancia (0-20%)", free: false, pro: true, profesional: true },
+  { name: "Desglose de gastos (GGCC, seguros, admin)", free: false, pro: true, profesional: true },
+  { name: "Calculadora de impuestos (contribuciones, DFL2)", free: false, pro: true, profesional: true },
+  { name: "IRR (tasa interna de retorno)", free: false, pro: true, profesional: true },
+  { name: "DSCR (cobertura de deuda)", free: false, pro: true, profesional: true },
+  { name: "Cash-on-cash por año", free: false, pro: true, profesional: true },
+  { name: "Dashboard de portfolio", free: false, pro: true, profesional: true },
+  { name: "Memorándum de inversión PDF", free: false, pro: true, profesional: true },
+  { name: "Análisis ilimitados para clientes", free: false, pro: false, profesional: true },
+  { name: "Memo con tu marca (white-label)", free: false, pro: false, profesional: true },
+  { name: "Soporte prioritario", free: false, pro: false, profesional: true },
 ];
 
 export default function PricingPage() {
@@ -61,7 +64,7 @@ export default function PricingPage() {
         </div>
 
         {/* Plans grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px", marginBottom: "64px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "64px" }}>
 
           {/* Free plan */}
           <div style={{ border: "1px solid var(--border)", borderRadius: "16px", padding: "32px", background: "white" }}>
@@ -89,7 +92,7 @@ export default function PricingPage() {
               background: "var(--accent)", color: "white", fontSize: "11px", fontWeight: 700,
               padding: "4px 16px", borderRadius: "9999px", textTransform: "uppercase", letterSpacing: "0.05em",
             }}>
-              Para inversores
+              Más popular
             </div>
             <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>Pro</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: "4px", marginBottom: "4px" }}>
@@ -117,6 +120,41 @@ export default function PricingPage() {
               Sin tarjeta para empezar
             </p>
           </div>
+
+          {/* Profesional plan */}
+          <div style={{ border: "1px solid #7C3AED", borderRadius: "16px", padding: "32px", background: "white", position: "relative" }}>
+            <div style={{
+              position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)",
+              background: "#7C3AED", color: "white", fontSize: "11px", fontWeight: 700,
+              padding: "4px 16px", borderRadius: "9999px", textTransform: "uppercase", letterSpacing: "0.05em",
+            }}>
+              Para corredores
+            </div>
+            <p style={{ fontSize: "13px", fontWeight: 700, color: "#7C3AED", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>Profesional</p>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "4px", marginBottom: "4px" }}>
+              <p style={{ fontSize: "42px", fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.04em", lineHeight: 1 }}>$75.000</p>
+              <p style={{ fontSize: "15px", color: "var(--text-muted)" }}>/mes</p>
+            </div>
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "8px" }}>~$75 USD · Para corredores y asesores</p>
+            <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: "24px" }}>
+              Todo Pro + análisis ilimitados para tus clientes, memo con tu marca y soporte prioritario.
+            </p>
+            <a
+              href="mailto:contacto@propadvisor.site?subject=Plan%20Profesional%20PropAdvisor"
+              style={{
+                display: "block", textAlign: "center", padding: "12px", fontSize: "14px",
+                width: "100%", boxSizing: "border-box",
+                background: "#7C3AED", color: "white", borderRadius: "10px",
+                fontWeight: 700, border: "none", cursor: "pointer",
+                textDecoration: "none", transition: "background 0.15s",
+              }}
+            >
+              Contactar ventas →
+            </a>
+            <p style={{ fontSize: "11px", color: "var(--text-muted)", textAlign: "center", marginTop: "8px" }}>
+              Onboarding personalizado
+            </p>
+          </div>
         </div>
 
         {/* Feature comparison table */}
@@ -126,17 +164,18 @@ export default function PricingPage() {
           </h2>
           <div style={{ border: "1px solid var(--border)", borderRadius: "12px", overflow: "hidden" }}>
             {/* Header */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 80px", gap: "0", background: "var(--bg-secondary)", padding: "12px 20px", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 80px 80px", gap: "0", background: "var(--bg-secondary)", padding: "12px 20px", borderBottom: "1px solid var(--border)" }}>
               <p style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Funcionalidad</p>
               <p style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Gratis</p>
               <p style={{ fontSize: "12px", fontWeight: 700, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Pro</p>
+              <p style={{ fontSize: "12px", fontWeight: 700, color: "#7C3AED", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "center" }}>Prof.</p>
             </div>
             {/* Rows */}
             {features.map((f, i) => (
               <div
                 key={f.name}
                 style={{
-                  display: "grid", gridTemplateColumns: "1fr 80px 80px", gap: "0",
+                  display: "grid", gridTemplateColumns: "1fr 80px 80px 80px", gap: "0",
                   padding: "12px 20px",
                   background: i % 2 === 0 ? "white" : "var(--bg-secondary)",
                   borderBottom: i < features.length - 1 ? "1px solid var(--border)" : "none",
@@ -144,6 +183,7 @@ export default function PricingPage() {
               >
                 <p style={{ fontSize: "14px", color: "var(--text-primary)" }}>{f.name}</p>
                 <p style={{ fontSize: "16px", textAlign: "center" }}>{f.free ? "✅" : "—"}</p>
+                <p style={{ fontSize: "16px", textAlign: "center" }}>{f.pro ? "✅" : "—"}</p>
                 <p style={{ fontSize: "16px", textAlign: "center" }}>✅</p>
               </div>
             ))}
