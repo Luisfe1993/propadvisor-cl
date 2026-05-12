@@ -32,14 +32,47 @@ async function getAccessToken(): Promise<string | null> {
   const staticToken = process.env.ML_ACCESS_TOKEN;
   if (staticToken) return staticToken;
 
-  // 2. Fall back to client_credentials (app-level, limited scope)
+  // 2. Try refresh token if available
+  const refreshToken = process.env.ML_REFRESH_TOKEN;
   const appId = process.env.ML_APP_ID;
   const appSecret = process.env.ML_APP_SECRET;
-  if (!appId || !appSecret) return null;
 
+  if (refreshToken && appId && appSecret && (!tokenCache || Date.now() >= tokenCache.expiresAt - 300_000)) {
+    try {
+      const res = await fetch(`${ML_BASE}/oauth/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          grant_type: "refresh_token",
+          client_id: appId,
+          client_secret: appSecret,
+          refresh_token: refreshToken,
+        }),
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.access_token) {
+          tokenCache = {
+            token: data.access_token,
+            expiresAt: Date.now() + data.expires_in * 1000,
+          };
+          console.log("[ML] Token refreshed via refresh_token");
+          return tokenCache.token;
+        }
+      }
+    } catch {
+      console.warn("[ML] Refresh token failed, trying client_credentials");
+    }
+  }
+
+  // 3. Use cached token if still valid
   if (tokenCache && Date.now() < tokenCache.expiresAt - 300_000) {
     return tokenCache.token;
   }
+
+  // 4. Fall back to client_credentials (app-level, limited scope)
+  if (!appId || !appSecret) return null;
 
   try {
     const res = await fetch(`${ML_BASE}/oauth/token`, {
@@ -201,8 +234,16 @@ export async function searchMLProperties(
   const tokenSource = process.env.ML_ACCESS_TOKEN ? "user (APP_USR)" : "app (client_credentials)";
   console.log("[ML] Using token type:", tokenSource, "— first 20 chars:", token.slice(0, 20));
 
-  const ufValue = params.ufValue ?? 36520;
+  const ufValue = params.ufValue ?? 40290;
   const limit = Math.min(params.limit ?? 48, 48);
+
+  // ── Location bounding boxes for geo-search ────────────
+  // Using the classified_locations/search endpoint with lat/lon for better immuebles results
+  const cityBounds: Record<string, { lat: string; lon: string }> = {
+    santiago:    { lat: "-33.65_-33.30", lon: "-70.80_-70.45" },
+    valparaiso:  { lat: "-33.15_-32.90", lon: "-71.70_-71.40" },
+    concepcion:  { lat: "-36.95_-36.70", lon: "-73.20_-72.90" },
+  };
 
   const cityLabels: Record<string, string> = {
     santiago: "Santiago",
@@ -210,17 +251,23 @@ export async function searchMLProperties(
     concepcion: "Concepción",
   };
 
-  // Build keyword — include type + city so results are real estate specific.
-  // We avoid the category=MLC1459 filter which is locked down by ML.
+  // Build search — use category MLC1459 (Inmuebles) + location filters
   const typeLabel = params.propertyType === "casa" ? "casa" : "departamento";
   const cityLabel = params.city ? (cityLabels[params.city] ?? params.city) : "Santiago";
-  const keyword = `${typeLabel} en venta ${cityLabel}`;
+  const keyword = `${typeLabel} venta ${cityLabel}`;
 
   const qs = new URLSearchParams({
     q: keyword,
+    category: "MLC1459", // Inmuebles category
     limit: limit.toString(),
     offset: ((params.offset ?? 0)).toString(),
   });
+
+  // Add geo-bounds if we have them for this city
+  const bounds = params.city ? cityBounds[params.city] : cityBounds.santiago;
+  if (bounds) {
+    qs.set("item_location", `lat:${bounds.lat},lon:${bounds.lon}`);
+  }
 
   const url = `${ML_BASE}/sites/MLC/search?${qs}`;
   console.log("[ML] Searching:", url);
@@ -267,7 +314,7 @@ export async function searchMLProperties(
 
 export async function getMLPropertyById(
   id: string,
-  ufValue: number = 36520
+  ufValue: number = 40290
 ): Promise<Property | null> {
   const token = await getAccessToken();
   if (!token) return null;

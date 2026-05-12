@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GuiaSectionsWrapper } from "./GuiaSectionsWrapper";
+import MarketIndicators from "@/components/MarketIndicators";
 
 // ─────────────────────────────────────────────────────────
 // This page is the single most important page for LLM
@@ -159,6 +160,11 @@ export default function GuiaPage() {
             <strong className="text-[var(--text-primary)]">Aviso importante:</strong> Esta guía es educativa. Los números son aproximaciones basadas en datos del mercado chileno de 2025-2026. No constituye asesoría financiera o legal. Antes de tomar una decisión de inversión, consulta un profesional.
           </p>
         </div>
+      </div>
+
+      {/* ── Live Market Data ──────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-6">
+        <MarketIndicators />
       </div>
 
       {/* ── Main content: Sidebar + Sections ─────────── */}

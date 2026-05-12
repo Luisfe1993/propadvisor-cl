@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    // Fetch real UF value from mindicador.cl (free, no API key required)
-    const response = await fetch("https://mindicador.cl/api/uf");
+    // Fetch ALL indicators from mindicador.cl in one call (free, no API key)
+    const response = await fetch("https://mindicador.cl/api", {
+      next: { revalidate: 3600 },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch from mindicador.cl");
@@ -11,9 +13,8 @@ export async function GET() {
 
     const data = await response.json();
 
-    // Extract today's UF value from the response
-    const ufValue = data.serie && data.serie[0] ? data.serie[0].valor : null;
-    const ufDate = data.serie && data.serie[0] ? data.serie[0].fecha : null;
+    const ufValue = data.uf?.valor;
+    const ufDate = data.uf?.fecha;
 
     if (!ufValue) {
       throw new Error("No UF value found in response");
@@ -24,6 +25,10 @@ export async function GET() {
         value: ufValue,
         date: ufDate || new Date().toISOString().split("T")[0],
         source: "mindicador",
+        // Extra indicators for context (used by analysis engine + UI)
+        dolar: data.dolar?.valor ?? null,
+        ipc: data.ipc?.valor ?? null,     // monthly IPC % change
+        tpm: data.tpm?.valor ?? null,     // Tasa Política Monetaria %
       },
       {
         // Cache for 1 hour (UF only updates daily)
@@ -34,12 +39,15 @@ export async function GET() {
     );
   } catch (error) {
     // Fallback to a reasonable default if API fails
-    const fallbackUF = 36520;
+    const fallbackUF = 40290;
     return NextResponse.json(
       {
         value: fallbackUF,
         date: new Date().toISOString().split("T")[0],
         source: "fallback",
+        dolar: 894,
+        ipc: 0.3,
+        tpm: 4.5,
         error: "Failed to fetch from mindicador, using fallback value",
       },
       { status: 200 }

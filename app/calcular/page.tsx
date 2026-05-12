@@ -98,7 +98,12 @@ export default function CalcularPage() {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
-  // Fetch UF + bank rates on mount
+  // Real economic indicators from mindicador.cl
+  const [tpm, setTpm] = useState<number | null>(null); // Tasa Política Monetaria
+  const [ipc, setIpc] = useState<number | null>(null); // monthly IPC %
+  const [dolar, setDolar] = useState<number | null>(null);
+
+  // Fetch UF + bank rates + indicators on mount
   useEffect(() => {
     fetch("/api/tasas")
       .then((r) => r.json())
@@ -107,7 +112,12 @@ export default function CalcularPage() {
 
     fetch("/api/uf")
       .then((r) => r.json())
-      .then((d) => { if (d.value) setUfValue(d.value); })
+      .then((d) => {
+        if (d.value) setUfValue(d.value);
+        if (d.tpm != null) setTpm(d.tpm);
+        if (d.ipc != null) setIpc(d.ipc);
+        if (d.dolar != null) setDolar(d.dolar);
+      })
       .catch(() => {});
   }, []);
 
@@ -235,8 +245,10 @@ export default function CalcularPage() {
                 Ingresa el precio de la propiedad que encontraste — obtendrás dividendo, comparación a 20 años y un informe completo.
               </p>
               <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "8px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                <span>📡 UF actualizada · Banco Central</span>
-                <span>🏦 Tasas reales · 4 bancos</span>
+                <span>📡 UF {ufValue.toLocaleString("es-CL")} · mindicador.cl</span>
+                {tpm != null && <span>🏛️ TPM {tpm}% · Banco Central</span>}
+                {dolar != null && <span>💵 Dólar ${dolar.toLocaleString("es-CL")}</span>}
+                <span>🏦 Tasas reales · 8 bancos</span>
               </p>
             </div>
             {canAnalyze && (
@@ -800,7 +812,7 @@ export default function CalcularPage() {
                         </p>
                       )}
                       <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "10px", paddingTop: "8px", borderTop: "1px solid var(--border)" }}>
-                        Supuestos: plusvalía {(comunaAppreciation * 100).toFixed(0)}%/año ({comunaInfo?.label || "promedio"}) · arriendo sube 3%/año · fondo alternativo 6%/año · fuente: CCHC/SII.
+                        Supuestos: plusvalía {(comunaAppreciation * 100).toFixed(0)}%/año ({comunaInfo?.label || "promedio"}) · arriendo sube {ipc != null ? `${Math.max(ipc * 12, 2).toFixed(1)}` : "3"}%/año (IPC real) · fondo alternativo 6%/año · fuente: Banco Central, CCHC, mindicador.cl
                       </p>
                     </div>
                   );
