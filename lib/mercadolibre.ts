@@ -251,14 +251,14 @@ export async function searchMLProperties(
     concepcion: "Concepción",
   };
 
-  // Build search — use category MLC1459 (Inmuebles) + location filters
-  const typeLabel = params.propertyType === "casa" ? "casa" : "departamento";
+  // Build search — keyword-based with geo-bounds for better real estate results
+  // Note: category=MLC1459 requires VIS immuebles permissions, so we rely on keywords instead
+  const typeLabel = params.propertyType === "casa" ? "casa en venta" : "departamento en venta";
   const cityLabel = params.city ? (cityLabels[params.city] ?? params.city) : "Santiago";
-  const keyword = `${typeLabel} venta ${cityLabel}`;
+  const keyword = `${typeLabel} ${cityLabel}`;
 
   const qs = new URLSearchParams({
     q: keyword,
-    category: "MLC1459", // Inmuebles category
     limit: limit.toString(),
     offset: ((params.offset ?? 0)).toString(),
   });
