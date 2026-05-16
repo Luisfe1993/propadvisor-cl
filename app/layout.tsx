@@ -171,6 +171,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             >
               {[
                 { href: "/", label: "Inicio" },
+                { href: "/herramientas", label: "Herramientas" },
                 { href: "/calcular", label: "Analizar" },
                 { href: "/guia", label: "Guía" },
               ].map((item) => (
@@ -236,6 +237,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </p>
                 <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px" }}>
                   {[
+                    { href: "/herramientas", label: "Herramientas gratuitas" },
                     { href: "/calcular", label: "Analizar propiedad" },
                     { href: "/guia", label: "Guía de compra en Chile" },
                     { href: "/#preguntas", label: "Preguntas frecuentes" },

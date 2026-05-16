@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs";
 
 const baseNavItems = [
   { href: "/", label: "Inicio" },
+  { href: "/herramientas", label: "Herramientas" },
   { href: "/calcular", label: "Analizar" },
   { href: "/guia", label: "Guía" },
 ];

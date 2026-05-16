@@ -51,6 +51,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/herramientas`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    ...(["me-alcanza", "dividendo", "comprar-o-arrendar", "ahorrar-pie", "prepago", "presupuesto-vivienda", "plan-compra", "test-comprador"] as const).map((slug) => ({
+      url: `${baseUrl}/herramientas/${slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
   ];
 
   // Dynamic property analysis pages

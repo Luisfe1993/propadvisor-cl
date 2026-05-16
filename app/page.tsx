@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -257,9 +258,9 @@ export default function Home() {
               marginBottom: "24px",
             }}
           >
-            ¿Comprar<br />
-            o arrendar<br />
-            en Chile?
+            Tu asesor<br />
+            inmobiliario<br />
+            inteligente
           </h1>
 
           {/* Subheading */}
@@ -272,8 +273,8 @@ export default function Home() {
               margin: "0 auto 36px",
             }}
           >
-            Calcula tu dividendo, compara tasas de 8 bancos
-            y proyecta 3 escenarios hasta 25 años — antes de firmar nada.
+            Herramientas gratuitas para tomar la mejor decisión inmobiliaria de tu vida.
+            Sin registro, sin letra chica.
           </p>
 
           {/* CTAs */}
@@ -286,9 +287,12 @@ export default function Home() {
               marginBottom: "40px",
             }}
           >
-            <a href="/calcular" className="btn-primary" style={{ padding: "13px 28px", fontSize: "15px" }}>
-              Analizar una propiedad →
-            </a>
+            <Link href="/herramientas" className="btn-primary" style={{ padding: "13px 28px", fontSize: "15px" }}>
+              Explorar herramientas →
+            </Link>
+            <Link href="/calcular" className="btn-secondary" style={{ padding: "13px 28px", fontSize: "15px" }}>
+              Analizar propiedad
+            </Link>
           </div>
 
           {/* Value prop */}
@@ -374,6 +378,66 @@ export default function Home() {
           ))}
         </dl>
       </div>
+
+      {/* ══════════════════════════════════════════════════════
+          ¿QUÉ QUIERES SABER? — Question grid (NEW)
+      ══════════════════════════════════════════════════════ */}
+      <section
+        id="herramientas"
+        aria-labelledby="tools-heading"
+        style={{ padding: "96px 24px", background: "var(--bg-primary)" }}
+      >
+        <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <p style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)", marginBottom: "12px" }}>
+              Herramientas gratuitas
+            </p>
+            <h2 id="tools-heading" style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: "12px" }}>
+              ¿Qué quieres saber?
+            </h2>
+            <p style={{ fontSize: "17px", color: "var(--text-secondary)", maxWidth: "460px", margin: "0 auto" }}>
+              Elige una pregunta y obtén una respuesta clara en segundos.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "14px", marginBottom: "32px" }}>
+            {[
+              { href: "/herramientas/me-alcanza", icon: "💰", title: "¿Me alcanza para comprar?", desc: "Precio máximo según tu sueldo" },
+              { href: "/herramientas/dividendo", icon: "🏠", title: "¿Cuánto sería mi dividendo?", desc: "Cuota mensual con 8 bancos" },
+              { href: "/herramientas/comprar-o-arrendar", icon: "⚖️", title: "¿Comprar o arrendar?", desc: "Comparación a 20 años" },
+              { href: "/herramientas/ahorrar-pie", icon: "🐷", title: "¿Cuánto necesito para el pie?", desc: "Plan de ahorro para tu cuota inicial" },
+              { href: "/herramientas/prepago", icon: "📊", title: "¿Me conviene prepagar?", desc: "Ahorro en intereses al prepagar" },
+              { href: "/herramientas/test-comprador", icon: "✅", title: "¿Estás listo para comprar?", desc: "Test rápido de preparación" },
+            ].map((tool) => (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="card"
+                style={{
+                  display: "flex", alignItems: "flex-start", gap: "14px",
+                  padding: "20px", textDecoration: "none", background: "white",
+                }}
+              >
+                <span style={{ fontSize: "24px", flexShrink: 0, marginTop: "2px" }}>{tool.icon}</span>
+                <div>
+                  <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.01em", marginBottom: "4px", lineHeight: 1.3 }}>
+                    {tool.title}
+                  </p>
+                  <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                    {tool.desc}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div style={{ textAlign: "center" }}>
+            <Link href="/herramientas" style={{ fontSize: "14px", fontWeight: 600, color: "var(--accent)", textDecoration: "none" }}>
+              Ver todas las herramientas →
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* ══════════════════════════════════════════════════════
           HOW IT WORKS
