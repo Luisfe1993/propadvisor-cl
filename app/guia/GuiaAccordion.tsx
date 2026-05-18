@@ -34,13 +34,13 @@ function AccordionItem({
   onToggle: () => void;
 }) {
   return (
-    <section id={id} className="group rounded-2xl bg-white border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow">
+    <section id={id} className="group rounded-2xl bg-[var(--bg-primary)] border border-[var(--border)] shadow-sm hover:shadow-md hover:border-[var(--accent)]/30 transition-all duration-200">
       <button
         onClick={onToggle}
         aria-expanded={isOpen}
         className="w-full flex items-center gap-5 px-8 py-7 text-left transition-colors cursor-pointer"
       >
-        <span className="flex-shrink-0 w-9 h-9 bg-[var(--accent)] text-white rounded-full flex items-center justify-center text-sm font-bold">
+        <span className="flex-shrink-0 w-9 h-9 bg-[var(--accent)] text-white rounded-full flex items-center justify-center text-sm font-bold group-hover:scale-110 transition-transform duration-200">
           {number}
         </span>
         <h2 className="flex-1 text-lg sm:text-xl font-bold text-[var(--text-primary)]">
@@ -188,7 +188,7 @@ export function GuiaAccordion() {
             La pregunta más frecuente en el mercado inmobiliario chileno no tiene una respuesta universal. Depende de tres factores: tu horizonte de tiempo en el lugar, tu situación financiera actual, y las condiciones del mercado local.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="p-5 border-2 border-[var(--accent)] rounded-lg bg-white">
+            <div className="p-5 rounded-xl border-2 border-[var(--accent)] bg-[var(--bg-primary)]">
               <h3 className="font-bold text-[var(--text-primary)] mb-3">Comprar conviene si…</h3>
               <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
                 <li>✓ Planeas vivir más de 8-10 años en el mismo lugar</li>
