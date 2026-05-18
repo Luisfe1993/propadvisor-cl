@@ -54,6 +54,7 @@ export default function PresupuestoPage() {
       subtitle="Revisa si tu gasto en vivienda (dividendo o arriendo + gastos comunes) es saludable según la regla del 30%."
       showInsurance={false}
       emailCapture={result ? { ctaText: "Guardar presupuesto", valueProp: "Guarda tu presupuesto y compáralo si cambias de vivienda." } : undefined}
+      toolData={result ? { status: result.status, housingPct: result.totalHousingPct, maxRecommended: result.maxRecommendedHousing } : undefined}
       result={result && sc ? (
         <div>
           {/* Status card */}

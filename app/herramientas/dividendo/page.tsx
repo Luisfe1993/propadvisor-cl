@@ -63,6 +63,8 @@ export default function DividendoPage() {
       subtitle="Ingresa el precio de la propiedad y las condiciones del crédito. Obtén tu dividendo mensual al instante."
       showInsurance={!!result}
       emailCapture={result ? { ctaText: "Guardar cálculo", valueProp: "Guarda este cálculo y compáralo después con otras propiedades." } : undefined}
+      toolData={result ? { dividendo: result.dividendo, priceUF, loanAmount: result.loanAmount } : undefined}
+      opportunities={result && priceUF > 0 ? { priceUF, city: "santiago" } : undefined}
       result={result ? (
         <div>
           {/* Main result */}

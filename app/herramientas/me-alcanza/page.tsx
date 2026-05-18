@@ -48,6 +48,8 @@ export default function MeAlcanzaPage() {
       subtitle="Ingresa tu sueldo y deudas. Te mostramos el precio máximo de propiedad que podrías financiar — comparando 8 bancos chilenos."
       showInsurance={!!result}
       emailCapture={result ? { ctaText: "Enviar resultado", valueProp: "Recibe tu resultado con desglose por banco en tu correo." } : undefined}
+      toolData={result ? { maxPropertyUF: result.maxPropertyUF, maxDividendo: result.maxDividendo, income: parseInput(income) } : undefined}
+      opportunities={result ? { priceUF: result.maxPropertyUF, city: "santiago" } : undefined}
       result={result ? (
         <div>
           {/* Main result card */}

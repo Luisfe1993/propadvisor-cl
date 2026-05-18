@@ -78,6 +78,8 @@ export default function ComprarOArendarPage() {
       subtitle="Compara el costo total de comprar vs. arrendar a 20 años, con plusvalía por comuna e inflación de arriendos."
       showInsurance={result?.winner === "comprar"}
       emailCapture={result ? { ctaText: "Enviar resultado", valueProp: "Recibe el resultado completo con gráfico de proyección en tu correo." } : undefined}
+      toolData={result ? { winner: result.winner, savings: result.savings, dividendo: result.dividendo } : undefined}
+      opportunities={result && priceUF > 0 ? { priceUF, city, comuna } : undefined}
       result={result ? (
         <div>
           {/* Winner card */}

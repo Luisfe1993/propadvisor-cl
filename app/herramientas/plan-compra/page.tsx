@@ -107,6 +107,7 @@ export default function PlanCompraPage() {
       subtitle="Arma tu plan paso a paso: cuánto ahorrar, cuándo pedir pre-aprobación, y cuándo tendrás las llaves."
       showInsurance={false}
       emailCapture={plan && plan.monthsToGoal < 600 ? { ctaText: "Recibir hitos", valueProp: "Te enviamos un recordatorio en cada hito clave de tu plan de compra." } : undefined}
+      toolData={plan ? { monthsToGoal: plan.monthsToGoal, pieNeeded: plan.pieNeeded, targetDate: plan.targetDate } : undefined}
       result={plan ? (
         <div>
           {plan.monthsToGoal >= 600 ? (

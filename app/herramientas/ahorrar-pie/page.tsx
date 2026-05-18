@@ -56,6 +56,7 @@ export default function AhorrarPiePage() {
       subtitle="Calcula cuántos meses necesitas para juntar la cuota inicial de tu propiedad, incluyendo rendimiento de tu ahorro."
       showInsurance={false}
       emailCapture={result ? { ctaText: "Recibir recordatorio", valueProp: "Te avisamos cada mes cómo va tu progreso hacia la meta." } : undefined}
+      toolData={result ? { pieNeeded: result.pieNeeded, monthsToGoal: result.monthsToGoal, remaining: result.remaining } : undefined}
       result={result ? (
         <div>
           {/* Main result */}

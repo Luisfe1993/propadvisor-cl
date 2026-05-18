@@ -87,19 +87,23 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const {
-      email, wantsBrokerContact, utmSource,
+      email, wantsBrokerContact, utmSource, source, toolData,
       name, phone, incomeRange, hasPieAvailable, hasPreApproval,
       ...analysisData
     } = body as {
       email: string;
       wantsBrokerContact?: boolean;
       utmSource?: string;
+      source?: string;
+      toolData?: Record<string, unknown>;
       name?: string;
       phone?: string;
       incomeRange?: string;
       hasPieAvailable?: boolean;
       hasPreApproval?: boolean;
     } & AnalysisPDFProps & ExcelReportData & { comuna?: string };
+
+    const isToolCapture = typeof source === "string" && source.startsWith("tool_");
 
     // Validate email
     if (!email || !isValidEmail(email)) {
@@ -122,6 +126,7 @@ export async function POST(req: NextRequest) {
         firstName: name || (wantsBrokerContact ? "BROKER_LEAD" : ""),
         lastName: [
           wantsBrokerContact ? "BROKER" : "",
+          isToolCapture ? (source || "") : "",
           analysisData.address || "",
           analysisData.bankName || "",
           analysisData.interestRate ? `${analysisData.interestRate}%` : "",
@@ -260,6 +265,18 @@ export async function POST(req: NextRequest) {
       if (brokerTargets.length > 0) {
         console.log(`Lead routed to: ${brokerTargets.map(t => `${t.name} (${t.email})`).join(", ")}`);
       }
+    }
+
+    // ── TOOL CAPTURE: simple email, no PDF/Excel ──────────
+    if (isToolCapture) {
+      const toolName = (source || "").replace("tool_", "") || "herramienta";
+      await resend.emails.send({
+        from: "PropAdvisor <noreply@propadvisor.site>",
+        to: email,
+        subject: "Tu resultado PropAdvisor",
+        html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px"><div style="background:#1E3A5F;padding:20px 28px;border-radius:8px 8px 0 0"><p style="margin:0;font-size:20px;font-weight:800;color:#fff">PropAdvisor CL</p></div><div style="border:1px solid #e5e7eb;border-top:none;padding:24px 28px;border-radius:0 0 8px 8px"><p style="font-size:15px;color:#374151;margin:0 0 16px">Gracias por usar la herramienta <strong>${toolName}</strong>.</p>${toolData ? `<div style="background:#F0FDFA;border-left:4px solid #0D9488;border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:16px"><p style="margin:0;font-size:12px;font-weight:700;color:#0F766E;text-transform:uppercase">Tu resultado</p><p style="margin:6px 0 0;font-size:14px;color:#374151">${Object.entries(toolData).map(([k, v]) => `${k}: <strong>${v}</strong>`).join(" · ")}</p></div>` : ""}<p style="font-size:14px;color:#374151;margin:0 0 20px">¿Quieres un análisis completo? Incluye dividendo por banco, 3 escenarios a 20 años, e informe PDF profesional — gratis.</p><table cellpadding="0" cellspacing="0"><tr><td style="background:#0D9488;border-radius:8px;padding:12px 24px"><a href="https://www.propadvisor.site/calcular" style="font-size:14px;font-weight:700;color:#fff;text-decoration:none">Analizar una propiedad →</a></td></tr></table></div></div>`,
+      }).catch(err => console.error("Tool email error:", err));
+      return NextResponse.json({ success: true });
     }
 
     // Generate PDF and Excel in parallel

@@ -154,6 +154,7 @@ export default function TestCompradorPage() {
       subtitle="8 preguntas rápidas para evaluar si estás preparado financieramente para comprar tu primera propiedad en Chile."
       showInsurance={showResult && verdict.level === "listo"}
       emailCapture={showResult ? { ctaText: "Ver recomendaciones", valueProp: "Recibe recomendaciones personalizadas según tu resultado." } : undefined}
+      toolData={showResult ? { score, maxScore, level: verdict.level } : undefined}
       result={showResult ? (
         <div>
           {/* Score card */}

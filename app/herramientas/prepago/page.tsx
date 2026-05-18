@@ -48,6 +48,7 @@ export default function PrepagoPage() {
       subtitle="Simula cuánto ahorras en intereses si haces un abono extra a tu hipoteca. Mantienes la misma cuota pero reduces el plazo."
       showInsurance={!!result}
       emailCapture={result ? { ctaText: "Enviar plan", valueProp: "Recibe el detalle del prepago con la comparación completa en tu correo." } : undefined}
+      toolData={result ? { interestSaved: result.interestSaved, monthsSaved: result.monthsSaved, newBalance: result.newBalance } : undefined}
       result={result ? (
         <div>
           {/* Main result */}
