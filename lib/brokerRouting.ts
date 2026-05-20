@@ -25,6 +25,8 @@ export interface BrokerRoute {
   name: string;
   /** Email to send leads to */
   email: string;
+  /** WhatsApp phone number (E.164 format, e.g. +56912345678) */
+  whatsapp?: string;
   /** Match conditions (all must be true). Empty = matches everything. */
   match: {
     city?: string | string[];
@@ -126,8 +128,8 @@ export function routeLead(lead: {
   priceUF: number;
   hasPreApproval?: boolean;
   phone?: string;
-}, fallbackEmail?: string): { name: string; email: string }[] {
-  const matches: { name: string; email: string }[] = [];
+}, fallbackEmail?: string): { name: string; email: string; whatsapp?: string }[] {
+  const matches: { name: string; email: string; whatsapp?: string }[] = [];
 
   for (const route of brokerRoutes) {
     if (route.disabled) continue;
@@ -180,7 +182,7 @@ export function routeLead(lead: {
     }
 
     if (matched) {
-      matches.push({ name: route.name, email: route.email });
+      matches.push({ name: route.name, email: route.email, whatsapp: route.whatsapp });
     }
   }
 

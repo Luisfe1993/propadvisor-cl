@@ -38,23 +38,40 @@ export async function POST(req: NextRequest) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
-        const subscriptionId = session.subscription as string;
-        if (userId && subscriptionId) {
-          const sub = await getStripe().subscriptions.retrieve(subscriptionId);
-          const trialEnd = (sub as unknown as Record<string, unknown>).trial_end as number | null;
-          const periodEnd = (sub as unknown as Record<string, unknown>).current_period_end as number | null;
+        const plan = session.metadata?.plan;
+
+        if (userId && plan === "single") {
+          // Single analysis purchase — grant 24h Pro access
+          const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
           await sql`
-            INSERT INTO subscriptions (user_id, stripe_customer_id, stripe_subscription_id, plan, status, trial_ends_at, current_period_end)
-            VALUES (${userId}, ${session.customer as string}, ${subscriptionId}, 'pro', ${sub.status}, ${trialEnd ? new Date(trialEnd * 1000).toISOString() : null}, ${periodEnd ? new Date(periodEnd * 1000).toISOString() : null})
+            INSERT INTO subscriptions (user_id, stripe_customer_id, plan, status, current_period_end)
+            VALUES (${userId}, ${session.customer as string || ''}, 'pro', 'active', ${expiresAt})
             ON CONFLICT (user_id) DO UPDATE SET
-              stripe_subscription_id = ${subscriptionId},
-              plan = 'pro',
-              status = ${sub.status},
-              trial_ends_at = ${trialEnd ? new Date(trialEnd * 1000).toISOString() : null},
-              current_period_end = ${periodEnd ? new Date(periodEnd * 1000).toISOString() : null},
+              plan = CASE WHEN subscriptions.plan = 'free' OR subscriptions.current_period_end < NOW() THEN 'pro' ELSE subscriptions.plan END,
+              status = 'active',
+              current_period_end = CASE WHEN subscriptions.current_period_end IS NULL OR subscriptions.current_period_end < NOW() THEN ${expiresAt} ELSE subscriptions.current_period_end END,
               updated_at = NOW()
           `;
-          console.log(`Subscription activated for user ${userId}: ${sub.status}`);
+          console.log(`Single analysis purchased for user ${userId}, Pro access until ${expiresAt}`);
+        } else if (userId) {
+          const subscriptionId = session.subscription as string;
+          if (subscriptionId) {
+            const sub = await getStripe().subscriptions.retrieve(subscriptionId);
+            const trialEnd = (sub as unknown as Record<string, unknown>).trial_end as number | null;
+            const periodEnd = (sub as unknown as Record<string, unknown>).current_period_end as number | null;
+            await sql`
+              INSERT INTO subscriptions (user_id, stripe_customer_id, stripe_subscription_id, plan, status, trial_ends_at, current_period_end)
+              VALUES (${userId}, ${session.customer as string}, ${subscriptionId}, 'pro', ${sub.status}, ${trialEnd ? new Date(trialEnd * 1000).toISOString() : null}, ${periodEnd ? new Date(periodEnd * 1000).toISOString() : null})
+              ON CONFLICT (user_id) DO UPDATE SET
+                stripe_subscription_id = ${subscriptionId},
+                plan = 'pro',
+                status = ${sub.status},
+                trial_ends_at = ${trialEnd ? new Date(trialEnd * 1000).toISOString() : null},
+                current_period_end = ${periodEnd ? new Date(periodEnd * 1000).toISOString() : null},
+                updated_at = NOW()
+            `;
+            console.log(`Subscription activated for user ${userId}: ${sub.status}`);
+          }
         }
         break;
       }

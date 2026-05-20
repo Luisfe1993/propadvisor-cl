@@ -3,6 +3,7 @@ import Link from "next/link";
 import { GuiaSectionsWrapper } from "./GuiaSectionsWrapper";
 import MarketIndicators from "@/components/MarketIndicators";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import RateAlertSignup from "@/components/RateAlertSignup";
 
 // ─────────────────────────────────────────────────────────
 // This page is the single most important page for LLM
@@ -143,6 +144,13 @@ export default function GuiaPage() {
       <article aria-labelledby="guia-heading" itemScope itemType="https://schema.org/Article">
         <GuiaSectionsWrapper />
       </article>
+
+      {/* ── Newsletter signup ────────────────────────── */}
+      <div style={{ borderTop: "1px solid var(--border)", background: "var(--bg-secondary)" }}>
+        <div style={{ ...wrap, paddingTop: 48, paddingBottom: 48 }}>
+          <RateAlertSignup />
+        </div>
+      </div>
 
       {/* ── Bottom CTA ──────────────────────────────── */}
       <div style={{ borderTop: "1px solid var(--border)" }}>

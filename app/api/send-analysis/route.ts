@@ -118,21 +118,38 @@ export async function POST(req: NextRequest) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // Save contact to Resend audience with lead data
+    // Save contact to Resend audience with structured metadata
     if (process.env.RESEND_AUDIENCE_ID) {
+      // Determine budget range
+      const budgetRange = analysisData.priceUF
+        ? analysisData.priceUF < 2000 ? "0-2000UF"
+        : analysisData.priceUF < 4000 ? "2000-4000UF"
+        : analysisData.priceUF < 6000 ? "4000-6000UF"
+        : "6000+UF"
+        : "";
+
+      // Score tier
+      const leadScoreTier = wantsBrokerContact
+        ? (calcLeadScore({
+            phone, hasPreApproval, hasPieAvailable, incomeRange, name, wantsBrokerContact,
+            comuna: analysisData.comuna || analysisData.address || "",
+          }).tier)
+        : "visitor";
+
+      // Structured firstName: name (for display)
+      // Structured lastName: key=value pairs separated by | for easy parsing and filtering
       resend.contacts.create({
         email,
         audienceId: process.env.RESEND_AUDIENCE_ID,
         firstName: name || (wantsBrokerContact ? "BROKER_LEAD" : ""),
         lastName: [
-          wantsBrokerContact ? "BROKER" : "",
-          isToolCapture ? (source || "") : "",
-          analysisData.address || "",
-          analysisData.bankName || "",
-          analysisData.interestRate ? `${analysisData.interestRate}%` : "",
-          analysisData.monthlyPayment ? `div${Math.round(analysisData.monthlyPayment)}` : "",
-          analysisData.city || "",
-          incomeRange || "",
+          analysisData.city ? `city=${analysisData.city}` : "",
+          budgetRange ? `budget=${budgetRange}` : "",
+          `tier=${leadScoreTier}`,
+          isToolCapture ? `tool=${(source || "").replace("tool_", "")}` : "tool=calcular",
+          `date=${new Date().toISOString().split("T")[0]}`,
+          wantsBrokerContact ? "broker=yes" : "broker=no",
+          incomeRange ? `income=${incomeRange}` : "",
         ].filter(Boolean).join(" | "),
       }).catch(() => {}); // fire-and-forget
     }
@@ -189,6 +206,19 @@ export async function POST(req: NextRequest) {
         },
         process.env.BROKER_NOTIFY_EMAIL // fallback if no routes match
       );
+
+      // Persist lead to database (fire-and-forget)
+      try {
+        const { getDb, initDb } = await import("@/lib/db");
+        await initDb();
+        const sql = getDb();
+        await sql`
+          INSERT INTO broker_leads (score, tier, email, name, phone, income_range, has_pie_available, has_pre_approval, city, comuna, property_type, price_uf, price_clp, bank_name, interest_rate, down_payment_pct, monthly_payment, loan_term_years, address, utm_source, broker_email)
+          VALUES (${score}, ${tier}, ${email}, ${name || null}, ${phone || null}, ${incomeRange || null}, ${hasPieAvailable ?? false}, ${hasPreApproval ?? false}, ${analysisData.city || ""}, ${analysisData.comuna || analysisData.address || ""}, ${analysisData.propertyType || ""}, ${analysisData.priceUF || 0}, ${analysisData.priceCLP || 0}, ${analysisData.bankName || null}, ${analysisData.interestRate || null}, ${analysisData.downPaymentPct || null}, ${analysisData.monthlyPayment || null}, ${analysisData.loanTermYears || null}, ${analysisData.address || null}, ${utmSource || "direct"}, ${brokerTargets[0]?.email || null})
+        `;
+      } catch (dbErr) {
+        console.error("Lead DB insert error:", dbErr);
+      }
 
       // Send notification to each matched broker
       const tierEmoji = tier === "hot" ? "🔥" : tier === "warm" ? "🟡" : "🔵";
@@ -264,6 +294,43 @@ export async function POST(req: NextRequest) {
 
       if (brokerTargets.length > 0) {
         console.log(`Lead routed to: ${brokerTargets.map(t => `${t.name} (${t.email})`).join(", ")}`);
+      }
+
+      // WhatsApp delivery for HOT leads (score >= 6) via Twilio
+      if (tier === "hot" && process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_WHATSAPP_FROM) {
+        const whatsappTargets = brokerTargets.filter(t => t.whatsapp);
+        if (whatsappTargets.length > 0) {
+          const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+          const twilioAuth = process.env.TWILIO_AUTH_TOKEN;
+          const twilioFrom = process.env.TWILIO_WHATSAPP_FROM; // e.g. whatsapp:+14155238886
+          const msgBody = `🔥 *LEAD CALIENTE (${score}/10)* — PropAdvisor\n\n` +
+            `📍 ${analysisData.address || analysisData.city}\n` +
+            `💰 ${formatCLP(analysisData.priceCLP)} (UF ${Math.round(analysisData.priceUF || 0).toLocaleString("es-CL")})\n` +
+            `🏦 ${analysisData.bankName} ${analysisData.interestRate?.toFixed(2)}%\n` +
+            (name ? `👤 ${name}\n` : "") +
+            (phone ? `📱 ${phone}\n` : "") +
+            `📧 ${email}\n` +
+            (hasPreApproval ? `✅ Pre-aprobado\n` : "") +
+            (incomeRange ? `💵 Ingreso: ${incomeRange}\n` : "") +
+            `\n_Contactar inmediatamente._`;
+
+          for (const target of whatsappTargets) {
+            const params = new URLSearchParams({
+              From: twilioFrom,
+              To: `whatsapp:${target.whatsapp}`,
+              Body: msgBody,
+            });
+            fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Basic " + Buffer.from(`${twilioSid}:${twilioAuth}`).toString("base64"),
+              },
+              body: params.toString(),
+            }).catch(err => console.error(`WhatsApp send error (${target.name}):`, err));
+          }
+          console.log(`WhatsApp sent to: ${whatsappTargets.map(t => `${t.name} (${t.whatsapp})`).join(", ")}`);
+        }
       }
     }
 

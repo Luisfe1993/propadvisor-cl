@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import type { SavedProperty } from "@/lib/db";
+import UpgradeModal from "@/components/UpgradeModal";
 
 function formatCLP(v: number): string {
   return new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(v);
@@ -15,6 +16,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [plan, setPlan] = useState<{ plan: string; isActive: boolean }>({ plan: "free", isActive: false });
+  const [showUpgrade, setShowUpgrade] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -170,43 +172,74 @@ export default function DashboardPage() {
                 + Agregar propiedad
               </Link>
               {properties.length >= 2 && (
-                <Link href="/dashboard/compare" style={{
-                  display: "inline-block", padding: "12px 28px", fontSize: "14px", fontWeight: 700,
-                  color: "var(--accent)", border: "1.5px solid var(--accent)", borderRadius: "10px",
-                  textDecoration: "none",
-                }}>
-                  🔍 Comparar propiedades
-                </Link>
+                plan.isActive ? (
+                  <Link href="/dashboard/compare" style={{
+                    display: "inline-block", padding: "12px 28px", fontSize: "14px", fontWeight: 700,
+                    color: "var(--accent)", border: "1.5px solid var(--accent)", borderRadius: "10px",
+                    textDecoration: "none",
+                  }}>
+                    🔍 Comparar propiedades
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => setShowUpgrade("Comparar propiedades")}
+                    style={{
+                      display: "inline-block", padding: "12px 28px", fontSize: "14px", fontWeight: 700,
+                      color: "var(--accent)", border: "1.5px solid var(--accent)", borderRadius: "10px",
+                      background: "none", cursor: "pointer",
+                    }}
+                  >
+                    🔍 Comparar propiedades <span style={{ fontSize: "10px", background: "var(--accent)", color: "white", padding: "2px 6px", borderRadius: "4px", marginLeft: "6px", verticalAlign: "middle" }}>PRO</span>
+                  </button>
+                )
               )}
             </div>
           </>
         )}
 
-        {/* Coming soon features */}
-        <div style={{ marginTop: "40px" }}>
-          <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "16px" }}>
-            Próximamente en Pro
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
-            {[
-              { icon: "🔍", title: "Comparar Propiedades", desc: "Lado a lado con IRR, DSCR, cap rate" },
-              { icon: "📄", title: "Memorándum PDF", desc: "Informe profesional para socios y bancos" },
-              { icon: "🧮", title: "Modelar Vacancia", desc: "Impacto de 0-20% vacancia en tu flujo" },
-              { icon: "💰", title: "Calculadora de Impuestos", desc: "Contribuciones, renta, DFL2" },
-            ].map((f) => (
-              <div key={f.title} style={{
-                border: "1px solid var(--border)", borderRadius: "10px",
-                padding: "16px", background: "var(--bg-secondary)",
-              }}>
-                <p style={{ fontSize: "20px", marginBottom: "8px" }}>{f.icon}</p>
-                <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>{f.title}</p>
-                <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>{f.desc}</p>
-              </div>
-            ))}
+        {/* Pro features — actionable for Pro, upgrade prompt for free */}
+        {!plan.isActive && (
+          <div style={{ marginTop: "40px" }}>
+            <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "16px" }}>
+              Desbloquea con Pro
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
+              {[
+                { icon: "🔍", title: "Comparar Propiedades", desc: "Lado a lado con IRR, DSCR, cap rate" },
+                { icon: "📄", title: "Memorándum PDF", desc: "Informe profesional para socios y bancos" },
+                { icon: "🧮", title: "Modelar Vacancia", desc: "Impacto de 0-20% vacancia en tu flujo" },
+                { icon: "💰", title: "Calculadora de Impuestos", desc: "Contribuciones, renta, DFL2" },
+              ].map((f) => (
+                <button
+                  key={f.title}
+                  onClick={() => setShowUpgrade(f.title)}
+                  style={{
+                    border: "1px solid var(--border)", borderRadius: "10px",
+                    padding: "16px", background: "var(--bg-secondary)",
+                    cursor: "pointer", textAlign: "left",
+                    transition: "border-color 0.15s, box-shadow 0.15s",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(13,148,136,0.08)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.boxShadow = "none"; }}
+                >
+                  <p style={{ fontSize: "20px", marginBottom: "8px" }}>{f.icon}</p>
+                  <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>{f.title} <span style={{ fontSize: "9px", background: "var(--accent)", color: "white", padding: "1px 5px", borderRadius: "3px", marginLeft: "4px", verticalAlign: "middle" }}>PRO</span></p>
+                  <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>{f.desc}</p>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
+
+      {/* Upgrade Modal */}
+      {showUpgrade && (
+        <UpgradeModal
+          onClose={() => setShowUpgrade(null)}
+          feature={showUpgrade}
+        />
+      )}
     </div>
   );
 }

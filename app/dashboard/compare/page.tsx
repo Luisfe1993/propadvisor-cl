@@ -52,7 +52,7 @@ export default function ComparePage() {
     setSelected(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
-      else if (next.size < 4) next.add(id);
+      else if (next.size < 10) next.add(id);
       return next;
     });
   };
@@ -95,7 +95,7 @@ export default function ComparePage() {
             Comparar propiedades
           </h1>
           <p style={{ fontSize: "14px", color: "var(--text-secondary)" }}>
-            Selecciona 2-4 propiedades para comparar lado a lado. {selected.size > 0 && `(${selected.size} seleccionada${selected.size > 1 ? "s" : ""})`}
+            Selecciona 2-10 propiedades para comparar lado a lado. {selected.size > 0 && `(${selected.size} seleccionada${selected.size > 1 ? "s" : ""})`}
           </p>
         </header>
 
@@ -126,6 +126,40 @@ export default function ComparePage() {
                 </button>
               ))}
             </div>
+
+            {/* Winner summary */}
+            {selectedProperties.length >= 2 && (() => {
+              let bestIRRId = "", bestIRR = -Infinity;
+              let bestCapId = "", bestCap = -Infinity;
+              let bestCoCId = "", bestCoC = -Infinity;
+              selectedProperties.forEach(p => {
+                const m = metricsMap.get(p.id)!;
+                if (m.irr > bestIRR) { bestIRR = m.irr; bestIRRId = p.id; }
+                if (m.capRate > bestCap) { bestCap = m.capRate; bestCapId = p.id; }
+                if (m.cashOnCash > bestCoC) { bestCoC = m.cashOnCash; bestCoCId = p.id; }
+              });
+              const overallWinnerId = bestIRRId; // IRR is the most comprehensive metric
+              const overallWinner = selectedProperties.find(p => p.id === overallWinnerId);
+              return (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginBottom: "24px" }}>
+                  <div style={{ background: "linear-gradient(135deg, #dcfce7, #bbf7d0)", borderRadius: "12px", padding: "20px", border: "1px solid #86efac" }}>
+                    <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#166534", marginBottom: "4px" }}>🏆 Mejor inversión (IRR)</p>
+                    <p style={{ fontSize: "16px", fontWeight: 800, color: "#15803d" }}>{overallWinner?.label}</p>
+                    <p style={{ fontSize: "13px", color: "#166534" }}>IRR: {pct(bestIRR)}</p>
+                  </div>
+                  <div style={{ background: "var(--bg-secondary)", borderRadius: "12px", padding: "20px", border: "1px solid var(--border)" }}>
+                    <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-muted)", marginBottom: "4px" }}>Mejor Cap Rate</p>
+                    <p style={{ fontSize: "16px", fontWeight: 800, color: "var(--text-primary)" }}>{selectedProperties.find(p => p.id === bestCapId)?.label}</p>
+                    <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>{pct(bestCap)}</p>
+                  </div>
+                  <div style={{ background: "var(--bg-secondary)", borderRadius: "12px", padding: "20px", border: "1px solid var(--border)" }}>
+                    <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-muted)", marginBottom: "4px" }}>Mejor Cash-on-Cash</p>
+                    <p style={{ fontSize: "16px", fontWeight: 800, color: "var(--text-primary)" }}>{selectedProperties.find(p => p.id === bestCoCId)?.label}</p>
+                    <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>{pct(bestCoC)}</p>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Comparison table */}
             {selectedProperties.length >= 2 && (

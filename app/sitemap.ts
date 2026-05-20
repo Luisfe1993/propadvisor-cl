@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { mockProperties } from "@/lib/properties";
+import { articles } from "@/lib/articles";
 
 /**
  * sitemap.ts — Dynamic XML sitemap for PropAdvisor CL.
@@ -62,6 +63,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.8,
+    })),
+    // Blog / Market updates
+    {
+      url: `${baseUrl}/mercado`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    ...articles.map((article) => ({
+      url: `${baseUrl}/mercado/${article.slug}`,
+      lastModified: new Date(article.date),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
   ];
 

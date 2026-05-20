@@ -113,7 +113,8 @@ function InsuranceCTA({ toolSlug }: { toolSlug: string }) {
           <button
             onClick={() => {
               track("insurance_cta_clicked", { source: "tool", tool: toolSlug });
-              window.open(`https://www.consorcio.cl/seguros/seguro-de-desgravamen?utm_source=propadvisor&utm_medium=referral&utm_campaign=herramienta_${toolSlug}`, "_blank");
+              fetch("/api/affiliate/click", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ source: `tool_${toolSlug}` }) }).catch(() => {});
+              window.open(`https://www.consorcio.cl/seguros/seguro-de-desgravamen?utm_source=propadvisor&utm_medium=referral&utm_campaign=herramienta_${toolSlug}&ref=propadvisor`, "_blank");
             }}
             className="btn-primary"
             style={{ fontSize: "13px", padding: "8px 16px", background: "#16a34a" }}

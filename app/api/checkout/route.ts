@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 import { getDb, initDb } from "@/lib/db";
@@ -13,15 +13,33 @@ function getStripe() {
 }
 
 /**
- * POST /api/checkout — create a Stripe Checkout session for Pro subscription
+ * POST /api/checkout — create a Stripe Checkout session for Pro or Profesional subscription
  */
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
 
     if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_PRICE_ID) {
       return NextResponse.json({ error: "Stripe no configurado" }, { status: 500 });
+    }
+
+    // Determine which plan to checkout
+    let priceId = process.env.STRIPE_PRICE_ID;
+    let planName = "pro";
+    let isSingleAnalysis = false;
+    try {
+      const body = await req.json();
+      if (body.plan === "profesional" && process.env.STRIPE_PROFESIONAL_PRICE_ID) {
+        priceId = process.env.STRIPE_PROFESIONAL_PRICE_ID;
+        planName = "profesional";
+      } else if (body.plan === "single" && process.env.STRIPE_SINGLE_ANALYSIS_PRICE_ID) {
+        priceId = process.env.STRIPE_SINGLE_ANALYSIS_PRICE_ID;
+        planName = "single";
+        isSingleAnalysis = true;
+      }
+    } catch {
+      // No body or invalid JSON — default to Pro
     }
 
     await ensureDb();
@@ -47,18 +65,27 @@ export async function POST() {
     }
 
     // Create checkout session
-    const session = await getStripe().checkout.sessions.create({
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      mode: "subscription",
-      line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.propadvisor.site"}/dashboard?upgraded=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.propadvisor.site"}/pricing`,
-      subscription_data: {
+      metadata: { userId, plan: planName },
+    };
+
+    if (isSingleAnalysis) {
+      // One-time payment — grants 24h Pro access
+      sessionParams.mode = "payment";
+    } else {
+      // Subscription with 7-day trial
+      sessionParams.mode = "subscription";
+      sessionParams.subscription_data = {
         trial_period_days: 7,
-        metadata: { userId },
-      },
-      metadata: { userId },
-    });
+        metadata: { userId, plan: planName },
+      };
+    }
+
+    const session = await getStripe().checkout.sessions.create(sessionParams);
 
     return NextResponse.json({ url: session.url });
   } catch (err) {

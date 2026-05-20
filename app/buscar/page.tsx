@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import RateAlertSignup from "@/components/RateAlertSignup";
 
 const cities = [
   { value: "santiago", label: "Santiago" },
@@ -315,6 +316,11 @@ export default function BuscarPage() {
           </p>
 
         </form>
+
+        {/* Email capture — prevent dead end */}
+        <div style={{ marginTop: "32px" }}>
+          <RateAlertSignup />
+        </div>
       </div>
     </div>
   );

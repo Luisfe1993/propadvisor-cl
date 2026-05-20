@@ -28,15 +28,21 @@ const features = [
 export default function PricingPage() {
   const { isSignedIn } = useUser();
   const [loading, setLoading] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<"pro" | "profesional" | "single" | null>(null);
 
-  const handleUpgrade = async () => {
+  const handleUpgrade = async (plan: "pro" | "profesional" | "single" = "pro") => {
     if (!isSignedIn) {
       window.location.href = "/sign-up";
       return;
     }
     setLoading(true);
+    setLoadingPlan(plan);
     try {
-      const res = await fetch("/api/checkout", { method: "POST" });
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
       else throw new Error(data.error);
@@ -44,6 +50,7 @@ export default function PricingPage() {
       alert("Error al iniciar el checkout. Intenta de nuevo.");
     }
     setLoading(false);
+    setLoadingPlan(null);
   };
 
   return (
@@ -83,6 +90,26 @@ export default function PricingPage() {
             >
               Empezar gratis →
             </Link>
+            {/* Pay-per-analysis upsell */}
+            <div style={{ marginTop: "16px", padding: "12px", background: "var(--bg-secondary)", borderRadius: "8px", border: "1px solid var(--border)" }}>
+              <p style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
+                💡 ¿Solo necesitas un análisis Pro?
+              </p>
+              <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginBottom: "8px" }}>
+                Acceso completo a métricas Pro por 24 horas. Sin suscripción.
+              </p>
+              <button
+                onClick={() => handleUpgrade("single")}
+                disabled={loading}
+                style={{
+                  width: "100%", padding: "8px", fontSize: "13px", fontWeight: 700,
+                  background: loading && loadingPlan === "single" ? "var(--text-muted)" : "var(--text-primary)", color: "white",
+                  border: "none", borderRadius: "8px", cursor: loading ? "wait" : "pointer",
+                }}
+              >
+                {loading && loadingPlan === "single" ? "Cargando..." : "Un análisis Pro — $3.990 →"}
+              </button>
+            </div>
           </div>
 
           {/* Pro plan */}
@@ -104,17 +131,17 @@ export default function PricingPage() {
               Portfolio, IRR, DSCR, comparación lado a lado y memorándum de inversión profesional.
             </p>
             <button
-              onClick={handleUpgrade}
+              onClick={() => handleUpgrade("pro")}
               disabled={loading}
               style={{
                 display: "block", textAlign: "center", padding: "12px", fontSize: "14px",
                 width: "100%", boxSizing: "border-box",
-                background: loading ? "var(--text-muted)" : "var(--accent)", color: "white", borderRadius: "10px",
+                background: loading && loadingPlan === "pro" ? "var(--text-muted)" : "var(--accent)", color: "white", borderRadius: "10px",
                 fontWeight: 700, border: "none", cursor: loading ? "wait" : "pointer",
                 transition: "background 0.15s",
               }}
             >
-              {loading ? "Cargando..." : "Probar 7 días gratis →"}
+              {loading && loadingPlan === "pro" ? "Cargando..." : "Probar 7 días gratis →"}
             </button>
             <p style={{ fontSize: "11px", color: "var(--text-muted)", textAlign: "center", marginTop: "8px" }}>
               Sin tarjeta para empezar
@@ -139,20 +166,21 @@ export default function PricingPage() {
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: "24px" }}>
               Todo Pro + análisis ilimitados para tus clientes, memo con tu marca y soporte prioritario.
             </p>
-            <a
-              href="mailto:contacto@propadvisor.site?subject=Plan%20Profesional%20PropAdvisor"
+            <button
+              onClick={() => handleUpgrade("profesional")}
+              disabled={loading}
               style={{
                 display: "block", textAlign: "center", padding: "12px", fontSize: "14px",
                 width: "100%", boxSizing: "border-box",
-                background: "#7C3AED", color: "white", borderRadius: "10px",
-                fontWeight: 700, border: "none", cursor: "pointer",
+                background: loading && loadingPlan === "profesional" ? "var(--text-muted)" : "#7C3AED", color: "white", borderRadius: "10px",
+                fontWeight: 700, border: "none", cursor: loading ? "wait" : "pointer",
                 textDecoration: "none", transition: "background 0.15s",
               }}
             >
-              Contactar ventas →
-            </a>
+              {loading && loadingPlan === "profesional" ? "Cargando..." : "Probar 7 días gratis →"}
+            </button>
             <p style={{ fontSize: "11px", color: "var(--text-muted)", textAlign: "center", marginTop: "8px" }}>
-              Onboarding personalizado
+              Onboarding personalizado incluido
             </p>
           </div>
         </div>

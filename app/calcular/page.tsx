@@ -9,6 +9,8 @@ import type { BankRate } from "@/lib/types";
 import { getComunaInfo, getCityOptions, getComunaOptions, cityData } from "@/lib/comunaData";
 import EmailGateModal from "@/components/EmailGateModal";
 import OpportunitiesView from "@/components/OpportunitiesView";
+import UpgradeModal from "@/components/UpgradeModal";
+import ShareAnalysis from "@/components/ShareAnalysis";
 import type { AnalysisPayload } from "@/components/EmailGateModal";
 
 // ─────────────────────────────────────────────────────────
@@ -97,6 +99,7 @@ export default function CalcularPage() {
   const [analysisReady, setAnalysisReady] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Real economic indicators from mindicador.cl
   const [tpm, setTpm] = useState<number | null>(null); // Tasa Política Monetaria
@@ -818,6 +821,24 @@ export default function CalcularPage() {
                   );
                 })()}
 
+                {/* ── Share Analysis ─────────────────────── */}
+                {comparison && (
+                  <div style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: "12px", padding: "16px 20px" }}>
+                    <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>📤 Comparte tu análisis</p>
+                    <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginBottom: "0" }}>
+                      Envía estos resultados a tu pareja, corredor o asesor financiero.
+                    </p>
+                    <ShareAnalysis
+                      winner={comparison.winner}
+                      dividendo={formatCLP(monthlyPayment)}
+                      patrimonio={formatCLP(Math.max(comparison.buyNetWealth, comparison.rentNetWealth, comparison.investNetWealth))}
+                      propertyValue={formatCLP(comparison.propertyValueAfter20Years)}
+                      loanTerm={loanTerm}
+                      city={comunaInfo?.label || getCityLabel(city)}
+                    />
+                  </div>
+                )}
+
                 {/* ── Lead Capture CTA ───────────────────── */}
                 <div style={{
                   background: "linear-gradient(135deg, #0f766e 0%, #1e3a5f 100%)",
@@ -929,7 +950,13 @@ export default function CalcularPage() {
                           Estimación{comunaInfo ? ` para ${comunaInfo.label}` : ""}: <strong>{formatCLP(Math.round(priceCLP * (comunaInfo?.risk === "high" ? 0.005 : comunaInfo?.risk === "medium" ? 0.003 : 0.002)))}-{formatCLP(Math.round(priceCLP * (comunaInfo?.risk === "high" ? 0.008 : comunaInfo?.risk === "medium" ? 0.006 : 0.004)))}/año</strong> en primas
                         </p>
                         <button
-                          onClick={() => { track("insurance_cta_clicked", { page: "calcular", priceCLP, city, comuna: comunaInfo?.label || "" }); window.open("https://www.consorcio.cl/seguros/seguro-de-desgravamen?utm_source=propadvisor&utm_medium=referral&utm_campaign=calculadora", "_blank"); }}
+                          onClick={() => {
+                            track("insurance_cta_clicked", { page: "calcular", priceCLP, city, comuna: comunaInfo?.label || "" });
+                            fetch("/api/affiliate/click", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ source: "calcular", city, comuna: comunaInfo?.label || "", priceCLP }) }).catch(() => {});
+                            const baseUrl = "https://www.consorcio.cl/seguros/seguro-de-desgravamen";
+                            const url = `${baseUrl}?utm_source=propadvisor&utm_medium=referral&utm_campaign=calculadora&ref=propadvisor`;
+                            window.open(url, "_blank");
+                          }}
                           style={{
                             padding: "10px 20px", fontSize: "13px", fontWeight: 700,
                             color: "#1D4ED8", background: "white",
@@ -955,6 +982,39 @@ export default function CalcularPage() {
                       propertyType={purpose === "inversion" ? "Inversión" : "Primera vivienda"}
                       comuna={comunaInfo?.label || ""}
                     />
+                  </div>
+                )}
+
+                {/* Pro upsell — compare properties CTA */}
+                {comparison && !isSignedIn && (
+                  <div style={{
+                    border: "1.5px solid var(--accent)", borderRadius: "12px", padding: "20px",
+                    background: "linear-gradient(135deg, var(--accent-light) 0%, #f0fdfa 100%)",
+                    marginBottom: "16px",
+                    display: "flex", alignItems: "flex-start", gap: "12px",
+                  }}>
+                    <span style={{ fontSize: "24px", flexShrink: 0 }}>🔍</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>
+                        ¿Tienes otra propiedad en mente?
+                      </p>
+                      <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: "10px" }}>
+                        Con <strong>Pro</strong> puedes guardar propiedades ilimitadas, compararlas lado a lado con IRR, DSCR y generar un memorándum de inversión profesional.
+                      </p>
+                      <a
+                        href="/pricing"
+                        onClick={() => track("pro_upsell_clicked", { source: "calcular", city })}
+                        style={{
+                          display: "inline-block",
+                          padding: "9px 20px", fontSize: "13px", fontWeight: 700,
+                          color: "white", background: "var(--accent)",
+                          border: "none", borderRadius: "8px",
+                          textDecoration: "none", transition: "all 0.15s",
+                        }}
+                      >
+                        Probar Pro 7 días gratis →
+                      </a>
+                    </div>
                   </div>
                 )}
 
@@ -1025,8 +1085,8 @@ export default function CalcularPage() {
                             if (!res.ok) {
                               const data = await res.json().catch(() => ({}));
                               if (data.upgrade) {
-                                alert("Has alcanzado el límite de 1 propiedad en el plan gratuito. Actualiza a Pro para guardar propiedades ilimitadas.");
-                                window.location.href = "/pricing";
+                                setShowUpgradeModal(true);
+                                setSaveStatus("idle");
                                 return;
                               }
                               throw new Error();
@@ -1080,6 +1140,14 @@ export default function CalcularPage() {
 
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      {showUpgradeModal && (
+        <UpgradeModal
+          onClose={() => setShowUpgradeModal(false)}
+          feature="Guardar propiedades ilimitadas"
+        />
+      )}
     </div>
   );
 }

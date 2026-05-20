@@ -76,6 +76,85 @@ export async function initDb() {
       updated_at TIMESTAMPTZ DEFAULT NOW()
     )
   `;
+
+  // Broker leads table — persist every lead for dashboard
+  await sql`
+    CREATE TABLE IF NOT EXISTS broker_leads (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      score INTEGER NOT NULL DEFAULT 0,
+      tier TEXT NOT NULL DEFAULT 'cold',
+      email TEXT NOT NULL,
+      name TEXT,
+      phone TEXT,
+      income_range TEXT,
+      has_pie_available BOOLEAN DEFAULT FALSE,
+      has_pre_approval BOOLEAN DEFAULT FALSE,
+      city TEXT NOT NULL DEFAULT '',
+      comuna TEXT NOT NULL DEFAULT '',
+      property_type TEXT NOT NULL DEFAULT '',
+      price_uf NUMERIC NOT NULL DEFAULT 0,
+      price_clp NUMERIC NOT NULL DEFAULT 0,
+      bank_name TEXT,
+      interest_rate NUMERIC,
+      down_payment_pct NUMERIC,
+      monthly_payment NUMERIC,
+      loan_term_years INTEGER,
+      address TEXT,
+      utm_source TEXT,
+      status TEXT NOT NULL DEFAULT 'new',
+      broker_email TEXT,
+      contacted_at TIMESTAMPTZ,
+      notes TEXT DEFAULT ''
+    )
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_broker_leads_created
+    ON broker_leads (created_at DESC)
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_broker_leads_city
+    ON broker_leads (city, tier)
+  `;
+
+  // Broker partners table — link Clerk users to broker role
+  await sql`
+    CREATE TABLE IF NOT EXISTS broker_partners (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      cities TEXT[] DEFAULT '{}',
+      comunas TEXT[] DEFAULT '{}',
+      min_score INTEGER DEFAULT 0,
+      is_active BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
+  // Featured placements table — developer/sponsored property listings
+  await sql`
+    CREATE TABLE IF NOT EXISTS featured_placements (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      developer_name TEXT NOT NULL,
+      project_name TEXT NOT NULL,
+      city TEXT NOT NULL,
+      comuna TEXT NOT NULL DEFAULT '',
+      price_uf_from NUMERIC NOT NULL DEFAULT 0,
+      price_uf_to NUMERIC NOT NULL DEFAULT 0,
+      property_type TEXT NOT NULL DEFAULT 'departamento',
+      description TEXT DEFAULT '',
+      image_url TEXT DEFAULT '',
+      cta_url TEXT DEFAULT '',
+      impressions INTEGER DEFAULT 0,
+      clicks INTEGER DEFAULT 0,
+      is_active BOOLEAN DEFAULT TRUE,
+      expires_at TIMESTAMPTZ
+    )
+  `;
 }
 
 /**

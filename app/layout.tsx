@@ -174,6 +174,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 { href: "/herramientas", label: "Herramientas" },
                 { href: "/calcular", label: "Analizar" },
                 { href: "/guia", label: "Guía" },
+                { href: "/mercado", label: "Mercado" },
               ].map((item) => (
                 <li key={item.href} className="hidden sm:block">
                   <a href={item.href} className="nav-link">
@@ -240,6 +241,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     { href: "/herramientas", label: "Herramientas gratuitas" },
                     { href: "/calcular", label: "Analizar propiedad" },
                     { href: "/guia", label: "Guía de compra en Chile" },
+                    { href: "/mercado", label: "Mercado inmobiliario" },
                     { href: "/#preguntas", label: "Preguntas frecuentes" },
                   ].map((item) => (
                     <li key={item.href}>

@@ -15,6 +15,8 @@ interface OpportunityProperty {
   type: string;
   estimatedMonthlyRentCLP: number;
   image: string;
+  sourceUrl?: string;
+  source?: "mock" | "mercadolibre";
 }
 
 interface OpportunitiesViewProps {
@@ -193,6 +195,17 @@ export default function OpportunitiesView({ priceUF, city, propertyType, comuna 
                   Arriendo est. {formatCLP(prop.estimatedMonthlyRentCLP)}
                 </span>
               </div>
+              {prop.sourceUrl && (
+                <a
+                  href={prop.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => { e.stopPropagation(); track("portal_link_clicked", { propertyId: prop.id }); }}
+                  style={{ display: "block", fontSize: "10px", color: "var(--accent)", fontWeight: 600, marginTop: "4px", textDecoration: "none" }}
+                >
+                  Ver en Portal Inmobiliario →
+                </a>
+              )}
             </div>
           </a>
         ))}

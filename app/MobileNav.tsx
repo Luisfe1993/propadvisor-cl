@@ -8,6 +8,7 @@ const baseNavItems = [
   { href: "/herramientas", label: "Herramientas" },
   { href: "/calcular", label: "Analizar" },
   { href: "/guia", label: "Guía" },
+  { href: "/mercado", label: "Mercado" },
 ];
 
 const authNavItems = [

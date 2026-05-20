@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import RateAlertSignup from "@/components/RateAlertSignup";
 
 export const metadata: Metadata = {
   title: "PropAdvisor CL — ¿Conviene Comprar o Arrendar en Chile?",
@@ -820,6 +821,11 @@ export default function Home() {
           <p style={{ marginTop: "16px", fontSize: "13px", color: "var(--text-muted)" }}>
             Sin registro · Gratis para siempre
           </p>
+
+          {/* Rate alert email capture */}
+          <div style={{ marginTop: "32px" }}>
+            <RateAlertSignup />
+          </div>
         </div>
       </section>
     </>
