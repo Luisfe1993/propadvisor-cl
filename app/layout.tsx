@@ -98,6 +98,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="es-CL">
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script type="text/javascript" dangerouslySetInnerHTML={{ __html: `window.$crisp=[];window.CRISP_WEBSITE_ID="5b675b11-594a-4512-8a7d-0bf38018e9fc";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();` }} />
       </head>
       <body className={`${geistSans.variable} antialiased`}>
 
