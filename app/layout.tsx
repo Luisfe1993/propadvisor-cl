@@ -170,19 +170,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 flex: 1,
               }}
             >
-              {[
-                { href: "/", label: "Inicio" },
-                { href: "/herramientas", label: "Herramientas" },
-                { href: "/calcular", label: "Analizar" },
-                { href: "/guia", label: "Guía" },
-                { href: "/mercado", label: "Mercado" },
-              ].map((item) => (
-                <li key={item.href} className="hidden sm:block">
-                  <a href={item.href} className="nav-link">
-                    {item.label}
-                  </a>
-                </li>
-              ))}
+              <li className="hidden sm:block">
+                <a href="/herramientas" className="nav-link">Calculadoras</a>
+              </li>
+              <li className="hidden sm:block">
+                <a
+                  href="/pricing"
+                  className="nav-link"
+                  style={{ color: "#7c3aed", fontWeight: 600 }}
+                >
+                  Pro ⭐
+                </a>
+              </li>
             </ul>
 
             {/* CTA + Auth + Mobile menu */}
@@ -233,17 +232,35 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               </div>
 
               {/* Tools */}
-              <nav aria-label="Herramientas">
+              <nav aria-label="Calculadoras">
                 <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "12px" }}>
-                  Herramientas
+                  Calculadoras
                 </p>
                 <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px" }}>
                   {[
-                    { href: "/herramientas", label: "Herramientas gratuitas" },
-                    { href: "/calcular", label: "Analizar propiedad" },
+                    { href: "/herramientas", label: "Calculadoras gratuitas" },
+                    { href: "/calcular", label: "Calcular propiedad" },
+                    { href: "/#preguntas", label: "Preguntas frecuentes" },
+                  ].map((item) => (
+                    <li key={item.href}>
+                      <a href={item.href} className="footer-link">
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              {/* Recursos */}
+              <nav aria-label="Recursos">
+                <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "12px" }}>
+                  Recursos
+                </p>
+                <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {[
                     { href: "/guia", label: "Guía de compra en Chile" },
                     { href: "/mercado", label: "Mercado inmobiliario" },
-                    { href: "/#preguntas", label: "Preguntas frecuentes" },
+                    { href: "/pricing", label: "Planes y precios" },
                   ].map((item) => (
                     <li key={item.href}>
                       <a href={item.href} className="footer-link">

@@ -4,15 +4,13 @@ import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 
 const baseNavItems = [
-  { href: "/", label: "Inicio" },
-  { href: "/herramientas", label: "Herramientas" },
-  { href: "/calcular", label: "Analizar" },
+  { href: "/herramientas", label: "Calculadoras" },
+  { href: "/pricing", label: "Pro ⭐" },
   { href: "/guia", label: "Guía" },
   { href: "/mercado", label: "Mercado" },
 ];
 
 const authNavItems = [
-  { href: "/pricing", label: "Pro" },
   { href: "/dashboard", label: "Portfolio" },
 ];
 
