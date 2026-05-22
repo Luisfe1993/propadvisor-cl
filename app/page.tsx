@@ -640,6 +640,120 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
+          PRO FEATURES
+      ══════════════════════════════════════════════════════ */}
+      <section
+        id="pro"
+        aria-labelledby="pro-heading"
+        style={{
+          padding: "96px 24px",
+          background: "var(--bg-primary)",
+          borderTop: "1px solid var(--border)",
+        }}
+      >
+        <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
+
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "5px 14px",
+                background: "linear-gradient(135deg, #f0e6ff, #e0d0ff)",
+                borderRadius: "9999px",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#7c3aed",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                marginBottom: "20px",
+              }}
+            >
+              ⭐ Pro
+            </div>
+            <h2
+              id="pro-heading"
+              style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: "12px" }}
+            >
+              Lleva tu análisis al siguiente nivel
+            </h2>
+            <p style={{ fontSize: "17px", color: "var(--text-secondary)", maxWidth: "520px", margin: "0 auto" }}>
+              Métricas avanzadas de inversión, comparación lado a lado y reportes profesionales.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "16px",
+              marginBottom: "48px",
+            }}
+          >
+            {[
+              { icon: "📊", title: "IRR, DSCR y cash-on-cash", desc: "Métricas de inversión profesional con desglose año a año para evaluar la rentabilidad real." },
+              { icon: "🔍", title: "Comparar propiedades", desc: "Compara hasta 10 propiedades lado a lado con cap rate, flujo neto y proyección a largo plazo." },
+              { icon: "📄", title: "Memorándum de inversión", desc: "PDF profesional listo para presentar a socios, bancos o comités de inversión." },
+              { icon: "🧮", title: "Modelar vacancia y gastos", desc: "Simula el impacto de 0-20% de vacancia y gastos reales (GGCC, seguros, administración)." },
+              { icon: "💰", title: "Calculadora de impuestos", desc: "Contribuciones, renta presunta, DFL2 y beneficios tributarios para tu inversión." },
+              { icon: "💼", title: "Portfolio ilimitado", desc: "Guarda todas tus propiedades de interés y monitorea tu portafolio de inversión." },
+            ].map((feat) => (
+              <article
+                key={feat.title}
+                className="card"
+                style={{ background: "white", padding: "28px 28px 32px" }}
+              >
+                <span style={{ fontSize: "28px", display: "block", marginBottom: "14px" }}>{feat.icon}</span>
+                <h3
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                    letterSpacing: "-0.02em",
+                    marginBottom: "8px",
+                    lineHeight: 1.35,
+                  }}
+                >
+                  {feat.title}
+                </h3>
+                <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.65 }}>
+                  {feat.desc}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          {/* Pro CTA */}
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontSize: "28px", fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em", marginBottom: "4px" }}>
+              $15.000<span style={{ fontSize: "16px", fontWeight: 500, color: "var(--text-secondary)" }}>/mes</span>
+            </p>
+            <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "24px" }}>
+              7 días gratis · Sin tarjeta para empezar · Cancela cuando quieras
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", justifyContent: "center" }}>
+              <Link
+                href="/pricing"
+                className="btn-primary"
+                style={{ padding: "13px 28px", fontSize: "15px", background: "#7c3aed", borderColor: "#7c3aed" }}
+              >
+                Probar Pro gratis →
+              </Link>
+              <Link
+                href="/pricing"
+                className="btn-secondary"
+                style={{ padding: "13px 28px", fontSize: "15px" }}
+              >
+                Comparar planes
+              </Link>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
           FAQ
       ══════════════════════════════════════════════════════ */}
       <section
