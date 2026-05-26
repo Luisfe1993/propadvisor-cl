@@ -240,6 +240,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   {[
                     { href: "/herramientas", label: "Calculadoras gratuitas" },
                     { href: "/calcular", label: "Calcular propiedad" },
+                    { href: "/cuanto-puedo-comprar", label: "¿Cuánto puedo comprar?" },
+                    { href: "/cuanto-pie", label: "¿Cuánto pie necesito?" },
                     { href: "/#preguntas", label: "Preguntas frecuentes" },
                   ].map((item) => (
                     <li key={item.href}>

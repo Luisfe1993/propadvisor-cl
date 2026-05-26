@@ -216,10 +216,20 @@ export function calc20YearComparison(
   // ── VERDICT ──────────────────────────────────────────
   const netWealthDifference = buyNetWealth - rentNetWealth;
 
-  // Break-even: year where buying net wealth first exceeds renting net wealth
+  // Break-even + yearly snapshots for chart
   let breakEvenYear = -1;
   let cumBuy = initialInvestment;
   let cumRent = 0;
+  let cumRentInvestment = 0; // pie invested + monthly savings
+  let cumInvestRentalIncome = 0; // rental income for investment scenario
+
+  const yearlySnapshots: { year: number; buy: number; rent: number; invest: number }[] = [
+    { year: 0, buy: 0, rent: 0, invest: 0 },
+  ];
+
+  const monthlyInvRate = Math.pow(1 + annualInvestmentReturn, 1 / 12) - 1;
+  let pieAtStart = initialInvestment; // for rent scenario: pie grows each year
+
   for (let year = 1; year <= termYears; year++) {
     cumBuy += buyMonthlyCost * 12;
     for (let m = 0; m < 12; m++) {
@@ -227,9 +237,40 @@ export function calc20YearComparison(
     }
     const propValueAtYear = propertyPriceCLP * Math.pow(1 + annualAppreciation, year);
     const pieAtYear = initialInvestment * Math.pow(1 + annualInvestmentReturn, year);
-    const buyNetAtYear = cumBuy - propValueAtYear;
-    const rentNetAtYear = cumRent - pieAtYear;
-    if (buyNetAtYear < rentNetAtYear && breakEvenYear === -1) {
+
+    // Buy net wealth at this year = property value - cumulative cost
+    const buyNetAtYear = propValueAtYear - cumBuy;
+
+    // Rent net wealth at this year = pie invested + savings invested - rent cost
+    // Simplified: use running totals
+    let rentSavingsAtYear = 0;
+    for (let m = 0; m < year * 12; m++) {
+      const yr = Math.floor(m / 12);
+      const currentRent = rentMonthlyCost * Math.pow(1 + annualRentInflation, yr);
+      const saving = buyMonthlyCost - currentRent;
+      if (saving > 0) {
+        const monthsLeft = year * 12 - m - 1;
+        rentSavingsAtYear += saving * Math.pow(1 + monthlyInvRate, monthsLeft);
+      }
+    }
+    const rentNetAtYear = pieAtYear + rentSavingsAtYear - cumRent;
+
+    // Invest net wealth at this year = property value + rental income - buy cost
+    let rentalIncomeAtYear = 0;
+    for (let m = 0; m < year * 12; m++) {
+      const yr = Math.floor(m / 12);
+      rentalIncomeAtYear += rentMonthlyCost * Math.pow(1 + annualRentInflation, yr);
+    }
+    const investNetAtYear = propValueAtYear + rentalIncomeAtYear - cumBuy;
+
+    yearlySnapshots.push({
+      year,
+      buy: Math.round(buyNetAtYear),
+      rent: Math.round(rentNetAtYear),
+      invest: Math.round(investNetAtYear),
+    });
+
+    if (buyNetAtYear > rentNetAtYear && breakEvenYear === -1) {
       breakEvenYear = year;
     }
   }
@@ -257,6 +298,8 @@ export function calc20YearComparison(
     // Investment metrics
     cashOnCash,
     cashFlowBreakEvenYear,
+    // Chart data
+    yearlySnapshots,
     // Legacy
     savings: netWealthDifference,
     breakEvenYear,

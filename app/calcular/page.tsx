@@ -5,6 +5,7 @@ import Link from "next/link";
 import { track } from "@vercel/analytics";
 import { useUser } from "@clerk/nextjs";
 import { calcMonthlyPayment, calc20YearComparison } from "@/lib/calculations";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import type { BankRate } from "@/lib/types";
 import { getComunaInfo, getCityOptions, getComunaOptions, cityData } from "@/lib/comunaData";
 import EmailGateModal from "@/components/EmailGateModal";
@@ -806,8 +807,78 @@ export default function CalcularPage() {
             })()}
 
             {/* ── Primary CTA (adaptive) ─────────────────── */}
-            {comparison && (
-              <div style={{
+            {comparison && (() => {
+              // Year-by-year chart data
+              const chartData = comparison.yearlySnapshots;
+              const formatAxis = (v: number) => {
+                const abs = Math.abs(v);
+                if (abs >= 1_000_000_000) return `${v < 0 ? "-" : ""}$${(abs / 1_000_000_000).toFixed(0)} mil M`;
+                if (abs >= 1_000_000) return `${v < 0 ? "-" : ""}$${(abs / 1_000_000).toFixed(0)}M`;
+                if (abs >= 1_000) return `${v < 0 ? "-" : ""}$${(abs / 1_000).toFixed(0)}K`;
+                return `$${v}`;
+              };
+
+              return (
+                <>
+                  {/* ── Chart: Evolución patrimonial ────────── */}
+                  <div style={{ background: "white", border: "1px solid var(--border)", borderRadius: "12px", padding: "20px" }}>
+                    <p style={{ ...labelSx, marginBottom: "4px" }}>Evolución en {loanTerm} años</p>
+                    <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "16px" }}>
+                      Cuánto ganas en cada camino, año a año.
+                    </p>
+
+                    {/* Legend */}
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "12px", flexWrap: "wrap" }}>
+                      {[
+                        { color: "#0f766e", label: "🏠 Comprar para vivir" },
+                        { color: "#2563eb", label: "📈 Arrendar + invertir" },
+                        { color: "#d97706", label: "🏢 Comprar para arrendar" },
+                      ].map((l) => (
+                        <div key={l.label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <div style={{ width: "12px", height: "3px", borderRadius: "2px", background: l.color }} />
+                          <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>{l.label}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ width: "100%", height: "260px" }}>
+                      <ResponsiveContainer>
+                        <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                          <XAxis
+                            dataKey="year" tickFormatter={(v) => `${v}`}
+                            style={{ fontSize: "11px" }} tick={{ fill: "var(--text-muted)" }}
+                          />
+                          <YAxis
+                            tickFormatter={formatAxis}
+                            style={{ fontSize: "10px" }} tick={{ fill: "var(--text-muted)" }}
+                            width={60}
+                          />
+                          <Tooltip
+                            formatter={(value, name) => {
+                              const labels: Record<string, string> = { buy: "Comprar para vivir", rent: "Arrendar + invertir", invest: "Comprar para arrendar" };
+                              return [formatAxis(Number(value)), labels[String(name)] || String(name)];
+                            }}
+                            labelFormatter={(label) => `Año ${label}`}
+                            contentStyle={{ fontSize: "12px", borderRadius: "8px", border: "1px solid var(--border)" }}
+                          />
+                          <ReferenceLine y={0} stroke="var(--text-muted)" strokeDasharray="4 4" />
+                          <Line type="monotone" dataKey="buy" stroke="#0f766e" strokeWidth={2.5} dot={false} />
+                          <Line type="monotone" dataKey="rent" stroke="#2563eb" strokeWidth={2.5} dot={false} />
+                          <Line type="monotone" dataKey="invest" stroke="#d97706" strokeWidth={2.5} dot={false} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {comparison.breakEvenYear > 0 && (
+                      <p style={{ fontSize: "11px", color: "var(--accent)", marginTop: "8px", fontWeight: 600, textAlign: "center" }}>
+                        📍 Comprar supera a arrendar en el año {comparison.breakEvenYear}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ── CTA card ─────────────────────────────── */}
+                  <div style={{
                 background: "linear-gradient(135deg, #0f766e 0%, #1e3a5f 100%)",
                 borderRadius: "12px", padding: "24px", color: "white",
               }}>
@@ -921,7 +992,9 @@ export default function CalcularPage() {
                   )}
                 </div>
               </div>
-            )}
+                </>
+              );
+            })()}
 
             {/* ── Secondary actions ──────────────────────── */}
             {comparison && (
@@ -947,6 +1020,113 @@ export default function CalcularPage() {
                 }}>
                 Calcular otra propiedad →
               </button>
+            </div>
+
+            {/* ── Methodology (collapsible) ──────────────── */}
+            <details style={{ background: "white", border: "1px solid var(--border)", borderRadius: "12px" }}>
+              <summary style={{
+                padding: "16px 20px", cursor: "pointer", fontSize: "13px", fontWeight: 700,
+                color: "var(--text-primary)", listStyle: "none",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+              }}>
+                📐 Metodología y supuestos
+                <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>▸</span>
+              </summary>
+              <div style={{ padding: "0 20px 20px", fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.7 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  <div>
+                    <p style={{ fontWeight: 700, color: "var(--text-primary)", marginBottom: "2px" }}>Dividendo mensual</p>
+                    <p>Se calcula con amortización francesa (cuota fija). Fórmula: M = P × [r(1+r)ⁿ] / [(1+r)ⁿ - 1], donde P = monto financiado, r = tasa mensual, n = número de cuotas.</p>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 700, color: "var(--text-primary)", marginBottom: "2px" }}>Tasas de interés</p>
+                    <p>Tasas referenciales de 8 bancos chilenos, actualizadas periódicamente. Varían según porcentaje de pie y perfil crediticio. Fuente: CMF Chile.</p>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 700, color: "var(--text-primary)", marginBottom: "2px" }}>Plusvalía por comuna</p>
+                    <p>Tasa de apreciación anual estimada para cada comuna, basada en datos históricos de transacciones y tendencias del mercado local.</p>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 700, color: "var(--text-primary)", marginBottom: "2px" }}>Cap rate y arriendo estimado</p>
+                    <p>El arriendo se estima automáticamente usando el cap rate de la comuna (ingreso anual por arriendo / precio de la propiedad). No considera vacancia.</p>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 700, color: "var(--text-primary)", marginBottom: "2px" }}>Comparación a 3 caminos</p>
+                    <p>Se proyecta mes a mes durante el plazo del crédito. El arriendo sube 3%/año (IPC). El pie no invertido se capitaliza al 6%/año (fondo conservador). La propiedad se aprecia según la comuna seleccionada.</p>
+                  </div>
+                  <div style={{ background: "var(--bg-secondary)", borderRadius: "8px", padding: "12px", fontSize: "12px", color: "var(--text-muted)" }}>
+                    ⚠️ Esta herramienta es informativa y educativa. No constituye asesoría financiera. Los resultados dependen de supuestos que pueden no materializarse. Consulta un profesional antes de tomar decisiones de inversión.
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            {/* ── FAQ ────────────────────────────────────── */}
+            <div style={{ background: "white", border: "1px solid var(--border)", borderRadius: "12px", padding: "20px" }}>
+              <p style={{ ...labelSx, marginBottom: "16px" }}>Preguntas frecuentes</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+                {[
+                  {
+                    q: "¿Conviene más comprar o arrendar en Chile?",
+                    a: "Depende del precio, la comuna, el pie disponible y las tasas. En general, comprar conviene si planeas quedarte más de 7 años y la plusvalía de la zona es buena. Nuestra calculadora compara los 3 caminos con datos reales de tu comuna.",
+                  },
+                  {
+                    q: "¿Qué es el cap rate y por qué importa?",
+                    a: "El cap rate (tasa de capitalización) mide cuánto rinde una propiedad como inversión: arriendo anual ÷ precio. Un cap rate de 5% significa que recuperas el 5% del valor cada año en arriendo. En Chile, varía mucho por comuna: Santiago Centro tiene cap rates altos (~6%) pero menor plusvalía.",
+                  },
+                  {
+                    q: "¿Cuánto pie necesito para comprar un departamento?",
+                    a: "Los bancos en Chile financian entre el 80% y 90% del valor. Para primera vivienda necesitas al menos 10% de pie; para inversión, mínimo 20-30%. Además, considera 1.5-2% adicional en gastos de escrituración.",
+                  },
+                  {
+                    q: "¿Qué pasa si las tasas hipotecarias bajan?",
+                    a: "Si las tasas bajan, el dividendo mensual será menor y comprar se vuelve más atractivo vs arrendar. Puedes simular distintas tasas usando la opción 'Ya tengo mi tasa' en el paso 2.",
+                  },
+                  {
+                    q: "¿Es rentable comprar para arrendar en Santiago?",
+                    a: "Depende de la comuna. Comunas con cap rate > 5% (como Santiago Centro o Estación Central) generan mejor flujo mensual. Comunas premium (Las Condes, Vitacura) tienen menor cap rate pero mayor plusvalía. Nuestra calculadora muestra el escenario de inversión con datos específicos de cada comuna.",
+                  },
+                  {
+                    q: "¿De dónde salen las tasas de interés?",
+                    a: "Las tasas son referenciales, basadas en datos publicados por los principales bancos chilenos y la CMF. La tasa real que obtengas depende de tu perfil crediticio, antigüedad laboral y relación con el banco.",
+                  },
+                ].map((faq, i) => (
+                  <details key={i} style={{
+                    borderTop: i > 0 ? "1px solid var(--border)" : "none",
+                    padding: "14px 0",
+                  }}>
+                    <summary style={{
+                      cursor: "pointer", fontSize: "14px", fontWeight: 600,
+                      color: "var(--text-primary)", lineHeight: 1.4,
+                    }}>
+                      {faq.q}
+                    </summary>
+                    <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.7, marginTop: "8px", paddingRight: "8px" }}>
+                      {faq.a}
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Feeder tool CTAs ───────────────────────── */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <a href="/cuanto-puedo-comprar" style={{
+                background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: "12px",
+                padding: "16px", textDecoration: "none", transition: "border-color 0.15s",
+              }}>
+                <p style={{ fontSize: "20px", marginBottom: "4px" }}>💰</p>
+                <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "2px" }}>¿Cuánto puedo comprar?</p>
+                <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Según tu sueldo</p>
+              </a>
+              <a href="/cuanto-pie" style={{
+                background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: "12px",
+                padding: "16px", textDecoration: "none", transition: "border-color 0.15s",
+              }}>
+                <p style={{ fontSize: "20px", marginBottom: "4px" }}>🏦</p>
+                <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "2px" }}>¿Cuánto pie necesito?</p>
+                <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Para esta propiedad</p>
+              </a>
             </div>
           </div>
         )}

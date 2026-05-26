@@ -5,6 +5,8 @@ import { useUser } from "@clerk/nextjs";
 
 const baseNavItems = [
   { href: "/herramientas", label: "Calculadoras" },
+  { href: "/cuanto-puedo-comprar", label: "¿Cuánto puedo comprar?" },
+  { href: "/cuanto-pie", label: "¿Cuánto pie necesito?" },
   { href: "/pricing", label: "Pro ⭐" },
   { href: "/guia", label: "Guía" },
   { href: "/mercado", label: "Mercado" },
