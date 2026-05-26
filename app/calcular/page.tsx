@@ -114,6 +114,16 @@ export default function CalcularPage() {
   const formatCLP = (v: number) =>
     new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(v);
 
+  // Human-readable format for big numbers: $929.406.562 → "$929M"
+  const formatShort = (v: number) => {
+    const abs = Math.abs(v);
+    const sign = v < 0 ? "-" : "+";
+    if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(0)} mil M`;
+    if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(0)}M`;
+    if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(0)}K`;
+    return `${sign}$${abs}`;
+  };
+
   const priceCLP: number = (() => {
     const n = parseFloat(priceRaw.replace(/\./g, "").replace(",", "."));
     if (!n || isNaN(n)) return 0;
@@ -680,140 +690,116 @@ export default function CalcularPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--border)" }}>
                 <div>
                   <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Total intereses</p>
-                  <p style={{ fontSize: "15px", fontWeight: 700, color: "#dc2626" }}>{formatCLP(totalInterest > 0 ? totalInterest : 0)}</p>
+                  <p style={{ fontSize: "15px", fontWeight: 700, color: "#dc2626" }}>{formatShort(totalInterest > 0 ? totalInterest : 0)}</p>
                 </div>
                 <div>
                   <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Pie requerido</p>
-                  <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>{formatCLP(downAmount)}</p>
+                  <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>{formatShort(downAmount)}</p>
                 </div>
               </div>
             </div>
 
-            {/* ── 3-Way comparison ───────────────────────── */}
-            <div style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: "12px", padding: "20px" }}>
-              <p style={{ ...labelSx, marginBottom: "4px" }}>Patrimonio neto en {loanTerm} años</p>
-              <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "16px" }}>
-                ¿Cuál camino te deja con más patrimonio?
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {/* Buy to live */}
-                {(() => {
-                  const isWinner = comparison?.winner === "buy";
-                  return (
-                    <div style={{ background: "white", border: isWinner ? "2px solid var(--accent)" : "1px solid var(--border)", borderRadius: "10px", padding: "14px 16px" }}>
-                      {isWinner && <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--accent-dark)", background: "var(--accent-light)", padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>⭐ Mejor opción</span>}
-                      <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", marginTop: isWinner ? "8px" : 0, marginBottom: "8px" }}>🏠 Comprar para vivir</p>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", fontSize: "12px" }}>
-                        <div><p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Gastas en total</p><p style={{ fontWeight: 700, color: "#dc2626" }}>{formatCLP(comparison?.buyTotal ?? 0)}</p></div>
-                        <div><p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Propiedad vale</p><p style={{ fontWeight: 700, color: "#16a34a" }}>{formatCLP(comparison?.propertyValueAfter20Years ?? 0)}</p></div>
-                      </div>
-                      <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between" }}>
-                        <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Patrimonio neto</p>
-                        <p style={{ fontSize: "16px", fontWeight: 800, color: (comparison?.buyNetWealth ?? 0) >= 0 ? "#16a34a" : "#dc2626" }}>{(comparison?.buyNetWealth ?? 0) >= 0 ? "+" : ""}{formatCLP(comparison?.buyNetWealth ?? 0)}</p>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Rent + invest */}
-                {(() => {
-                  const isWinner = comparison?.winner === "rent";
-                  return (
-                    <div style={{ background: "white", border: isWinner ? "2px solid var(--accent)" : "1px solid var(--border)", borderRadius: "10px", padding: "14px 16px" }}>
-                      {isWinner && <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--accent-dark)", background: "var(--accent-light)", padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>⭐ Mejor opción</span>}
-                      <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", marginTop: isWinner ? "8px" : 0, marginBottom: "8px" }}>📈 Arrendar + invertir el pie</p>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", fontSize: "12px" }}>
-                        <div><p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Arriendos totales</p><p style={{ fontWeight: 700, color: "#dc2626" }}>{formatCLP(comparison?.rentTotal ?? 0)}</p></div>
-                        <div><p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Pie invertido crece a</p><p style={{ fontWeight: 700, color: "#16a34a" }}>{formatCLP(comparison?.pieInvested ?? 0)}</p></div>
-                      </div>
-                      <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between" }}>
-                        <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Patrimonio neto</p>
-                        <p style={{ fontSize: "16px", fontWeight: 800, color: (comparison?.rentNetWealth ?? 0) >= 0 ? "#16a34a" : "#dc2626" }}>{(comparison?.rentNetWealth ?? 0) >= 0 ? "+" : ""}{formatCLP(comparison?.rentNetWealth ?? 0)}</p>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Buy to rent */}
-                {(() => {
-                  const isWinner = comparison?.winner === "invest";
-                  const cocReturn = downAmount > 0 ? ((netFlow * 12 / downAmount) * 100) : 0;
-                  return (
-                    <div style={{ background: "white", border: isWinner ? "2px solid var(--accent)" : "1px solid var(--border)", borderRadius: "10px", padding: "14px 16px" }}>
-                      {isWinner && <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--accent-dark)", background: "var(--accent-light)", padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>⭐ Mejor opción</span>}
-                      <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)", marginTop: isWinner ? "8px" : 0, marginBottom: "8px" }}>🏢 Comprar para arrendar</p>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", fontSize: "12px" }}>
-                        <div><p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Gastas en total</p><p style={{ fontWeight: 700, color: "#dc2626" }}>{formatCLP(comparison?.buyTotal ?? 0)}</p></div>
-                        <div><p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Propiedad + arriendos</p><p style={{ fontWeight: 700, color: "#16a34a" }}>{formatCLP((comparison?.propertyValueAfter20Years ?? 0) + (comparison?.totalRentalIncome ?? 0))}</p></div>
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", fontSize: "11px", marginTop: "8px", paddingTop: "8px", borderTop: "1px solid var(--border)" }}>
-                        <div><p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Flujo/mes</p><p style={{ fontWeight: 700, color: netFlow >= 0 ? "#16a34a" : "#dc2626" }}>{netFlow >= 0 ? "+" : ""}{formatCLP(netFlow)}</p></div>
-                        <div><p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Cap rate</p><p style={{ fontWeight: 700 }}>{rentalYield.toFixed(1)}%</p></div>
-                        <div><p style={{ color: "var(--text-muted)", marginBottom: "1px" }}>Cash-on-cash</p><p style={{ fontWeight: 700 }}>{cocReturn.toFixed(1)}%</p></div>
-                      </div>
-                      <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between" }}>
-                        <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Patrimonio neto</p>
-                        <p style={{ fontSize: "16px", fontWeight: 800, color: (comparison?.investNetWealth ?? 0) >= 0 ? "#16a34a" : "#dc2626" }}>{(comparison?.investNetWealth ?? 0) >= 0 ? "+" : ""}{formatCLP(comparison?.investNetWealth ?? 0)}</p>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-
-            {/* ── Verdict ────────────────────────────────── */}
+            {/* ── ¿Cuánto ganas? — 3-Way comparison ────── */}
             {comparison && (() => {
               const w = comparison.winner;
-              const bw = formatCLP(comparison.buyNetWealth);
-              const rw = formatCLP(comparison.rentNetWealth);
-              const iw = formatCLP(comparison.investNetWealth);
-              let icon: string, title: string, color: string, body: string, tip: string;
+              const cocReturn = downAmount > 0 ? ((netFlow * 12 / downAmount) * 100) : 0;
 
+              // Build verdict text based on winner
+              let verdictTitle: string, verdictBody: string, verdictTip: string;
               if (w === "invest") {
-                icon = "🏢"; title = "Comprar para arrendar es lo más rentable"; color = "#16a34a";
-                body = `Como inversión, esta propiedad genera un patrimonio neto de ${iw} en ${loanTerm} años — más que comprar para vivir (${bw}) o arrendar e invertir (${rw}).`;
-                if (netFlow >= 0) {
-                  body += ` Con cash flow positivo de ${formatCLP(netFlow)}/mes desde el día 1 y un cap rate de ${rentalYield.toFixed(1)}%.`;
-                  tip = "Esta propiedad es una buena inversión. El arriendo cubre el dividendo y genera ingreso pasivo.";
-                } else {
-                  body += ` Requiere un subsidio de ${formatCLP(Math.abs(netFlow))}/mes, pero la plusvalía y el ingreso por arriendo lo compensan.`;
-                  tip = comparison.cashFlowBreakEvenYear > 0
-                    ? `El arriendo cubre el dividendo a partir del año ${comparison.cashFlowBreakEvenYear} (sube 3%/año).`
-                    : `Aumenta el pie para reducir el subsidio mensual.`;
-                }
+                verdictTitle = "Comprar para arrendar es lo más rentable";
+                verdictBody = `Como inversión, ganas ${formatShort(comparison.investNetWealth)} en ${loanTerm} años — más que comprando para vivir (${formatShort(comparison.buyNetWealth)}) o arrendando (${formatShort(comparison.rentNetWealth)}).`;
+                verdictTip = netFlow >= 0
+                  ? `El arriendo cubre el dividendo y genera ${formatCLP(netFlow)}/mes de ingreso pasivo.`
+                  : comparison.cashFlowBreakEvenYear > 0
+                    ? `El arriendo cubre el dividendo a partir del año ${comparison.cashFlowBreakEvenYear}.`
+                    : "Aumenta el pie para reducir el subsidio mensual.";
               } else if (w === "buy") {
-                icon = "🏠"; title = "Comprar para vivir es la mejor opción"; color = "#16a34a";
-                body = `Vivir en tu propiedad genera un patrimonio neto de ${bw} en ${loanTerm} años. Es mejor que arrendar e invertir (${rw}).`;
-                if (comparison.investNetWealth > comparison.buyNetWealth) {
-                  body += ` Pero como inversión para arrendar generarías aún más (${iw}).`;
-                }
-                tip = comparison.breakEvenYear > 0 ? `Comprar supera a arrendar a partir del año ${comparison.breakEvenYear}.` : "";
+                verdictTitle = "Comprar para vivir es la mejor opción";
+                verdictBody = `Vivir en tu propiedad te deja con ${formatShort(comparison.buyNetWealth)} en ${loanTerm} años. Es mejor que arrendar (${formatShort(comparison.rentNetWealth)}).`;
+                verdictTip = comparison.breakEvenYear > 0 ? `Comprar supera a arrendar a partir del año ${comparison.breakEvenYear}.` : "";
               } else {
-                icon = "📈"; title = "Arrendar + invertir el pie conviene más"; color = "#0f766e";
-                body = `Arrendar e invertir tu pie en un fondo al 6% genera un patrimonio de ${rw} — más que comprar para vivir (${bw}).`;
-                if (comparison.investNetWealth > comparison.rentNetWealth) {
-                  body += ` Sin embargo, comprar para arrendar sería aún mejor (${iw}).`;
-                  tip = `Si puedes comprar sin vivir ahí, la inversión inmobiliaria genera más patrimonio.`;
-                } else {
-                  body += ` El precio de esta propiedad es alto relativo al arriendo de la zona.`;
-                  tip = "Busca propiedades con cap rate > 5% para mejor inversión, o espera a mejores tasas.";
-                }
+                verdictTitle = "Arrendar + invertir el pie conviene más";
+                verdictBody = `Arrendar e invertir tu pie al 6% te deja con ${formatShort(comparison.rentNetWealth)} — más que comprando (${formatShort(comparison.buyNetWealth)}).`;
+                verdictTip = comparison.investNetWealth > comparison.rentNetWealth
+                  ? "Si puedes comprar sin vivir ahí, la inversión inmobiliaria genera más."
+                  : "Busca propiedades con cap rate > 5% o espera mejores tasas.";
               }
+
+              // Scenario cards data
+              const scenarios = [
+                {
+                  key: "buy", icon: "🏠", label: "Comprar para vivir",
+                  gain: comparison.buyNetWealth,
+                  detail: `Pagas ${formatShort(comparison.buyTotal)} → Vale ${formatShort(comparison.propertyValueAfter20Years)}`,
+                },
+                {
+                  key: "rent", icon: "📈", label: "Arrendar + invertir",
+                  gain: comparison.rentNetWealth,
+                  detail: `Arriendos ${formatShort(comparison.rentTotal)} · Pie crece a ${formatShort(comparison.pieInvested)}`,
+                },
+                {
+                  key: "invest", icon: "🏢", label: "Comprar para arrendar",
+                  gain: comparison.investNetWealth,
+                  detail: `Flujo ${formatShort(netFlow)}/mes · Cap rate ${rentalYield.toFixed(1)}% · CoC ${cocReturn.toFixed(1)}%`,
+                },
+              ];
 
               return (
                 <div style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: "12px", padding: "20px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <span style={{ fontSize: "18px" }}>{icon}</span>
-                    <p style={{ fontSize: "14px", fontWeight: 700, color }}>{title}</p>
+                  <p style={{ ...labelSx, marginBottom: "4px" }}>¿Cuánto ganas en {loanTerm} años?</p>
+                  <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "16px" }}>
+                    3 caminos, un ganador claro.
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
+                    {scenarios.map((s) => {
+                      const isWinner = w === s.key;
+                      return (
+                        <div key={s.key} style={{
+                          background: "white",
+                          border: isWinner ? "2px solid var(--accent)" : "1px solid var(--border)",
+                          borderRadius: "10px", padding: "14px 16px",
+                        }}>
+                          {isWinner && <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--accent-dark)", background: "var(--accent-light)", padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>⭐ Mejor opción</span>}
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: isWinner ? "8px" : 0 }}>
+                            <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>
+                              {s.icon} {s.label}
+                            </p>
+                            <p style={{
+                              fontSize: "20px", fontWeight: 800, letterSpacing: "-0.03em",
+                              color: s.gain >= 0 ? "#16a34a" : "#dc2626",
+                            }}>
+                              {formatShort(s.gain)}
+                            </p>
+                          </div>
+                          <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "4px" }}>
+                            {s.detail}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.7 }}>{body}</p>
-                  {tip && (
-                    <p style={{ fontSize: "12px", color: "var(--accent)", marginTop: "8px", fontWeight: 600 }}>
-                      💡 {tip}
+
+                  {/* Verdict — merged into the comparison section */}
+                  <div style={{
+                    background: "white", borderRadius: "10px", padding: "14px 16px",
+                    border: "1px solid var(--border)",
+                  }}>
+                    <p style={{ fontSize: "14px", fontWeight: 700, color: "#16a34a", marginBottom: "6px" }}>
+                      {scenarios.find(s => s.key === w)?.icon} {verdictTitle}
                     </p>
-                  )}
-                  <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "10px", paddingTop: "8px", borderTop: "1px solid var(--border)" }}>
-                    Supuestos: plusvalía {(comunaAppreciation * 100).toFixed(0)}%/año ({comunaInfo?.label || "promedio"}) · arriendo sube {ipc != null ? `${Math.max(ipc * 12, 2).toFixed(1)}` : "3"}%/año · fondo alternativo 6%/año
+                    <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                      {verdictBody}
+                    </p>
+                    {verdictTip && (
+                      <p style={{ fontSize: "12px", color: "var(--accent)", marginTop: "6px", fontWeight: 600 }}>
+                        💡 {verdictTip}
+                      </p>
+                    )}
+                  </div>
+
+                  <p style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "12px", textAlign: "center" }}>
+                    Supuestos: plusvalía {(comunaAppreciation * 100).toFixed(0)}%/año · arriendo sube {ipc != null ? `${Math.max(ipc * 12, 2).toFixed(1)}` : "3"}%/año · fondo 6%/año
                   </p>
                 </div>
               );
@@ -829,8 +815,8 @@ export default function CalcularPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "16px" }}>
                   {[
                     { label: "Tu dividendo", value: formatCLP(monthlyPayment) },
-                    { label: comparison.winner === "invest" ? "Patrimonio inversión" : comparison.savings > 0 ? "Patrimonio compra" : "Patrimonio arriendo", value: formatCLP(Math.max(comparison.buyNetWealth, comparison.rentNetWealth, comparison.investNetWealth)) },
-                    { label: `Propiedad en ${loanTerm} años`, value: formatCLP(comparison.propertyValueAfter20Years) },
+                    { label: comparison.winner === "invest" ? "Ganas invirtiendo" : comparison.savings > 0 ? "Ganas comprando" : "Ganas arrendando", value: formatShort(Math.max(comparison.buyNetWealth, comparison.rentNetWealth, comparison.investNetWealth)) },
+                    { label: `Propiedad en ${loanTerm} años`, value: formatShort(comparison.propertyValueAfter20Years) },
                   ].map((m) => (
                     <div key={m.label}>
                       <p style={{ fontSize: "10px", opacity: 0.7, marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.04em" }}>{m.label}</p>
