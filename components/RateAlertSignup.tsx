@@ -35,9 +35,18 @@ export default function RateAlertSignup() {
         borderRadius: "12px", padding: "16px 20px",
         textAlign: "center",
       }}>
-        <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--accent-dark)" }}>
+        <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--accent-dark)", marginBottom: "8px" }}>
           ✅ ¡Listo! Te avisaremos cuando bajen las tasas.
         </p>
+        <a
+          href="/calcular"
+          style={{
+            fontSize: "13px", fontWeight: 600, color: "var(--accent)",
+            textDecoration: "none",
+          }}
+        >
+          Mientras tanto, analiza tu propiedad →
+        </a>
       </div>
     );
   }

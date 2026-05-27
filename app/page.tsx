@@ -247,7 +247,7 @@ export default function Home() {
             Herramienta gratuita · Chile
           </div>
 
-          {/* Heading — 3 short lines, unmistakably centered */}
+          {/* Heading — direct question */}
           <h1
             id="hero-heading"
             style={{
@@ -259,9 +259,9 @@ export default function Home() {
               marginBottom: "24px",
             }}
           >
-            Tu asesor<br />
-            inmobiliario<br />
-            inteligente
+            ¿Conviene<br />
+            comprar o<br />
+            arrendar?
           </h1>
 
           {/* Subheading */}
@@ -274,11 +274,11 @@ export default function Home() {
               margin: "0 auto 36px",
             }}
           >
-            Herramientas gratuitas para tomar la mejor decisión inmobiliaria de tu vida.
-            Sin registro, sin letra chica.
+            Ingresa el precio de cualquier propiedad y compara 3 caminos
+            con tasas reales de 8 bancos chilenos. Gratis, sin registro.
           </p>
 
-          {/* CTAs */}
+          {/* CTAs — primary goes to /calcular */}
           <div
             style={{
               display: "flex",
@@ -288,11 +288,11 @@ export default function Home() {
               marginBottom: "40px",
             }}
           >
-            <Link href="/herramientas" className="btn-primary" style={{ padding: "13px 28px", fontSize: "15px" }}>
-              Explorar herramientas →
+            <Link href="/calcular" className="btn-primary" style={{ padding: "13px 28px", fontSize: "15px" }}>
+              Calcular mi propiedad →
             </Link>
-            <Link href="/calcular" className="btn-secondary" style={{ padding: "13px 28px", fontSize: "15px" }}>
-              Analizar propiedad
+            <Link href="/herramientas" className="btn-secondary" style={{ padding: "13px 28px", fontSize: "15px" }}>
+              Ver herramientas
             </Link>
           </div>
 
@@ -403,11 +403,11 @@ export default function Home() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "14px", marginBottom: "32px" }}>
             {[
-              { href: "/herramientas/me-alcanza", icon: "💰", title: "¿Me alcanza para comprar?", desc: "Precio máximo según tu sueldo" },
+              { href: "/calcular", icon: "⚖️", title: "¿Comprar o arrendar?", desc: "3 escenarios con tasas reales de 8 bancos" },
+              { href: "/cuanto-puedo-comprar", icon: "💰", title: "¿Cuánto puedo comprar?", desc: "Precio máximo según tu sueldo" },
+              { href: "/cuanto-pie", icon: "🏦", title: "¿Cuánto pie necesito?", desc: "Pie + gastos de escrituración" },
               { href: "/herramientas/dividendo", icon: "🏠", title: "¿Cuánto sería mi dividendo?", desc: "Cuota mensual con 8 bancos" },
-              { href: "/herramientas/comprar-o-arrendar", icon: "⚖️", title: "¿Comprar o arrendar?", desc: "Comparación a 20 años" },
-              { href: "/herramientas/ahorrar-pie", icon: "🐷", title: "¿Cuánto necesito para el pie?", desc: "Plan de ahorro para tu cuota inicial" },
-              { href: "/herramientas/prepago", icon: "📊", title: "¿Me conviene prepagar?", desc: "Ahorro en intereses al prepagar" },
+              { href: "/herramientas/comprar-o-arrendar", icon: "📊", title: "¿Me conviene prepagar?", desc: "Ahorro en intereses al prepagar" },
               { href: "/herramientas/test-comprador", icon: "✅", title: "¿Estás listo para comprar?", desc: "Test rápido de preparación" },
             ].map((tool) => (
               <Link
@@ -546,6 +546,13 @@ export default function Home() {
             ))}
           </ol>
 
+          {/* CTA after steps */}
+          <div style={{ textAlign: "center", marginTop: "40px" }}>
+            <Link href="/calcular" className="btn-primary" style={{ padding: "13px 28px", fontSize: "15px" }}>
+              Empezar ahora →
+            </Link>
+          </div>
+
         </div>
       </section>
 
@@ -636,120 +643,48 @@ export default function Home() {
             ))}
           </div>
 
+          {/* CTA after features */}
+          <div style={{ textAlign: "center", marginTop: "40px" }}>
+            <Link href="/calcular" className="btn-primary" style={{ padding: "13px 28px", fontSize: "15px" }}>
+              Calcular mi propiedad →
+            </Link>
+          </div>
+
         </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          PRO FEATURES
+          TRUST — Data credibility
       ══════════════════════════════════════════════════════ */}
       <section
-        id="pro"
-        aria-labelledby="pro-heading"
+        id="confianza"
+        aria-labelledby="trust-heading"
         style={{
-          padding: "96px 24px",
+          padding: "64px 24px",
           background: "var(--bg-primary)",
           borderTop: "1px solid var(--border)",
         }}
       >
-        <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
-
-          <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                padding: "5px 14px",
-                background: "linear-gradient(135deg, #f0e6ff, #e0d0ff)",
-                borderRadius: "9999px",
-                fontSize: "12px",
-                fontWeight: 700,
-                color: "#7c3aed",
-                letterSpacing: "0.04em",
-                textTransform: "uppercase",
-                marginBottom: "20px",
-              }}
-            >
-              ⭐ Pro
-            </div>
-            <h2
-              id="pro-heading"
-              style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: "12px" }}
-            >
-              Lleva tu análisis al siguiente nivel
-            </h2>
-            <p style={{ fontSize: "17px", color: "var(--text-secondary)", maxWidth: "520px", margin: "0 auto" }}>
-              Métricas avanzadas de inversión, comparación lado a lado y reportes profesionales.
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "16px",
-              marginBottom: "48px",
-            }}
+        <div style={{ maxWidth: "720px", margin: "0 auto", textAlign: "center" }}>
+          <h2
+            id="trust-heading"
+            style={{ fontSize: "clamp(24px, 3vw, 32px)", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text-primary)", marginBottom: "32px" }}
           >
+            Datos reales, no estimaciones genéricas
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "24px" }}>
             {[
-              { icon: "📊", title: "IRR, DSCR y cash-on-cash", desc: "Métricas de inversión profesional con desglose año a año para evaluar la rentabilidad real." },
-              { icon: "🔍", title: "Comparar propiedades", desc: "Compara hasta 10 propiedades lado a lado con cap rate, flujo neto y proyección a largo plazo." },
-              { icon: "📄", title: "Memorándum de inversión", desc: "PDF profesional listo para presentar a socios, bancos o comités de inversión." },
-              { icon: "🧮", title: "Modelar vacancia y gastos", desc: "Simula el impacto de 0-20% de vacancia y gastos reales (GGCC, seguros, administración)." },
-              { icon: "💰", title: "Calculadora de impuestos", desc: "Contribuciones, renta presunta, DFL2 y beneficios tributarios para tu inversión." },
-              { icon: "💼", title: "Portfolio ilimitado", desc: "Guarda todas tus propiedades de interés y monitorea tu portafolio de inversión." },
-            ].map((feat) => (
-              <article
-                key={feat.title}
-                className="card"
-                style={{ background: "white", padding: "28px 28px 32px" }}
-              >
-                <span style={{ fontSize: "28px", display: "block", marginBottom: "14px" }}>{feat.icon}</span>
-                <h3
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: 700,
-                    color: "var(--text-primary)",
-                    letterSpacing: "-0.02em",
-                    marginBottom: "8px",
-                    lineHeight: 1.35,
-                  }}
-                >
-                  {feat.title}
-                </h3>
-                <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.65 }}>
-                  {feat.desc}
-                </p>
-              </article>
+              { icon: "🏦", title: "8 bancos reales", desc: "Tasas de Santander, BCI, BdChile, Itaú, Scotiabank, BancoEstado, Security y BICE." },
+              { icon: "📍", title: "Datos por comuna", desc: "Plusvalía, cap rate y precio/m² específicos de cada comuna de Santiago." },
+              { icon: "📡", title: "UF en tiempo real", desc: "Valor UF, TPM y dólar actualizados desde el Banco Central." },
+            ].map((item) => (
+              <div key={item.title} style={{ textAlign: "center" }}>
+                <span style={{ fontSize: "32px", display: "block", marginBottom: "8px" }}>{item.icon}</span>
+                <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "4px" }}>{item.title}</p>
+                <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6 }}>{item.desc}</p>
+              </div>
             ))}
           </div>
-
-          {/* Pro CTA */}
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "28px", fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em", marginBottom: "4px" }}>
-              $15.000<span style={{ fontSize: "16px", fontWeight: 500, color: "var(--text-secondary)" }}>/mes</span>
-            </p>
-            <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "24px" }}>
-              7 días gratis · Sin tarjeta para empezar · Cancela cuando quieras
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", justifyContent: "center" }}>
-              <Link
-                href="/pricing"
-                className="btn-primary"
-                style={{ padding: "13px 28px", fontSize: "15px", background: "#7c3aed", borderColor: "#7c3aed" }}
-              >
-                Probar Pro gratis →
-              </Link>
-              <Link
-                href="/pricing"
-                className="btn-secondary"
-                style={{ padding: "13px 28px", fontSize: "15px" }}
-              >
-                Comparar planes
-              </Link>
-            </div>
-          </div>
-
         </div>
       </section>
 
@@ -862,16 +797,16 @@ export default function Home() {
               color: "var(--text-secondary)",
             }}
           >
-            ¿Quieres entender más a fondo?{" "}
+            ¿Tienes una propiedad en mente?{" "}
             <a
-              href="/guia"
+              href="/calcular"
               style={{
                 color: "var(--accent)",
                 fontWeight: 600,
                 textDecoration: "none",
               }}
             >
-              Lee la Guía completa →
+              Calcula si conviene comprar →
             </a>
           </p>
 

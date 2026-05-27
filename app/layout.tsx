@@ -174,13 +174,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <a href="/herramientas" className="nav-link">Calculadoras</a>
               </li>
               <li className="hidden sm:block">
-                <a
-                  href="/pricing"
-                  className="nav-link"
-                  style={{ color: "#7c3aed", fontWeight: 600 }}
-                >
-                  Pro ⭐
-                </a>
+                <a href="/cuanto-puedo-comprar" className="nav-link">¿Cuánto puedo comprar?</a>
               </li>
             </ul>
 
@@ -262,7 +256,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   {[
                     { href: "/guia", label: "Guía de compra en Chile" },
                     { href: "/mercado", label: "Mercado inmobiliario" },
-                    { href: "/pricing", label: "Planes y precios" },
                   ].map((item) => (
                     <li key={item.href}>
                       <a href={item.href} className="footer-link">

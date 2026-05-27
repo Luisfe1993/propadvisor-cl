@@ -89,7 +89,7 @@ export default function MercadoPage() {
         {/* CTA */}
         <div style={{ textAlign: "center", marginTop: "48px" }}>
           <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginBottom: "12px" }}>
-            ¿Quieres recibir estos análisis en tu correo?
+            ¿Ya tienes una propiedad en mente?
           </p>
           <Link
             href="/calcular"
@@ -101,7 +101,7 @@ export default function MercadoPage() {
               textDecoration: "none",
             }}
           >
-            Analizar mi propiedad →
+            Calcular si conviene comprar →
           </Link>
         </div>
       </div>
