@@ -25,20 +25,23 @@ export default function ComprarOArendarPage() {
   const [comuna, setComuna] = useState("providencia");
   const [ufValue, setUfValue] = useState(UF_FALLBACK);
   const [result, setResult] = useState<BuyVsRentResult | null>(null);
+  const [prevCity, setPrevCity] = useState(city);
 
   const cityOptions = getCityOptions();
   const comunaOptions = getComunaOptions(city);
+
+  // Reset comuna when city changes. Adjusted during render (React's
+  // documented pattern for this) instead of an effect, so it happens
+  // in the same render as the city change rather than one tick later.
+  if (city !== prevCity) {
+    setPrevCity(city);
+    if (comunaOptions.length > 0) setComuna(comunaOptions[0].value);
+  }
 
   useEffect(() => {
     fetch("/api/uf").then(r => r.json()).then(d => { if (d.value) setUfValue(d.value); }).catch(() => {});
     track("tool_started", { tool: "comprar-o-arrendar" });
   }, []);
-
-  // Update comuna when city changes
-  useEffect(() => {
-    const opts = getComunaOptions(city);
-    if (opts.length > 0) setComuna(opts[0].value);
-  }, [city]);
 
   const handleCalc = (e: React.FormEvent) => {
     e.preventDefault();

@@ -54,7 +54,21 @@ export default function AdminPlacementsPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { if (isLoaded && user) fetchPlacements(); }, [isLoaded, user, fetchPlacements]);
+  useEffect(() => {
+    if (!isLoaded || !user) return;
+    let ignore = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/placements");
+        if (res.ok) {
+          const data = await res.json();
+          if (!ignore) setPlacements(data.placements || []);
+        }
+      } catch { /* ignore */ }
+      if (!ignore) setLoading(false);
+    })();
+    return () => { ignore = true; };
+  }, [isLoaded, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

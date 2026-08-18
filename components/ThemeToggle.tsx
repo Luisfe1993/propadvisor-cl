@@ -1,19 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+
+function subscribeNoop() {
+  return () => {};
+}
+
+// Hydration-safe "has this mounted on the client yet" flag. Using
+// useSyncExternalStore instead of a useState+useEffect pair avoids an
+// unconditional setState call inside the effect body.
+function useHasMounted(): boolean {
+  return useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false
+  );
+}
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHasMounted();
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("theme") as "light" | "dark" | null;
-    const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    const initial = saved || preferred;
-    setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
-  }, []);
+    if (!mounted) return;
+    const applyInitialTheme = () => {
+      const saved = localStorage.getItem("theme") as "light" | "dark" | null;
+      const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      const initial = saved || preferred;
+      setTheme(initial);
+      document.documentElement.setAttribute("data-theme", initial);
+    };
+    applyInitialTheme();
+  }, [mounted]);
 
   const toggle = () => {
     const next = theme === "dark" ? "light" : "dark";
