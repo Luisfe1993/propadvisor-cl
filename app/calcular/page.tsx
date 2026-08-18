@@ -163,6 +163,17 @@ export default function CalcularPage() {
       .catch(() => {});
   }, []);
 
+  // Auto-select the cheapest bank in "Mejor tasa" mode. LTV is decoupled
+  // from this picker now (derived from the Supuestos panel instead), so
+  // unlike the old page this only needs to sort by the flat `rate`.
+  useEffect(() => {
+    if (rateMode === "referential" && banks.length > 0) {
+      const cheapest = [...banks].sort((a, b) => a.rate - b.rate)[0];
+      if (cheapest && cheapest.id !== selectedBankId) setSelectedBankId(cheapest.id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rateMode, banks]);
+
   // ── Derived: resolved bank rate (AC-3 — feeds calcAvanzado's tasaAnual) ──
   const formatCLP = (v: number) =>
     new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(v);
