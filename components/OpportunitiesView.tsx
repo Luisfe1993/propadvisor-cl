@@ -31,6 +31,12 @@ interface OpportunitiesViewProps {
   comuna?: string;
   /** Buy vs. rent operation, for external portal links. Defaults to "venta". */
   operacion?: "venta" | "arriendo";
+  /**
+   * Real property type (departamento/casa), for external portal links.
+   * Distinct from `propertyType` (which carries unrelated display text like
+   * "Inversión"/"Primera vivienda"). Defaults to "departamento" when omitted.
+   */
+  tipoPropiedad?: "departamento" | "casa";
 }
 
 function formatCLP(v: number): string {
@@ -41,7 +47,7 @@ function formatCLP(v: number): string {
   }).format(v);
 }
 
-export default function OpportunitiesView({ priceUF, city, propertyType, comuna, operacion = "venta" }: OpportunitiesViewProps) {
+export default function OpportunitiesView({ priceUF, city, propertyType, comuna, operacion = "venta", tipoPropiedad }: OpportunitiesViewProps) {
   const [properties, setProperties] = useState<OpportunityProperty[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -98,7 +104,7 @@ export default function OpportunitiesView({ priceUF, city, propertyType, comuna,
 
   if (properties.length === 0) return null;
 
-  const tipo = propertyType === "casa" ? "casa" : "departamento";
+  const tipo = tipoPropiedad ?? "departamento";
   const portalInmobiliarioUrl = buildPortalInmobiliarioUrl({ tipo, cityId: city, comunaId: comuna, operacion });
   const tocTocUrl = buildTocTocUrl({ tipo, cityId: city, comunaId: comuna, operacion });
 

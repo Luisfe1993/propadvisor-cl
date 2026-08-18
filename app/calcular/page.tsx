@@ -18,6 +18,7 @@ import type { CalcAvanzadoInput, RateConvention } from "@/lib/calcAvanzado";
 import EmailGateModal from "@/components/EmailGateModal";
 import UpgradeModal from "@/components/UpgradeModal";
 import ShareAnalysis from "@/components/ShareAnalysis";
+import OpportunitiesView from "@/components/OpportunitiesView";
 import type { AnalysisPayload } from "@/components/EmailGateModal";
 
 // ─────────────────────────────────────────────────────────
@@ -30,6 +31,7 @@ const MONTHLY_COSTS_CLP = 200_000; // gastos comunes + seguros + administración
 
 type PropertyPurpose = "vivienda" | "inversion";
 type RateMode = "referential" | "manual";
+type TipoPropiedad = "departamento" | "casa";
 
 const defaultBanks: BankRate[] = [
   { id: "santander",   bank: "Banco Santander", shortName: "Santander", rate: 3.43, rateLowPie: 3.93, rateHighPie: 3.19, minDownPayment: 15, logoColor: "#C41E3A" },
@@ -139,6 +141,7 @@ export default function CalcularPage() {
   const [hoaMonthlyUF, setHoaMonthlyUF]             = useState(0);
 
   // ── New: Supuestos panel — Propiedad a evaluar ──────────
+  const [tipoPropiedad, setTipoPropiedad] = useState<TipoPropiedad>("departamento");
   const [usarMax, setUsarMax]           = useState(true);
   const [manualPrecioUF, setManualPrecioUF] = useState("");
 
@@ -614,6 +617,14 @@ export default function CalcularPage() {
                 </div>
               </div>
               <div style={{ marginTop: "16px" }}>
+                <label htmlFor="tipo-select" style={labelSx}>Tipo de propiedad</label>
+                <select id="tipo-select" value={tipoPropiedad} onChange={(e) => setTipoPropiedad(e.target.value as TipoPropiedad)}
+                  style={{ ...inputSx, cursor: "pointer" }} onFocus={onFocus} onBlur={onBlur}>
+                  <option value="departamento">Departamento</option>
+                  <option value="casa">Casa</option>
+                </select>
+              </div>
+              <div style={{ marginTop: "16px" }}>
                 <label htmlFor="precio-input" style={labelSx}>Precio del inmueble <span style={{ fontWeight: 400, textTransform: "none" }}>(UF)</span></label>
                 <input id="precio-input" type="number" min={1} step={50}
                   value={usarMax ? String(Math.round(result.precioMaximoUF)) : manualPrecioUF}
@@ -777,6 +788,19 @@ export default function CalcularPage() {
                 ))}
               </div>
             </div>
+
+            {/* Ungated property-matching — no email/auth required (LUI-9) */}
+            {result.precioEvaluadoUF > 0 && (
+              <div style={{ marginBottom: "24px" }}>
+                <OpportunitiesView
+                  priceUF={result.precioEvaluadoUF}
+                  city={city}
+                  comuna={comuna}
+                  operacion="venta"
+                  tipoPropiedad={tipoPropiedad}
+                />
+              </div>
+            )}
 
             {/* ── Below tab: existing lead-gen/monetization mechanisms (AC-6, unchanged) ── */}
             {comparison && canAnalyze && (
