@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import RateAlertSignup from "@/components/RateAlertSignup";
 
 const cities = [
@@ -86,7 +87,7 @@ export default function BuscarPage() {
 
         {/* Header */}
         <header style={{ marginBottom: "40px" }}>
-          <a
+          <Link
             href="/"
             style={{
               display: "inline-flex",
@@ -98,7 +99,7 @@ export default function BuscarPage() {
             }}
           >
             ← Volver al inicio
-          </a>
+          </Link>
           <h1
             style={{
               fontSize: "clamp(26px, 4vw, 34px)",

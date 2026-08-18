@@ -220,15 +220,12 @@ export function calc20YearComparison(
   let breakEvenYear = -1;
   let cumBuy = initialInvestment;
   let cumRent = 0;
-  let cumRentInvestment = 0; // pie invested + monthly savings
-  let cumInvestRentalIncome = 0; // rental income for investment scenario
 
   const yearlySnapshots: { year: number; buy: number; rent: number; invest: number }[] = [
     { year: 0, buy: 0, rent: 0, invest: 0 },
   ];
 
   const monthlyInvRate = Math.pow(1 + annualInvestmentReturn, 1 / 12) - 1;
-  let pieAtStart = initialInvestment; // for rent scenario: pie grows each year
 
   for (let year = 1; year <= termYears; year++) {
     cumBuy += buyMonthlyCost * 12;

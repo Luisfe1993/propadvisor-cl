@@ -909,7 +909,7 @@ export default function CalcularPage() {
                           : "Compara con otras propiedades, accede cuando quieras."}
                       </p>
                       {saveStatus === "saved" ? (
-                        <a href="/dashboard"
+                        <Link href="/dashboard"
                           style={{
                             display: "block", width: "100%", padding: "14px 24px", textAlign: "center",
                             background: "white", color: "#0f766e",
@@ -917,7 +917,7 @@ export default function CalcularPage() {
                             fontSize: "15px", fontWeight: 800, textDecoration: "none",
                           }}>
                           Ver mi portfolio →
-                        </a>
+                        </Link>
                       ) : (
                         <button
                           onClick={async () => {

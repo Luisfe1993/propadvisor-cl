@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { esES } from "@clerk/localizations";
+import Link from "next/link";
 import "./globals.css";
 import { MobileNav } from "./MobileNav";
 import { NavAuth } from "./NavAuth";
@@ -129,7 +130,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             }}
           >
             {/* Logo */}
-            <a
+            <Link
               href="/"
               aria-label="PropAdvisor CL — inicio"
               style={{
@@ -157,7 +158,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               >
                 CL
               </span>
-            </a>
+            </Link>
 
             {/* Nav links — hidden on mobile */}
             <ul
