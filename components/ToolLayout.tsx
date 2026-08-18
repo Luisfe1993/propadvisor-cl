@@ -209,7 +209,7 @@ interface ToolLayoutProps {
   showInsurance?: boolean;
   emailCapture?: { ctaText: string; valueProp: string };
   toolData?: Record<string, unknown>;
-  opportunities?: { priceUF: number; city: string; comuna?: string };
+  opportunities?: { priceUF: number; city: string; comuna?: string; operacion?: "venta" | "arriendo" };
   relatedSlugs?: string[];
 }
 
@@ -256,7 +256,7 @@ export default function ToolLayout({
         {opportunities && (
           <div style={{ marginBottom: "24px" }}>
             <p style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--accent)", marginBottom: "12px" }}>Propiedades en tu rango</p>
-            <OpportunitiesView priceUF={opportunities.priceUF} city={opportunities.city} comuna={opportunities.comuna} />
+            <OpportunitiesView priceUF={opportunities.priceUF} city={opportunities.city} comuna={opportunities.comuna} operacion={opportunities.operacion} />
           </div>
         )}
 

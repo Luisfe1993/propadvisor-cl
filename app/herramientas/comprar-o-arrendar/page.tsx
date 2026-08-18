@@ -82,7 +82,7 @@ export default function ComprarOArendarPage() {
       showInsurance={result?.winner === "comprar"}
       emailCapture={result ? { ctaText: "Enviar resultado", valueProp: "Recibe el resultado completo con gráfico de proyección en tu correo." } : undefined}
       toolData={result ? { winner: result.winner, savings: result.savings, dividendo: result.dividendo } : undefined}
-      opportunities={result && priceUF > 0 ? { priceUF, city, comuna } : undefined}
+      opportunities={result && priceUF > 0 ? { priceUF, city, comuna, operacion: result.winner === "comprar" ? "venta" : "arriendo" } : undefined}
       result={result ? (
         <div>
           {/* Winner card */}

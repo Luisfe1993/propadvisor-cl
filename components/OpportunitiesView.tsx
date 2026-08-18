@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { track } from "@vercel/analytics";
+import { buildPortalInmobiliarioUrl, buildTocTocUrl } from "@/lib/externalPortalLinks";
 
 interface OpportunityProperty {
   id: string;
@@ -28,6 +29,8 @@ interface OpportunitiesViewProps {
   propertyType?: string;
   /** User's analyzed comuna/neighborhood */
   comuna?: string;
+  /** Buy vs. rent operation, for external portal links. Defaults to "venta". */
+  operacion?: "venta" | "arriendo";
 }
 
 function formatCLP(v: number): string {
@@ -38,7 +41,7 @@ function formatCLP(v: number): string {
   }).format(v);
 }
 
-export default function OpportunitiesView({ priceUF, city, propertyType, comuna }: OpportunitiesViewProps) {
+export default function OpportunitiesView({ priceUF, city, propertyType, comuna, operacion = "venta" }: OpportunitiesViewProps) {
   const [properties, setProperties] = useState<OpportunityProperty[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -94,6 +97,10 @@ export default function OpportunitiesView({ priceUF, city, propertyType, comuna 
   }
 
   if (properties.length === 0) return null;
+
+  const tipo = propertyType === "casa" ? "casa" : "departamento";
+  const portalInmobiliarioUrl = buildPortalInmobiliarioUrl({ tipo, cityId: city, comunaId: comuna, operacion });
+  const tocTocUrl = buildTocTocUrl({ tipo, cityId: city, comunaId: comuna, operacion });
 
   return (
     <div style={{ marginTop: "16px" }}>
@@ -209,6 +216,32 @@ export default function OpportunitiesView({ priceUF, city, propertyType, comuna 
             </div>
           </a>
         ))}
+      </div>
+
+      {/* External portal deep-links */}
+      <div style={{
+        display: "flex", gap: "10px", flexWrap: "wrap",
+        marginTop: "14px", padding: "14px 16px", borderRadius: "12px",
+        border: "1px solid var(--border)", background: "var(--bg-secondary)",
+      }}>
+        <a
+          href={portalInmobiliarioUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => track("external_portal_clicked", { portal: "portal_inmobiliario", city, comuna, operacion })}
+          style={{ fontSize: "13px", fontWeight: 600, color: "var(--accent)", textDecoration: "none" }}
+        >
+          Ver en Portal Inmobiliario →
+        </a>
+        <a
+          href={tocTocUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => track("external_portal_clicked", { portal: "toctoc", city, comuna, operacion })}
+          style={{ fontSize: "13px", fontWeight: 600, color: "var(--accent)", textDecoration: "none" }}
+        >
+          Ver en TocToc →
+        </a>
       </div>
 
       {/* View more link */}
