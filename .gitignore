@@ -45,3 +45,14 @@ next-env.d.ts
 
 .claude/
 .env
+
+# personal / non-app materials — keep the loop's working tree clean
+.copilot/
+docs/
+output/
+tasks/
+scripts/inspect_deck.py
+scripts/pitch_deck.py
+scripts/pitch_deck_v4.py
+scripts/pitch_deck_v5.py
+scripts/pitch_deck_v6.py
