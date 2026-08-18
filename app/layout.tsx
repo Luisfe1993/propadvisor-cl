@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -62,6 +62,16 @@ export const metadata: Metadata = {
     images: ["/opengraph-image"],
   },
   alternates: { canonical: "https://www.propadvisor.site" },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "PropAdvisor",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0d9488",
 };
 
 // JSON-LD: WebApplication + Organization
